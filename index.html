@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donolauto — Concessionaria Auto Usate Legnaro (PD)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #F5F4F0; }
+    select { font-family: 'DM Sans', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #F5F4F0; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const C = {
+      bg: "#F5F4F0", white: "#FFFFFF", ink: "#1A1A1A", muted: "#888",
+      accent: "#CC1F1F", border: "#E2E0DA", dark: "#111111",
+    };
+
+    // ─── DATI AUTO ─────────────────────────────────────────────────────────────
+    // Modifica questo array per aggiungere/rimuovere auto dallo stock
+    const CARS = [
+      {
+        id:1, brand:"BMW", model:"Serie 3 320d", year:2021, fuel:"Diesel",
+        price:29900, km:38000, hp:190, color:"Bianco Alpino",
+        transmission:"Automatico", doors:4, special:true,
+        gradient:"linear-gradient(135deg,#ddd,#f5f5f5)",
+        desc:"Perfetta condizione, tagliando BMW effettuato, sedili riscaldati, navigatore professionale. Un solo proprietario.",
+        features:["Virtual Cockpit","Sedili riscaldati","Nav Pro","Cerchi 18\"","Camera posteriore"]
+      },
+      {
+        id:2, brand:"Volkswagen", model:"Golf 1.5 TSI", year:2022, fuel:"Benzina",
+        price:22500, km:21000, hp:130, color:"Grigio Urano",
+        transmission:"Manuale", doors:5, special:false,
+        gradient:"linear-gradient(135deg,#999,#ccc)",
+        desc:"Prima immatricolazione italiana, un solo proprietario, garanzia attiva. Storico tagliandi completo.",
+        features:["App-Connect","Lane Assist","Frenata automatica","LED"]
+      },
+      {
+        id:3, brand:"Audi", model:"A4 2.0 TDI", year:2020, fuel:"Diesel",
+        price:26800, km:55000, hp:150, color:"Nero Mythos",
+        transmission:"Automatico", doors:4, special:true,
+        gradient:"linear-gradient(135deg,#1a1a1a,#444)",
+        desc:"Full optional. Pelle, Virtual Cockpit, Matrix LED. La massima tecnologia Audi in questa fascia.",
+        features:["Virtual Cockpit","Pelle nappa","Matrix LED","Cerchi 19\"","B&O Sound"]
+      },
+      {
+        id:4, brand:"Toyota", model:"Yaris Cross", year:2023, fuel:"Ibrido",
+        price:19900, km:8000, hp:116, color:"Rosso",
+        transmission:"Automatico", doors:5, special:false,
+        gradient:"linear-gradient(135deg,#900,#c33)",
+        desc:"Quasi nuova. Garanzia Toyota attiva, consumi bassissimi. Ideale per uso urbano ed extraurbano.",
+        features:["Full Hybrid","Toyota Safety Sense","Camera 360°","Navi 9\""]
+      },
+      {
+        id:5, brand:"Mercedes", model:"Classe A 180d", year:2021, fuel:"Diesel",
+        price:24500, km:32000, hp:116, color:"Blu Cavansite",
+        transmission:"Automatico", doors:5, special:false,
+        gradient:"linear-gradient(135deg,#0a2a5e,#1a4a8e)",
+        desc:"MBUX dual-screen, sedili comfort, parking assist. Interni curatissimi, nessun graffio.",
+        features:["MBUX","Parking Assist","LED","Cerchi 17\""]
+      },
+      {
+        id:6, brand:"Porsche", model:"Cayenne 3.0 V6", year:2019, fuel:"Benzina",
+        price:58900, km:68000, hp:340, color:"Grigio Platino",
+        transmission:"Automatico", doors:5, special:true,
+        gradient:"linear-gradient(135deg,#3a3a3a,#777)",
+        desc:"BOSE, tetto panoramico, Sport Chrono. Un SUV senza rivali a questo prezzo di mercato.",
+        features:["Sport Chrono","BOSE","Tetto panoramico","Aria sospesa","Pelle bi-colore"]
+      },
+      {
+        id:7, brand:"Renault", model:"Captur E-Tech", year:2022, fuel:"Ibrido",
+        price:17900, km:18000, hp:145, color:"Arancio",
+        transmission:"Automatico", doors:5, special:false,
+        gradient:"linear-gradient(135deg,#b84e00,#e87020)",
+        desc:"Ibrido full, consumi ridottissimi in città. Ottimo bagagliaio, perfetta per famiglie.",
+        features:["Full Hybrid","BOSE","Navi 9.3\"","Wireless charging"]
+      },
+      {
+        id:8, brand:"Ford", model:"Mustang Mach-E", year:2022, fuel:"Elettrico",
+        price:36500, km:24000, hp:294, color:"Bianco Ghiaccio",
+        transmission:"Automatico", doors:5, special:true,
+        gradient:"linear-gradient(135deg,#d0d0d0,#f8f8f8)",
+        desc:"540km WLTP, SYNC4 con schermo 15.5\", ricarica AC/DC inclusa. Il futuro dell'icona americana.",
+        features:["540km WLTP","SYNC 4","Pelle Miko","Tetto panoramico","B&O Sound"]
+      },
+      {
+        id:9, brand:"Alfa Romeo", model:"Giulia 2.0 T", year:2020, fuel:"Benzina",
+        price:31500, km:44000, hp:200, color:"Rosso Alfa",
+        transmission:"Automatico", doors:4, special:true,
+        gradient:"linear-gradient(135deg,#7a0000,#bb0000)",
+        desc:"DNA del motorsport italiano. Distribuzione 50/50, sterzo diretto, sound inimitabile.",
+        features:["DNA selector","Sedili Sparco","Harman Kardon","LED","Cerchi 18\""]
+      },
+    ];
+
+    const BRANDS = [...new Set(CARS.map(c=>c.brand))].sort();
+    const FUELS  = [...new Set(CARS.map(c=>c.fuel))].sort();
+    const fmt    = p => "€ " + p.toLocaleString("it-IT");
+    const fmtKm  = k => k.toLocaleString("it-IT") + " km";
+
+    // ─── COMPONENTE PRINCIPALE ────────────────────────────────────────────────
+    function Site() {
+      const [page,    setPage]    = useState("stock");
+      const [filters, setFilters] = useState({brand:"",model:"",fuel:"",priceMax:""});
+      const [car,     setCar]     = useState(null);
+
+      const models   = filters.brand
+        ? [...new Set(CARS.filter(c=>c.brand===filters.brand).map(c=>c.model))]
+        : [];
+
+      const filtered = CARS.filter(c=>{
+        if(filters.brand    && c.brand !== filters.brand)              return false;
+        if(filters.model    && c.model !== filters.model)              return false;
+        if(filters.fuel     && c.fuel  !== filters.fuel)               return false;
+        if(filters.priceMax && c.price > parseInt(filters.priceMax))   return false;
+        return true;
+      });
+
+      const NAV = [
+        ["stock","Stock Auto"],
+        ["special","Special Cars"],
+        ["storia","Chi Siamo"],
+        ["contatti","Contatti"]
+      ];
+
+      return (
+        <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg,minHeight:"100vh",color:C.ink}}>
+
+          {/* ── HEADER ── */}
+          <header style={{background:C.white,borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,zIndex:100,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 36px",height:62}}>
+            <div onClick={()=>setPage("stock")} style={{fontFamily:"'Playfair Display',serif",fontSize:21,fontWeight:700,letterSpacing:"0.04em",cursor:"pointer",userSelect:"none"}}>
+              DONO<span style={{color:C.accent}}>LAUTO</span>
+              <span style={{fontSize:11,fontWeight:400,color:C.muted,marginLeft:10,letterSpacing:"0.06em"}}>LEGNARO · PD</span>
+            </div>
+            <nav style={{display:"flex",gap:28}}>
+              {NAV.map(([id,label])=>(
+                <button key={id} onClick={()=>setPage(id)} style={{
+                  fontFamily:"'DM Sans',sans-serif",fontSize:11,fontWeight:600,
+                  letterSpacing:"0.1em",textTransform:"uppercase",
+                  color:page===id?C.ink:C.muted,
+                  background:"none",border:"none",
+                  borderBottom:page===id?`2px solid ${C.accent}`:"2px solid transparent",
+                  paddingBottom:3,cursor:"pointer",transition:"color .15s"
+                }}>{label}</button>
+              ))}
+            </nav>
+          </header>
+
+          {/* ── STOCK AUTO ── */}
+          {page==="stock" && (
+            <>
+              {/* Barra filtri */}
+              <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"26px 36px"}}>
+                <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:400,margin:"0 0 18px"}}>
+                  Trova la tua prossima auto
+                </h1>
+                <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
+                  <Sel value={filters.brand} onChange={v=>setFilters({...filters,brand:v,model:""})} label="Marca">
+                    {BRANDS.map(b=><option key={b} value={b}>{b}</option>)}
+                  </Sel>
+                  <Sel value={filters.model} onChange={v=>setFilters({...filters,model:v})} label="Modello" disabled={!filters.brand}>
+                    {models.map(m=><option key={m} value={m}>{m}</option>)}
+                  </Sel>
+                  <Sel value={filters.fuel} onChange={v=>setFilters({...filters,fuel:v})} label="Alimentazione">
+                    {FUELS.map(f=><option key={f} value={f}>{f}</option>)}
+                  </Sel>
+                  <Sel value={filters.priceMax} onChange={v=>setFilters({...filters,priceMax:v})} label="Prezzo max">
+                    {[
+                      ["15000","fino a € 15.000"],["20000","fino a € 20.000"],
+                      ["25000","fino a € 25.000"],["30000","fino a € 30.000"],
+                      ["40000","fino a € 40.000"],["60000","fino a € 60.000"]
+                    ].map(([v,l])=><option key={v} value={v}>{l}</option>)}
+                  </Sel>
+                  <button
+                    onClick={()=>setFilters({brand:"",model:"",fuel:"",priceMax:""})}
+                    style={{padding:"10px 16px",background:"transparent",color:C.muted,border:`1.5px solid ${C.border}`,borderRadius:8,fontSize:13,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}
+                  >✕ Reset</button>
+                </div>
+              </div>
+
+              {/* Griglia auto */}
+              <div style={{padding:"26px 36px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+                  <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:400,margin:0}}>Stock disponibile</h2>
+                  <span style={{fontSize:12,color:C.muted,fontWeight:500}}>{filtered.length} auto trovate</span>
+                </div>
+                {filtered.length===0
+                  ? <div style={{textAlign:"center",padding:"60px 0",color:C.muted,fontSize:15}}>
+                      Nessun veicolo corrisponde ai filtri selezionati.
+                    </div>
+                  : <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",gap:16}}>
+                      {filtered.map(c=><Card key={c.id} car={c} onClick={()=>setCar(c)}/>)}
+                    </div>
+                }
+              </div>
+            </>
+          )}
+
+          {/* ── SPECIAL CARS ── */}
+          {page==="special" && (
+            <div style={{background:C.dark,minHeight:"calc(100vh - 62px)",padding:"50px 36px"}}>
+              <div style={{maxWidth:1100,margin:"0 auto"}}>
+                <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:"#444",marginBottom:8}}>
+                  SELEZIONE ESCLUSIVA
+                </div>
+                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:36,fontWeight:400,color:"white",margin:"0 0 36px"}}>
+                  Special Cars
+                </h2>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:16}}>
+                  {CARS.filter(c=>c.special).map(c=><DarkCard key={c.id} car={c} onClick={()=>setCar(c)}/>)}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── CHI SIAMO ── */}
+          {page==="storia" && (
+            <div style={{padding:"70px 36px"}}>
+              <div style={{maxWidth:660,margin:"0 auto",textAlign:"center"}}>
+                <div style={{fontFamily:"'Playfair Display',serif",fontSize:96,fontWeight:700,color:C.accent,opacity:0.1,lineHeight:1,userSelect:"none"}}>
+                  1975
+                </div>
+                <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:30,fontWeight:400,margin:"-18px 0 22px"}}>
+                  Oltre 50 anni di passione per l'auto
+                </h2>
+                {[
+                  "Donolauto nasce a Legnaro nel cuore della provincia di Padova. Da oltre mezzo secolo la famiglia affianca i clienti nella scelta dell'auto giusta: un consulente di fiducia, non un semplice venditore.",
+                  "Ogni auto nel nostro stock passa dalla nostra officina interna: viene preparata, revisionata e certificata prima di essere proposta. Nessuna sorpresa, solo trasparenza.",
+                  "Con oltre 120 vetture vendute ogni anno e una rete di clienti fidelizzati nell'area Padova–Venezia, Donolauto è sinonimo di qualità e serietà nel mercato dell'usato multi-brand."
+                ].map((t,i)=>(
+                  <p key={i} style={{fontSize:15,lineHeight:1.85,color:"#666",margin:"0 0 16px"}}>{t}</p>
+                ))}
+                <div style={{display:"flex",justifyContent:"center",gap:48,marginTop:48}}>
+                  {[["50+","Anni di attività"],["120+","Auto / anno"],["1","Officina interna"]].map(([n,l])=>(
+                    <div key={l}>
+                      <div style={{fontFamily:"'Playfair Display',serif",fontSize:36,fontWeight:700,color:C.accent}}>{n}</div>
+                      <div style={{fontSize:11,color:C.muted,marginTop:4,letterSpacing:"0.04em"}}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── CONTATTI ── */}
+          {page==="contatti" && (
+            <div style={{padding:"56px 36px",maxWidth:540,margin:"0 auto"}}>
+              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:30,fontWeight:400,margin:"0 0 6px"}}>Contattaci</h2>
+              <p style={{color:C.muted,fontSize:14,margin:"0 0 28px"}}>Siamo a Legnaro (PD). Vieni a trovarci o scrivici.</p>
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                {[
+                  ["📍","Indirizzo","Via Romea 121, 35020 Legnaro (PD)"],
+                  ["📞","Telefono","+39 049 — — — ——"],
+                  ["✉️","Email","info@donolauto.it"],
+                  ["🕐","Orari","Lun–Ven 9:00–12:30 · 14:30–19:00 · Sab 9:00–12:30"]
+                ].map(([icon,label,value])=>(
+                  <div key={label} style={{display:"flex",gap:14,padding:"14px 16px",background:C.white,borderRadius:10,border:`1px solid ${C.border}`,alignItems:"center"}}>
+                    <span style={{fontSize:20}}>{icon}</span>
+                    <div>
+                      <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:C.muted,marginBottom:3}}>{label}</div>
+                      <div style={{fontSize:14,fontWeight:500}}>{value}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button style={{marginTop:24,width:"100%",padding:14,background:C.accent,color:"white",border:"none",borderRadius:8,fontSize:13,fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+                📞 Chiama ora
+              </button>
+            </div>
+          )}
+
+          {/* ── MODAL DETTAGLIO AUTO ── */}
+          {car && <Modal car={car} onClose={()=>setCar(null)}/>}
+
+        </div>
+      );
+    }
+
+    // ─── SELECT HELPER ────────────────────────────────────────────────────────
+    function Sel({value, onChange, label, disabled, children}) {
+      return (
+        <div style={{position:"relative",flex:1,minWidth:145}}>
+          <select
+            value={value} disabled={disabled}
+            onChange={e=>onChange(e.target.value)}
+            style={{
+              width:"100%",padding:"10px 32px 10px 13px",
+              border:`1.5px solid ${C.border}`,borderRadius:8,
+              fontSize:13,color:value?C.ink:C.muted,
+              background:C.white,cursor:disabled?"not-allowed":"pointer",
+              outline:"none",appearance:"none",WebkitAppearance:"none",
+              opacity:disabled?0.5:1
+            }}
+          >
+            <option value="">{label}</option>
+            {children}
+          </select>
+          <span style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",pointerEvents:"none",fontSize:10,color:C.muted}}>▾</span>
+        </div>
+      );
+    }
+
+    // ─── CARD STOCK ───────────────────────────────────────────────────────────
+    function Card({car, onClick}) {
+      const [h, setH] = useState(false);
+      return (
+        <div
+          onClick={onClick}
+          onMouseEnter={()=>setH(true)}
+          onMouseLeave={()=>setH(false)}
+          style={{
+            background:C.white,borderRadius:12,overflow:"hidden",
+            cursor:"pointer",border:`1px solid ${C.border}`,
+            transform:h?"translateY(-4px)":"none",
+            boxShadow:h?"0 14px 36px rgba(0,0,0,.09)":"0 2px 6px rgba(0,0,0,.04)",
+            transition:"all .2s ease"
+          }}
+        >
+          <div style={{width:"100%",aspectRatio:"16/10",background:car.gradient,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
+            <span style={{fontSize:50,opacity:.2}}>🚗</span>
+            {car.special && (
+              <div style={{position:"absolute",top:8,right:8,background:C.accent,color:"white",fontSize:9,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",padding:"3px 7px",borderRadius:4}}>
+                ★ SPECIAL
+              </div>
+            )}
+          </div>
+          <div style={{padding:"13px 15px"}}>
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:C.muted,marginBottom:3}}>{car.brand}</div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:600,marginBottom:7}}>{car.model}</div>
+            <div style={{display:"flex",gap:8,fontSize:11,color:C.muted,marginBottom:9}}>
+              <span>{car.year}</span><span>·</span><span>{fmtKm(car.km)}</span><span>·</span><span>{car.fuel}</span>
+            </div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,color:C.accent}}>{fmt(car.price)}</div>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── CARD SPECIAL (dark) ──────────────────────────────────────────────────
+    function DarkCard({car, onClick}) {
+      const [h, setH] = useState(false);
+      return (
+        <div
+          onClick={onClick}
+          onMouseEnter={()=>setH(true)}
+          onMouseLeave={()=>setH(false)}
+          style={{borderRadius:12,overflow:"hidden",border:"1px solid #2a2a2a",cursor:"pointer",transform:h?"translateY(-4px)":"none",transition:"transform .2s ease"}}
+        >
+          <div style={{width:"100%",aspectRatio:"16/10",background:car.gradient,display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <span style={{fontSize:50,opacity:.25}}>🚗</span>
+          </div>
+          <div style={{padding:"13px 15px",background:"#1a1a1a"}}>
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:"#444",marginBottom:3}}>{car.brand}</div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:600,color:"white",marginBottom:7}}>{car.model}</div>
+            <div style={{display:"flex",gap:8,fontSize:11,color:"#555",marginBottom:9}}>
+              <span>{car.year}</span><span>·</span><span>{fmtKm(car.km)}</span>
+            </div>
+            <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,color:C.accent}}>{fmt(car.price)}</div>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── MODAL DETTAGLIO ──────────────────────────────────────────────────────
+    function Modal({car, onClose}) {
+      return (
+        <div
+          onClick={onClose}
+          style={{position:"fixed",inset:0,background:"rgba(0,0,0,.75)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}
+        >
+          <div
+            onClick={e=>e.stopPropagation()}
+            style={{background:C.white,borderRadius:16,maxWidth:740,width:"100%",maxHeight:"90vh",overflowY:"auto",position:"relative"}}
+          >
+            <button
+              onClick={onClose}
+              style={{position:"absolute",top:12,right:12,background:"rgba(0,0,0,.5)",color:"white",border:"none",borderRadius:"50%",width:32,height:32,cursor:"pointer",fontSize:14,zIndex:10,lineHeight:"32px",textAlign:"center"}}
+            >✕</button>
+
+            <div style={{width:"100%",aspectRatio:"16/9",background:car.gradient,borderRadius:"16px 16px 0 0",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <span style={{fontSize:80,opacity:.2}}>🚗</span>
+            </div>
+
+            <div style={{padding:"24px 28px 28px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,marginBottom:20,flexWrap:"wrap"}}>
+                <div>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:C.muted,marginBottom:4}}>{car.brand}</div>
+                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:700}}>
+                    {car.model} <span style={{fontWeight:400,opacity:.7}}>{car.year}</span>
+                  </div>
+                </div>
+                <div style={{fontFamily:"'Playfair Display',serif",fontSize:28,fontWeight:700,color:C.accent,flexShrink:0}}>
+                  {fmt(car.price)}
+                </div>
+              </div>
+
+              {/* Specifiche */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:1,background:C.border,borderRadius:10,overflow:"hidden",marginBottom:20}}>
+                {[
+                  [fmtKm(car.km),"Chilometri"],
+                  [car.hp+" CV","Potenza"],
+                  [car.transmission,"Cambio"],
+                  [car.fuel,"Alimentazione"],
+                  [car.color,"Colore"],
+                  [car.doors+" porte","Carrozzeria"]
+                ].map(([v,l])=>(
+                  <div key={l} style={{background:C.bg,padding:"13px",textAlign:"center"}}>
+                    <div style={{fontSize:14,fontWeight:600}}>{v}</div>
+                    <div style={{fontSize:10,color:C.muted,marginTop:3}}>{l}</div>
+                  </div>
+                ))}
+              </div>
+
+              <p style={{fontSize:14,lineHeight:1.75,color:"#666",marginBottom:16}}>{car.desc}</p>
+
+              <div style={{marginBottom:22}}>
+                {car.features.map(f=>(
+                  <span key={f} style={{display:"inline-block",padding:"3px 10px",background:C.bg,borderRadius:20,fontSize:11,margin:"3px",border:`1px solid ${C.border}`,fontWeight:500}}>{f}</span>
+                ))}
+              </div>
+
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                <button style={{padding:14,background:C.accent,color:"white",border:"none",borderRadius:8,fontSize:12,fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+                  📞 Chiama ora
+                </button>
+                <button style={{padding:14,background:"transparent",color:C.ink,border:`1.5px solid ${C.border}`,borderRadius:8,fontSize:12,fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'DM Sans',sans-serif"}}>
+                  ✉️ Scrivi
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── AVVIO ────────────────────────────────────────────────────────────────
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<Site/>);
+  </script>
+</body>
+</html>
