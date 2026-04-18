@@ -3,369 +3,768 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Donolauto — Concessionaria auto usate multi-brand a Legnaro (PD). Stock sempre aggiornato."/>
+  <meta name="description" content="Donolauto — Concessionaria auto usate multi-brand a Legnaro (PD). Stock aggiornato, prezzi competitivi, garanzia e trasparenza."/>
+  <meta name="keywords" content="auto usate Legnaro, concessionaria Padova, auto usate Padova, vendita auto usate PD"/>
+  <meta property="og:title" content="Donolauto — Auto Usate Legnaro (PD)"/>
+  <meta property="og:description" content="Oltre 50 anni di esperienza nel settore auto usate. Stock sempre aggiornato a Legnaro (PD)."/>
+  <meta property="og:type" content="website"/>
   <title>Donolauto — Auto Usate Legnaro (PD)</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23CC1F1F'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='20' font-family='Georgia,serif' font-weight='bold'>D</text></svg>"/>
+
+  <!-- Schema.org AutoDealer -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"AutoDealer","name":"Donolauto S.r.l.","image":"","url":"https://donolautosrl.github.io/nuovo-sito/","telephone":"+39 351 8707610","address":{"@type":"PostalAddress","streetAddress":"Via Romea 121","addressLocality":"Legnaro","addressRegion":"PD","postalCode":"35020","addressCountry":"IT"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:00","closes":"12:30"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"14:30","closes":"19:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Saturday"],"opens":"09:00","closes":"12:30"}]}
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <style>
+    :root{
+      --bg:#F5F4F0;--white:#fff;--ink:#1A1A1A;--muted:#888;
+      --accent:#CC1F1F;--border:#E2E0DA;--dark:#111;
+      --radius:10px;--shadow:0 2px 8px rgba(0,0,0,.06);
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html{scroll-behavior:smooth;}
-    body{background:#F5F4F0;font-family:'DM Sans',sans-serif;}
-    select,button{font-family:'DM Sans',sans-serif;}
-    ::-webkit-scrollbar{width:6px;}
-    ::-webkit-scrollbar-track{background:#F5F4F0;}
+    body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);min-height:100vh;}
+    img{display:block;max-width:100%;}
+    a{color:inherit;}
+    button,select,input{font-family:'DM Sans',sans-serif;}
+    ::-webkit-scrollbar{width:5px;}
     ::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
-    #cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a1a;color:#e5e5e5;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:3px solid #CC1F1F;}
+
+    /* ── HEADER ── */
+    header{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;gap:16px;}
+    .logo{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;letter-spacing:.04em;cursor:pointer;white-space:nowrap;user-select:none;}
+    .logo span{color:var(--accent);}
+    .logo small{font-size:11px;font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:.06em;}
+    nav{display:flex;gap:6px;align-items:center;}
+    nav a{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:6px;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s;}
+    nav a.active{color:var(--ink);border-bottom-color:var(--accent);}
+    .hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-direction:column;gap:5px;}
+    .hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all .25s;}
+    .hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px);}
+    .hamburger.open span:nth-child(2){opacity:0;}
+    .hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);}
+
+    /* ── MOBILE NAV ── */
+    @media(max-width:640px){
+      header{padding:0 18px;}
+      .hamburger{display:flex;}
+      nav{display:none;position:absolute;top:62px;left:0;right:0;background:var(--white);border-bottom:1px solid var(--border);flex-direction:column;padding:10px 18px 16px;gap:0;box-shadow:0 4px 20px rgba(0,0,0,.08);}
+      nav.open{display:flex;}
+      nav a{font-size:14px;padding:12px 6px;border-bottom:1px solid var(--border);border-radius:0;letter-spacing:.04em;}
+      nav a:last-child{border-bottom:none;}
+      nav a.active{color:var(--accent);border-bottom-color:var(--border);}
+    }
+
+    /* ── PAGES ── */
+    .page{display:none;}
+    .page.active{display:block;}
+
+    /* ── FILTER BAR ── */
+    .filter-bar{background:var(--white);border-bottom:1px solid var(--border);padding:22px 36px;}
+    .filter-bar h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;margin-bottom:16px;}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .filters select{flex:1;min-width:130px;max-width:200px;padding:10px 32px 10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--ink);background:var(--white);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .15s;}
+    .filters select:focus{border-color:var(--accent);}
+    .filters select:disabled{opacity:.45;cursor:not-allowed;}
+    .btn-reset{padding:10px 14px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+    .btn-reset:hover{border-color:#aaa;color:var(--ink);}
+
+    /* ── SORT BAR ── */
+    .sort-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 36px 4px;}
+    .sort-bar .count{font-size:12px;color:var(--muted);font-weight:500;}
+    .sort-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+    .sort-wrap select{padding:6px 28px 6px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;background:var(--white);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+
+    /* ── CAR GRID ── */
+    .car-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:14px 36px 40px;}
+    .empty-state{text-align:center;padding:80px 20px;color:var(--muted);}
+    .empty-state .icon{font-size:48px;margin-bottom:16px;}
+    .empty-state h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:8px;}
+    .loading-state{text-align:center;padding:80px 20px;color:var(--muted);font-size:14px;}
+
+    /* ── CAR CARD ── */
+    .car-card{background:var(--white);border-radius:12px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;}
+    .car-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.1);}
+    .car-thumb{width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#ddd,#eee);position:relative;overflow:hidden;}
+    .car-thumb img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+    .car-thumb .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px;opacity:.15;}
+    .badge-special{position:absolute;top:8px;right:8px;background:var(--accent);color:white;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:4px;}
+    .badge-photos{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.55);color:white;font-size:10px;padding:2px 7px;border-radius:10px;backdrop-filter:blur(2px);}
+    .badge-sold-thumb{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;}
+    .badge-sold-thumb span{background:rgba(129,140,248,.9);color:white;font-size:11px;font-weight:700;padding:5px 14px;border-radius:6px;letter-spacing:.06em;}
+    .car-info{padding:13px 14px;}
+    .car-brand{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+    .car-model{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:6px;line-height:1.3;}
+    .car-meta{font-size:11px;color:var(--muted);margin-bottom:8px;}
+    .car-price{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--accent);}
+    .car-sold-badge{display:inline-block;font-size:12px;font-weight:700;color:#818cf8;background:rgba(129,140,248,.12);padding:3px 10px;border-radius:6px;}
+
+    /* ── SPECIAL CARS PAGE ── */
+    .special-page{background:var(--dark);min-height:calc(100vh - 62px);padding:50px 36px;}
+    .special-page .eyebrow{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#444;margin-bottom:8px;}
+    .special-page h2{font-family:'Playfair Display',serif;font-size:36px;font-weight:400;color:white;margin-bottom:36px;}
+    .dark-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+    .dark-card{border-radius:12px;overflow:hidden;border:1px solid #2a2a2a;cursor:pointer;transition:transform .2s ease;}
+    .dark-card:hover{transform:translateY(-4px);}
+    .dark-card .car-info{background:#1a1a1a;}
+    .dark-card .car-brand{color:#444;}
+    .dark-card .car-model{color:white;}
+    .dark-card .car-meta{color:#555;}
+    .dark-empty{color:#444;text-align:center;padding:60px 0;font-size:14px;}
+
+    /* ── CHI SIAMO ── */
+    .storia-page{padding:70px 36px;}
+    .storia-inner{max-width:660px;margin:0 auto;text-align:center;}
+    .storia-year{font-family:'Playfair Display',serif;font-size:96px;font-weight:700;color:var(--accent);opacity:.1;line-height:1;user-select:none;}
+    .storia-h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;margin:-18px 0 22px;}
+    .storia-p{font-size:15px;line-height:1.85;color:#666;margin-bottom:14px;}
+    .stats{display:flex;justify-content:center;gap:48px;margin-top:48px;flex-wrap:wrap;}
+    .stat-n{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--accent);}
+    .stat-l{font-size:11px;color:var(--muted);margin-top:4px;}
+
+    /* ── CONTATTI ── */
+    .contatti-page{padding:56px 36px;max-width:540px;margin:0 auto;}
+    .contatti-page h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;margin-bottom:6px;}
+    .contatti-page p{color:var(--muted);font-size:14px;margin-bottom:24px;}
+    .contact-items{display:flex;flex-direction:column;gap:10px;}
+    .contact-item{display:flex;gap:14px;padding:13px 16px;background:var(--white);border-radius:10px;border:1px solid var(--border);align-items:center;text-decoration:none;color:inherit;transition:border-color .15s;}
+    .contact-item:hover{border-color:#aaa;}
+    .contact-icon{font-size:20px;flex-shrink:0;}
+    .contact-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+    .contact-val{font-size:14px;font-weight:500;}
+    .btn-call{display:block;margin-top:18px;width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;}
+    .btn-wa-contact{display:block;margin-top:10px;width:100%;padding:14px;background:#25D366;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;text-align:center;text-decoration:none;}
+    .map-link{display:block;margin-top:10px;text-align:center;font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer;}
+
+    /* ── FOOTER ── */
+    footer{background:#1a1a1a;color:#555;padding:22px 36px;display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;}
+    footer .copy{font-size:11px;line-height:1.8;}
+    footer .legal-links{display:flex;gap:16px;}
+    footer .legal-links button{background:none;border:none;color:#555;cursor:pointer;font-size:11px;text-decoration:underline;padding:0;}
+
+    /* ── WHATSAPP FLOATING ── */
+    .wa-float{position:fixed;bottom:24px;right:24px;z-index:90;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,211,102,.4);text-decoration:none;transition:transform .2s ease,box-shadow .2s ease;}
+    .wa-float:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(37,211,102,.5);}
+    .wa-float svg{width:28px;height:28px;fill:white;}
+
+    /* ── CAR MODAL ── */
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+    .modal-ov.hidden{display:none;}
+    .modal-box{background:var(--white);border-radius:16px;max-width:800px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
+    .modal-close{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.5);color:white;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:10;}
+    .modal-gallery{width:100%;aspect-ratio:16/9;background:#ddd;position:relative;overflow:hidden;border-radius:16px 16px 0 0;}
+    .modal-gallery img{width:100%;height:100%;object-fit:cover;}
+    .modal-gallery .placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.15;}
+    .gal-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:white;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;}
+    .gal-prev{left:10px;}
+    .gal-next{right:10px;}
+    .gal-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;}
+    .gal-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:background .15s;}
+    .gal-dot.active{background:white;}
+    .gal-count{position:absolute;bottom:10px;right:12px;background:rgba(0,0,0,.5);color:white;font-size:11px;padding:2px 8px;border-radius:10px;}
+    .modal-body{padding:22px 26px 26px;}
+    .modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+    .modal-brand{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+    .modal-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;}
+    .modal-year{font-weight:400;opacity:.7;}
+    .modal-price{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--accent);flex-shrink:0;}
+    .modal-sold{font-size:15px;font-weight:700;color:#818cf8;background:rgba(129,140,248,.12);padding:6px 16px;border-radius:8px;flex-shrink:0;}
+    .specs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;}
+    .spec-item{background:var(--bg);padding:12px;text-align:center;}
+    .spec-val{font-size:13px;font-weight:600;}
+    .spec-label{font-size:10px;color:var(--muted);margin-top:2px;}
+    .modal-desc{font-size:14px;line-height:1.75;color:#666;margin-bottom:14px;}
+    .features{margin-bottom:20px;}
+    .feature-tag{display:inline-block;padding:3px 10px;background:var(--bg);border-radius:20px;font-size:11px;margin:2px;border:1px solid var(--border);font-weight:500;}
+    .modal-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+    .btn-call-m{padding:13px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:block;text-align:center;}
+    .btn-wa-m{padding:13px;background:#25D366;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:block;text-align:center;}
+    .btn-email-m{padding:13px;background:transparent;color:var(--ink);border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:block;text-align:center;}
+    .as24-link{margin-top:10px;text-align:center;font-size:12px;}
+    .as24-link a{color:var(--muted);text-decoration:underline;}
+
+    /* ── LEGAL MODAL ── */
+    .legal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;}
+    .legal-ov.hidden{display:none;}
+    .legal-box{background:var(--white);border-radius:16px;max-width:680px;width:100%;max-height:85vh;overflow-y:auto;position:relative;padding:30px 32px 36px;}
+    .legal-close{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.35);color:white;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;}
+    .legal-box h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:4px;}
+    .legal-box .meta{font-size:11px;color:#999;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #eee;}
+    .legal-box h2{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin:20px 0 6px;}
+    .legal-box p,.legal-box li{font-size:14px;line-height:1.8;color:#555;margin-bottom:6px;}
+    .legal-box ul{padding-left:18px;}
+
+    /* ── COOKIE BANNER ── */
+    #cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#1a1a1a;color:#e5e5e5;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:3px solid var(--accent);}
     #cookie-banner.hidden{display:none;}
-    #cookie-banner p{font-size:13px;line-height:1.6;flex:1;min-width:220px;}
+    #cookie-banner p{font-size:13px;line-height:1.6;flex:1;min-width:200px;}
     #cookie-banner a{color:#e87070;text-decoration:underline;cursor:pointer;}
     .c-btns{display:flex;gap:8px;flex-shrink:0;}
-    .c-acc{background:#CC1F1F;color:white;border:none;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;}
-    .c-dec{background:transparent;color:#aaa;border:1.5px solid #444;padding:8px 18px;border-radius:7px;font-size:13px;cursor:pointer;}
-    .ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;}
-    .mb{background:#fff;border-radius:16px;max-width:780px;width:100%;max-height:90vh;overflow-y:auto;position:relative;}
-    .mc{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.45);color:white;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
-    .lc{padding:30px 34px 34px;}
-    .lc h1{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:4px;}
-    .lc h2{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin:22px 0 6px;}
-    .lc p,.lc li{font-size:14px;line-height:1.8;color:#555;margin-bottom:6px;}
-    .lc ul{padding-left:18px;}
-    .lc .meta{font-size:11px;color:#999;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid #eee;}
-    .card{transition:transform .2s ease,box-shadow .2s ease;cursor:pointer;}
-    .card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(0,0,0,.09);}
-    .dcard{transition:transform .2s ease;cursor:pointer;}
-    .dcard:hover{transform:translateY(-4px);}
+    .c-acc{background:var(--accent);color:white;border:none;padding:8px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;}
+    .c-dec{background:transparent;color:#aaa;border:1.5px solid #444;padding:8px 16px;border-radius:7px;font-size:13px;cursor:pointer;}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:640px){
+      .filter-bar,.sort-bar,.car-grid,.storia-page,.contatti-page,.special-page{padding-left:16px;padding-right:16px;}
+      .filter-bar{padding:18px 16px;}
+      .filters select{min-width:calc(50% - 4px);max-width:100%;flex:none;}
+      .car-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+      .car-model{font-size:14px;}
+      .car-price{font-size:17px;}
+      .modal-actions{grid-template-columns:1fr 1fr;gap:8px;}
+      .btn-email-m{grid-column:1/-1;}
+      .specs-grid{grid-template-columns:repeat(2,1fr);}
+      footer{padding:16px 18px;flex-direction:column;align-items:flex-start;gap:10px;}
+      .wa-float{bottom:16px;right:16px;width:50px;height:50px;}
+      .wa-float svg{width:24px;height:24px;}
+      .stats{gap:28px;}
+      #cookie-banner{padding:14px 16px;}
+      .sort-bar{padding:12px 16px 4px;flex-wrap:wrap;gap:8px;}
+    }
+    @media(max-width:400px){
+      .car-grid{grid-template-columns:1fr;}
+    }
   </style>
 </head>
 <body>
-<div id="root"></div>
 
+<!-- COOKIE BANNER -->
 <div id="cookie-banner">
-  <p>Questo sito usa solo cookie tecnici necessari al funzionamento. Nessun tracciamento.
-     <a onclick="showLegal('cookie')">Cookie Policy</a> ·
-     <a onclick="showLegal('privacy')">Privacy Policy</a></p>
+  <p>Questo sito usa solo cookie tecnici necessari. Nessun tracciamento.
+    <a onclick="openLegal('cookie')">Cookie Policy</a> ·
+    <a onclick="openLegal('privacy')">Privacy Policy</a>
+  </p>
   <div class="c-btns">
-    <button class="c-dec" onclick="setCookie(false)">Rifiuta</button>
-    <button class="c-acc" onclick="setCookie(true)">Accetta e chiudi</button>
+    <button class="c-dec" onclick="setCookieChoice(false)">Rifiuta</button>
+    <button class="c-acc" onclick="setCookieChoice(true)">Accetta e chiudi</button>
   </div>
 </div>
 
+<!-- HEADER -->
+<header>
+  <div class="logo" onclick="showPage('stock')">
+    DONO<span>LAUTO</span><small>LEGNARO · PD</small>
+  </div>
+  <button class="hamburger" id="menu-btn" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="main-nav">
+    <a onclick="showPage('stock')" data-page="stock" class="active">Stock Auto</a>
+    <a onclick="showPage('special')" data-page="special">Special Cars</a>
+    <a onclick="showPage('storia')" data-page="storia">Chi Siamo</a>
+    <a onclick="showPage('contatti')" data-page="contatti">Contatti</a>
+  </nav>
+</header>
+
+<!-- PAGE: STOCK -->
+<div id="page-stock" class="page active">
+  <div class="filter-bar">
+    <h1>Trova la tua prossima auto</h1>
+    <div class="filters">
+      <select id="f-brand" onchange="onFilterChange()"><option value="">Marca</option></select>
+      <select id="f-model" onchange="onFilterChange()" disabled><option value="">Modello</option></select>
+      <select id="f-fuel" onchange="onFilterChange()"><option value="">Alimentazione</option></select>
+      <select id="f-price" onchange="onFilterChange()">
+        <option value="">Prezzo max</option>
+        <option value="10000">fino a € 10.000</option>
+        <option value="15000">fino a € 15.000</option>
+        <option value="20000">fino a € 20.000</option>
+        <option value="25000">fino a € 25.000</option>
+        <option value="30000">fino a € 30.000</option>
+        <option value="40000">fino a € 40.000</option>
+        <option value="50000">fino a € 50.000</option>
+        <option value="70000">fino a € 70.000</option>
+        <option value="100000">fino a € 100.000</option>
+        <option value="150000">fino a € 150.000</option>
+      </select>
+      <select id="f-year" onchange="onFilterChange()">
+        <option value="">Anno min</option>
+        <option value="2015">dal 2015</option>
+        <option value="2018">dal 2018</option>
+        <option value="2020">dal 2020</option>
+        <option value="2022">dal 2022</option>
+        <option value="2023">dal 2023</option>
+        <option value="2024">dal 2024</option>
+      </select>
+      <select id="f-km" onchange="onFilterChange()">
+        <option value="">Km max</option>
+        <option value="20000">fino a 20.000 km</option>
+        <option value="50000">fino a 50.000 km</option>
+        <option value="80000">fino a 80.000 km</option>
+        <option value="100000">fino a 100.000 km</option>
+        <option value="150000">fino a 150.000 km</option>
+      </select>
+      <button class="btn-reset" onclick="resetFilters()">✕ Reset</button>
+    </div>
+  </div>
+  <div class="sort-bar">
+    <span class="count" id="result-count">Caricamento...</span>
+    <div class="sort-wrap">
+      <span>Ordina per</span>
+      <select id="sort-sel" onchange="onSortChange()">
+        <option value="newest">Più recenti</option>
+        <option value="price_asc">Prezzo ↑</option>
+        <option value="price_desc">Prezzo ↓</option>
+        <option value="year_desc">Anno più recente</option>
+        <option value="km_asc">Meno km</option>
+      </select>
+    </div>
+  </div>
+  <div class="car-grid" id="car-grid">
+    <div class="loading-state" style="grid-column:1/-1">Caricamento stock...</div>
+  </div>
+</div>
+
+<!-- PAGE: SPECIAL CARS -->
+<div id="page-special" class="page">
+  <div class="special-page">
+    <div style="max-width:1100px;margin:0 auto">
+      <div class="eyebrow">SELEZIONE ESCLUSIVA</div>
+      <h2>Special Cars</h2>
+      <div class="dark-grid" id="special-grid">
+        <div class="dark-empty">Caricamento...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: CHI SIAMO -->
+<div id="page-storia" class="page">
+  <div class="storia-page">
+    <div class="storia-inner">
+      <div class="storia-year">1975</div>
+      <h2 class="storia-h2">Oltre 50 anni di passione per l'auto</h2>
+      <p class="storia-p">Donolauto nasce a Legnaro nel cuore della provincia di Padova. Da oltre mezzo secolo la famiglia affianca i clienti nella scelta dell'auto giusta: un consulente di fiducia, non un semplice venditore.</p>
+      <p class="storia-p">Ogni auto nel nostro stock passa dalla nostra officina interna: viene preparata, revisionata e certificata prima di essere proposta. Nessuna sorpresa, solo trasparenza.</p>
+      <p class="storia-p">Con oltre 120 vetture vendute ogni anno e una rete di clienti fidelizzati nell'area Padova–Venezia, Donolauto è sinonimo di qualità e serietà nel mercato dell'usato multi-brand.</p>
+      <div class="stats">
+        <div><div class="stat-n">50+</div><div class="stat-l">Anni di attività</div></div>
+        <div><div class="stat-n">120+</div><div class="stat-l">Auto / anno</div></div>
+        <div><div class="stat-n">1</div><div class="stat-l">Officina interna</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: CONTATTI -->
+<div id="page-contatti" class="page">
+  <div class="contatti-page">
+    <h2>Contattaci</h2>
+    <p>Siamo a Legnaro (PD). Vieni a trovarci o scrivici.</p>
+    <div class="contact-items">
+      <a class="contact-item" href="https://www.google.com/maps/search/?api=1&query=Via+Romea+121+Legnaro+PD" target="_blank" rel="noopener">
+        <span class="contact-icon">📍</span>
+        <div><div class="contact-label">Indirizzo</div><div class="contact-val">Via Romea 121, 35020 Legnaro (PD)</div></div>
+      </a>
+      <a class="contact-item" href="tel:+393518707610">
+        <span class="contact-icon">📞</span>
+        <div><div class="contact-label">Cellulare</div><div class="contact-val">+39 351 8707610</div></div>
+      </a>
+      <a class="contact-item" href="tel:+390496412840">
+        <span class="contact-icon">📞</span>
+        <div><div class="contact-label">Fisso</div><div class="contact-val">+39 049 641284</div></div>
+      </a>
+      <a class="contact-item" href="mailto:info@donolauto.it">
+        <span class="contact-icon">✉️</span>
+        <div><div class="contact-label">Email</div><div class="contact-val">info@donolauto.it</div></div>
+      </a>
+      <div class="contact-item">
+        <span class="contact-icon">📧</span>
+        <div><div class="contact-label">PEC</div><div class="contact-val">donolautosrl@pec.it</div></div>
+      </div>
+      <div class="contact-item">
+        <span class="contact-icon">🕐</span>
+        <div><div class="contact-label">Orari</div><div class="contact-val">Lun–Ven 9:00–12:30 · 14:30–19:00 · Sab 9:00–12:30</div></div>
+      </div>
+    </div>
+    <a class="btn-call" href="tel:+393518707610">📞 Chiama ora</a>
+    <a class="btn-wa-contact" href="https://wa.me/393518707610?text=Ciao%20Donolauto%2C%20vorrei%20informazioni%20sulle%20auto%20disponibili." target="_blank" rel="noopener">
+      💬 Scrivici su WhatsApp
+    </a>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Via+Romea+121+Legnaro+PD" target="_blank" rel="noopener">
+      🗺 Apri in Google Maps
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="copy">
+    © <span id="copy-year"></span> Donolauto S.r.l. · Via Romea 121, 35020 Legnaro (PD) · P.IVA: IT 05258940286<br/>
+    Tel: +39 351 8707610 / +39 049 641284 · PEC: donolautosrl@pec.it
+  </div>
+  <div class="legal-links">
+    <button onclick="openLegal('privacy')">Privacy Policy</button>
+    <button onclick="openLegal('cookie')">Cookie Policy</button>
+  </div>
+</footer>
+
+<!-- WHATSAPP FLOATING -->
+<a class="wa-float" href="https://wa.me/393518707610?text=Ciao%20Donolauto%2C%20vorrei%20informazioni%20sulle%20auto%20disponibili." target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<!-- CAR MODAL -->
+<div class="modal-ov hidden" id="car-modal" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-content"></div>
+</div>
+
+<!-- LEGAL MODAL -->
+<div class="legal-ov hidden" id="legal-modal" onclick="closeLegal(event)">
+  <div class="legal-box" id="legal-content"></div>
+</div>
+
 <script>
-  const { createClient } = window.supabase;
-  const db = createClient(
-    'https://lropvrandavyegoclpyh.supabase.co',
-    'sb_publishable_TUbIHm4OPAt9mkN4zeVIuA_GllRYFsn'
-  );
-  function setCookie(a){localStorage.setItem('dnl_cc',a?'1':'0');localStorage.setItem('dnl_cd',Date.now());document.getElementById('cookie-banner').classList.add('hidden');}
-  function showLegal(t){window._showLegal&&window._showLegal(t);}
-  (function(){const c=localStorage.getItem('dnl_cc'),d=localStorage.getItem('dnl_cd');if(c&&d&&Date.now()-d<365*864e5)document.getElementById('cookie-banner').classList.add('hidden');})();
-</script>
+const { createClient } = window.supabase;
+const db = createClient(
+  'https://lropvrandavyegoclpyh.supabase.co',
+  'sb_publishable_TUbIHm4OPAt9mkN4zeVIuA_GllRYFsn'
+);
 
-<script type="text/babel">
-  const { useState, useEffect } = React;
-  const C = {bg:'#F5F4F0',white:'#FFFFFF',ink:'#1A1A1A',muted:'#888',accent:'#CC1F1F',border:'#E2E0DA',dark:'#111111'};
-  const A = {nome:'Donolauto S.r.l.',indirizzo:'Via Romea 121, 35020 Legnaro (PD)',piva:'IT 05258940286',pec:'donolautosrl@pec.it',email:'info@donolauto.it',tel1:'+39 351 8707610',tel2:'+39 049 641284',orari:'Lun–Ven 9:00–12:30 · 14:30–19:00 · Sab 9:00–12:30'};
-  const fmt = p => '€ ' + parseInt(p||0).toLocaleString('it-IT');
-  const fmtKm = k => parseInt(k||0).toLocaleString('it-IT') + ' km';
+// ── STATE ──
+let ALL_CARS = [];
+let MODAL_CAR = null;
+let MODAL_IDX = 0;
+const F = { brand:'', model:'', fuel:'', price:'', year:'', km:'' };
+let SORT = 'newest';
 
-  const PRIVACY = {title:'Privacy Policy',updated:'18 aprile 2025',sections:[
-    {h:'1. Titolare',p:`${A.nome} · ${A.indirizzo} · P.IVA: ${A.piva} · PEC: ${A.pec}`},
-    {h:'2. Dati raccolti',p:'Solo dati forniti volontariamente via modulo contatto. Nessun tracciamento, nessun cookie di profilazione.'},
-    {h:'3. Finalità',p:'Rispondere alle richieste degli utenti. Nessuna cessione a terzi.'},
-    {h:'4. Base giuridica',p:'Art. 6, par. 1, lett. b e a GDPR.'},
-    {h:'5. Conservazione',p:'Max 12 mesi dalla ricezione della richiesta.'},
-    {h:'6. Diritti',p:`Accesso, rettifica, cancellazione: ${A.email}`},
-    {h:'7. Reclamo',p:'Garante Privacy: www.garanteprivacy.it'},
-  ]};
-  const COOKIE_P = {title:'Cookie Policy',updated:'18 aprile 2025',sections:[
-    {h:'Cookie tecnici usati',list:['dnl_cc — scelta consenso cookie (12 mesi)','dnl_cd — data del consenso (12 mesi)']},
-    {h:'Cookie di terze parti',p:'Nessun cookie di profilazione, tracciamento o analytics.'},
-    {h:'Google Fonts',p:'Font caricati da Google Fonts. Possibile trasmissione IP a Google. Vedi: policies.google.com/privacy'},
-  ]};
+// ── UTILS ──
+const fmt   = p => '€ ' + parseInt(p||0).toLocaleString('it-IT');
+const fmtKm = k => parseInt(k||0).toLocaleString('it-IT') + ' km';
+function esc(s){ return (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function waLink(msg){ return 'https://wa.me/393518707610?text='+encodeURIComponent(msg); }
 
-  function LegalModal({type,onClose}){
-    const doc=type==='privacy'?PRIVACY:COOKIE_P;
-    return(
-      <div className="ov" onClick={onClose}>
-        <div className="mb" onClick={e=>e.stopPropagation()}>
-          <button className="mc" onClick={onClose}>✕</button>
-          <div className="lc">
-            <h1>{doc.title}</h1>
-            <div className="meta">{A.nome} · Aggiornata il {doc.updated}</div>
-            {doc.sections.map((s,i)=>(
-              <div key={i}>
-                {s.h&&<h2>{s.h}</h2>}
-                {s.p&&<p>{s.p}</p>}
-                {s.list&&<ul>{s.list.map((l,j)=><li key={j}>{l}</li>)}</ul>}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+// ── INIT ──
+document.getElementById('copy-year').textContent = new Date().getFullYear();
+initCookieBanner();
+loadCars();
+
+// ── LOAD CARS ──
+async function loadCars(){
+  const { data } = await db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false});
+  ALL_CARS = data || [];
+  populateFilters();
+  renderStock();
+  renderSpecial();
+  // Realtime
+  db.channel('cars').on('postgres_changes',{event:'*',schema:'public',table:'cars'},async ()=>{
+    const { data } = await db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false});
+    ALL_CARS = data || [];
+    populateFilters();
+    renderStock();
+    renderSpecial();
+  }).subscribe();
+}
+
+// ── POPULATE FILTER DROPDOWNS ──
+function populateFilters(){
+  const brands = [...new Set(ALL_CARS.map(c=>c.brand))].sort();
+  const fuels  = [...new Set(ALL_CARS.map(c=>c.fuel))].sort();
+  const brandSel = document.getElementById('f-brand');
+  const curBrand = brandSel.value;
+  brandSel.innerHTML = '<option value="">Marca</option>' + brands.map(b=>`<option value="${esc(b)}" ${b===curBrand?'selected':''}>${esc(b)}</option>`).join('');
+  populateModels(curBrand);
+  const fuelSel = document.getElementById('f-fuel');
+  const curFuel = fuelSel.value;
+  fuelSel.innerHTML = '<option value="">Alimentazione</option>' + fuels.map(f=>`<option value="${esc(f)}" ${f===curFuel?'selected':''}>${esc(f)}</option>`).join('');
+}
+
+function populateModels(brand){
+  const modelSel = document.getElementById('f-model');
+  if(!brand){ modelSel.innerHTML='<option value="">Modello</option>'; modelSel.disabled=true; return; }
+  const models = [...new Set(ALL_CARS.filter(c=>c.brand===brand).map(c=>c.model))].sort();
+  modelSel.innerHTML = '<option value="">Modello</option>' + models.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('');
+  modelSel.disabled = false;
+}
+
+// ── FILTER & SORT ──
+function getFiltered(){
+  let cars = ALL_CARS.filter(c=>{
+    if(F.brand && c.brand!==F.brand) return false;
+    if(F.model && c.model!==F.model) return false;
+    if(F.fuel  && c.fuel!==F.fuel)   return false;
+    if(F.price && c.price>parseInt(F.price)) return false;
+    if(F.year  && c.year<parseInt(F.year))   return false;
+    if(F.km    && c.km>parseInt(F.km))       return false;
+    return true;
+  });
+  if(SORT==='price_asc')  cars.sort((a,b)=>a.price-b.price);
+  if(SORT==='price_desc') cars.sort((a,b)=>b.price-a.price);
+  if(SORT==='year_desc')  cars.sort((a,b)=>b.year-a.year);
+  if(SORT==='km_asc')     cars.sort((a,b)=>a.km-b.km);
+  return cars;
+}
+
+function onFilterChange(){
+  F.brand = document.getElementById('f-brand').value;
+  F.model = document.getElementById('f-model').value;
+  F.fuel  = document.getElementById('f-fuel').value;
+  F.price = document.getElementById('f-price').value;
+  F.year  = document.getElementById('f-year').value;
+  F.km    = document.getElementById('f-km').value;
+  if(F.brand !== document.getElementById('f-model').dataset.brand){
+    populateModels(F.brand);
+    F.model = '';
+    document.getElementById('f-model').dataset.brand = F.brand;
   }
+  renderStock();
+}
 
-  function Site(){
-    const[page,setPage]=useState('stock');
-    const[filters,setFilters]=useState({brand:'',model:'',fuel:'',priceMax:''});
-    const[car,setCar]=useState(null);
-    const[legal,setLegal]=useState(null);
-    const[cars,setCars]=useState([]);
-    const[loading,setLoading]=useState(true);
+function onSortChange(){
+  SORT = document.getElementById('sort-sel').value;
+  renderStock();
+}
 
-    useEffect(()=>{
-      window._showLegal=t=>setLegal(t);
-      db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false})
-        .then(({data})=>{setCars(data||[]);setLoading(false);});
-      // Realtime updates
-      const channel=db.channel('cars-changes').on('postgres_changes',{event:'*',schema:'public',table:'cars'},()=>{
-        db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false}).then(({data})=>setCars(data||[]));
-      }).subscribe();
-      return()=>db.removeChannel(channel);
-    },[]);
+function resetFilters(){
+  F.brand=F.model=F.fuel=F.price=F.year=F.km='';
+  ['f-brand','f-model','f-fuel','f-price','f-year','f-km'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-model').disabled=true;
+  renderStock();
+}
 
-    const brands=[...new Set(cars.map(c=>c.brand))].sort();
-    const fuels=[...new Set(cars.map(c=>c.fuel))].sort();
-    const models=filters.brand?[...new Set(cars.filter(c=>c.brand===filters.brand).map(c=>c.model))]:[];
-    const filtered=cars.filter(c=>{
-      if(filters.brand&&c.brand!==filters.brand)return false;
-      if(filters.model&&c.model!==filters.model)return false;
-      if(filters.fuel&&c.fuel!==filters.fuel)return false;
-      if(filters.priceMax&&c.price>parseInt(filters.priceMax))return false;
-      return true;
-    });
-
-    const NAV=[['stock','Stock Auto'],['special','Special Cars'],['storia','Chi Siamo'],['contatti','Contatti']];
-
-    return(
-      <div style={{fontFamily:"'DM Sans',sans-serif",background:C.bg,minHeight:'100vh',color:C.ink}}>
-
-        <header style={{background:C.white,borderBottom:`1px solid ${C.border}`,position:'sticky',top:0,zIndex:200,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 36px',height:62}}>
-          <div onClick={()=>setPage('stock')} style={{fontFamily:"'Playfair Display',serif",fontSize:21,fontWeight:700,letterSpacing:'.04em',cursor:'pointer',userSelect:'none'}}>
-            DONO<span style={{color:C.accent}}>LAUTO</span>
-            <span style={{fontSize:11,fontWeight:400,color:C.muted,marginLeft:10,letterSpacing:'.06em'}}>LEGNARO · PD</span>
-          </div>
-          <nav style={{display:'flex',gap:28}}>
-            {NAV.map(([id,label])=>(
-              <button key={id} onClick={()=>setPage(id)} style={{fontSize:11,fontWeight:600,letterSpacing:'.1em',textTransform:'uppercase',background:'none',border:'none',color:page===id?C.ink:C.muted,borderBottom:page===id?`2px solid ${C.accent}`:'2px solid transparent',paddingBottom:3,cursor:'pointer'}}>
-                {label}
-              </button>
-            ))}
-          </nav>
-        </header>
-
-        {/* STOCK */}
-        {page==='stock'&&<>
-          <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:'26px 36px'}}>
-            <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:400,margin:'0 0 18px'}}>Trova la tua prossima auto</h1>
-            <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
-              <Sel value={filters.brand} onChange={v=>setFilters({...filters,brand:v,model:''})} label="Marca">{brands.map(b=><option key={b}>{b}</option>)}</Sel>
-              <Sel value={filters.model} onChange={v=>setFilters({...filters,model:v})} label="Modello" disabled={!filters.brand}>{models.map(m=><option key={m}>{m}</option>)}</Sel>
-              <Sel value={filters.fuel} onChange={v=>setFilters({...filters,fuel:v})} label="Alimentazione">{fuels.map(f=><option key={f}>{f}</option>)}</Sel>
-              <Sel value={filters.priceMax} onChange={v=>setFilters({...filters,priceMax:v})} label="Prezzo max">
-                {[['15000','fino a € 15.000'],['20000','fino a € 20.000'],['25000','fino a € 25.000'],['30000','fino a € 30.000'],['40000','fino a € 40.000'],['60000','fino a € 60.000'],['100000','fino a € 100.000']].map(([v,l])=><option key={v} value={v}>{l}</option>)}
-              </Sel>
-              <button onClick={()=>setFilters({brand:'',model:'',fuel:'',priceMax:''})} style={{padding:'10px 16px',background:'transparent',color:C.muted,border:`1.5px solid ${C.border}`,borderRadius:8,fontSize:13,cursor:'pointer',whiteSpace:'nowrap'}}>✕ Reset</button>
-            </div>
-          </div>
-          <div style={{padding:'26px 36px'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:18,fontWeight:400,margin:0}}>Stock disponibile</h2>
-              {!loading&&<span style={{fontSize:12,color:C.muted,fontWeight:500}}>{filtered.length} auto trovate</span>}
-            </div>
-            {loading
-              ?<div style={{textAlign:'center',padding:'70px 0',color:C.muted}}>
-                  <div style={{fontSize:28,marginBottom:10}}>🚗</div>
-                  Caricamento stock...
-                </div>
-              :filtered.length===0
-                ?<div style={{textAlign:'center',padding:'70px 0',color:C.muted,fontSize:15}}>
-                    {cars.length===0
-                      ?<><div style={{fontSize:40,marginBottom:12}}>🚗</div><div style={{fontFamily:"'Playfair Display',serif",fontSize:22,marginBottom:8,color:C.ink}}>Stock in aggiornamento</div><div>Contattaci per conoscere le vetture disponibili.</div></>
-                      :'Nessun veicolo corrisponde ai filtri.'}
-                  </div>
-                :<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(250px,1fr))',gap:16}}>
-                    {filtered.map(c=><CarCard key={c.id} car={c} onClick={()=>setCar(c)}/>)}
-                  </div>
-            }
-          </div>
-        </>}
-
-        {/* SPECIAL */}
-        {page==='special'&&(
-          <div style={{background:C.dark,minHeight:'calc(100vh - 62px)',padding:'50px 36px'}}>
-            <div style={{maxWidth:1100,margin:'0 auto'}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:'.14em',textTransform:'uppercase',color:'#444',marginBottom:8}}>SELEZIONE ESCLUSIVA</div>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:36,fontWeight:400,color:'white',margin:'0 0 36px'}}>Special Cars</h2>
-              {loading
-                ?<div style={{color:'#444',textAlign:'center',padding:'60px 0'}}>Caricamento...</div>
-                :cars.filter(c=>c.special).length===0
-                  ?<div style={{color:'#444',fontSize:15,textAlign:'center',padding:'60px 0'}}>Nessuna Special Car al momento.</div>
-                  :<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:16}}>
-                      {cars.filter(c=>c.special).map(c=><DarkCard key={c.id} car={c} onClick={()=>setCar(c)}/>)}
-                    </div>
-              }
-            </div>
-          </div>
-        )}
-
-        {/* CHI SIAMO */}
-        {page==='storia'&&(
-          <div style={{padding:'70px 36px'}}>
-            <div style={{maxWidth:660,margin:'0 auto',textAlign:'center'}}>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:96,fontWeight:700,color:C.accent,opacity:.1,lineHeight:1,userSelect:'none'}}>1975</div>
-              <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:30,fontWeight:400,margin:'-18px 0 22px'}}>Oltre 50 anni di passione per l'auto</h2>
-              {['Donolauto nasce a Legnaro nel cuore della provincia di Padova. Da oltre mezzo secolo la famiglia affianca i clienti nella scelta dell\'auto giusta: un consulente di fiducia, non un semplice venditore.',
-                'Ogni auto nel nostro stock passa dalla nostra officina interna: viene preparata, revisionata e certificata prima di essere proposta. Nessuna sorpresa, solo trasparenza.',
-                'Con oltre 120 vetture vendute ogni anno e una rete di clienti fidelizzati nell\'area Padova–Venezia, Donolauto è sinonimo di qualità e serietà nel mercato dell\'usato multi-brand.'
-              ].map((t,i)=><p key={i} style={{fontSize:15,lineHeight:1.85,color:'#666',margin:'0 0 16px'}}>{t}</p>)}
-              <div style={{display:'flex',justifyContent:'center',gap:48,marginTop:48}}>
-                {[['50+','Anni di attività'],['120+','Auto / anno'],['1','Officina interna']].map(([n,l])=>(
-                  <div key={l}><div style={{fontFamily:"'Playfair Display',serif",fontSize:36,fontWeight:700,color:C.accent}}>{n}</div><div style={{fontSize:11,color:C.muted,marginTop:4}}>{l}</div></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* CONTATTI */}
-        {page==='contatti'&&(
-          <div style={{padding:'56px 36px',maxWidth:540,margin:'0 auto'}}>
-            <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:30,fontWeight:400,margin:'0 0 6px'}}>Contattaci</h2>
-            <p style={{color:C.muted,fontSize:14,margin:'0 0 28px'}}>Siamo a Legnaro (PD). Vieni a trovarci o scrivici.</p>
-            <div style={{display:'flex',flexDirection:'column',gap:10}}>
-              {[['📍','Indirizzo',A.indirizzo,null],['📞','Cellulare',A.tel1,`tel:${A.tel1.replace(/\s/g,'')}`],['📞','Fisso',A.tel2,`tel:${A.tel2.replace(/\s/g,'')}`],['✉️','Email',A.email,`mailto:${A.email}`],['📧','PEC',A.pec,null],['🕐','Orari',A.orari,null]].map(([icon,label,value,href])=>(
-                <a key={label} href={href||undefined} style={{textDecoration:'none',display:'flex',gap:14,padding:'13px 16px',background:C.white,borderRadius:10,border:`1px solid ${C.border}`,alignItems:'center',color:'inherit'}}>
-                  <span style={{fontSize:20}}>{icon}</span>
-                  <div><div style={{fontSize:10,fontWeight:700,letterSpacing:'.1em',textTransform:'uppercase',color:C.muted,marginBottom:2}}>{label}</div><div style={{fontSize:14,fontWeight:500}}>{value}</div></div>
-                </a>
-              ))}
-            </div>
-            <a href={`tel:${A.tel1.replace(/\s/g,'')}`} style={{display:'block',textDecoration:'none'}}>
-              <button style={{marginTop:20,width:'100%',padding:14,background:C.accent,color:'white',border:'none',borderRadius:8,fontSize:13,fontWeight:600,letterSpacing:'.07em',textTransform:'uppercase',cursor:'pointer'}}>📞 Chiama ora</button>
-            </a>
-          </div>
-        )}
-
-        <footer style={{background:'#1a1a1a',color:'#555',padding:'22px 36px',marginTop:40,display:'flex',flexWrap:'wrap',gap:14,justifyContent:'space-between',alignItems:'center'}}>
-          <div style={{fontSize:11,lineHeight:1.8}}>
-            © {new Date().getFullYear()} {A.nome} · {A.indirizzo} · P.IVA: {A.piva}<br/>
-            Tel: {A.tel1} / {A.tel2} · PEC: {A.pec}
-          </div>
-          <div style={{display:'flex',gap:18,fontSize:12}}>
-            <button onClick={()=>setLegal('privacy')} style={{background:'none',border:'none',color:'#555',cursor:'pointer',textDecoration:'underline',fontSize:12}}>Privacy Policy</button>
-            <button onClick={()=>setLegal('cookie')} style={{background:'none',border:'none',color:'#555',cursor:'pointer',textDecoration:'underline',fontSize:12}}>Cookie Policy</button>
-          </div>
-        </footer>
-
-        {car&&<CarModal car={car} onClose={()=>setCar(null)}/>}
-        {legal&&<LegalModal type={legal} onClose={()=>setLegal(null)}/>}
-      </div>
-    );
+// ── RENDER STOCK ──
+function renderStock(){
+  const cars = getFiltered();
+  const grid = document.getElementById('car-grid');
+  document.getElementById('result-count').textContent = cars.length + ' auto trovate';
+  if(cars.length===0){
+    grid.innerHTML = ALL_CARS.length===0
+      ? '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🚗</div><h2>Stock in aggiornamento</h2><p>Contattaci per le vetture disponibili.</p></div>'
+      : '<div class="empty-state" style="grid-column:1/-1"><p>Nessun veicolo corrisponde ai filtri selezionati.</p></div>';
+    return;
   }
+  grid.innerHTML = cars.map(c=>carCardHTML(c)).join('');
+}
 
-  function Sel({value,onChange,label,disabled,children}){
-    return(
-      <div style={{position:'relative',flex:1,minWidth:145}}>
-        <select value={value} disabled={disabled} onChange={e=>onChange(e.target.value)} style={{width:'100%',padding:'10px 32px 10px 13px',border:`1.5px solid ${C.border}`,borderRadius:8,fontSize:13,color:value?C.ink:C.muted,background:C.white,cursor:disabled?'not-allowed':'pointer',outline:'none',appearance:'none',WebkitAppearance:'none',opacity:disabled?.5:1,fontFamily:"'DM Sans',sans-serif"}}>
-          <option value="">{label}</option>{children}
-        </select>
-        <span style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',pointerEvents:'none',fontSize:10,color:C.muted}}>▾</span>
+// ── RENDER SPECIAL ──
+function renderSpecial(){
+  const specials = ALL_CARS.filter(c=>c.special);
+  const grid = document.getElementById('special-grid');
+  if(specials.length===0){ grid.innerHTML='<div class="dark-empty">Nessuna Special Car al momento. Torna presto.</div>'; return; }
+  grid.innerHTML = specials.map(c=>darkCardHTML(c)).join('');
+}
+
+// ── CAR CARD HTML ──
+function carCardHTML(car){
+  const img = car.images&&car.images[0]
+    ? `<img src="${esc(car.images[0])}" alt="${esc(car.brand+' '+car.model)}" loading="lazy">`
+    : `<div class="placeholder">🚗</div>`;
+  const photoCount = car.images&&car.images.length>1
+    ? `<div class="badge-photos">📷 ${car.images.length}</div>` : '';
+  const sold = car.sold
+    ? `<div class="badge-sold-thumb"><span>VENDUTA</span></div>` : '';
+  const price = car.sold
+    ? `<div class="car-sold-badge">🔴 VENDUTA</div>`
+    : `<div class="car-price">${fmt(car.price)}</div>`;
+  return `
+    <div class="car-card" onclick="openModal(${car.id})">
+      <div class="car-thumb" style="background:${esc(car.gradient||'linear-gradient(135deg,#ccc,#eee)')}">
+        ${img}${sold}
+        ${car.special?'<div class="badge-special">★ SPECIAL</div>':''}
+        ${photoCount}
       </div>
-    );
-  }
-
-  function CarCard({car,onClick}){
-    return(
-      <div onClick={onClick} className="card" style={{background:C.white,borderRadius:12,overflow:'hidden',border:`1px solid ${C.border}`,boxShadow:'0 2px 6px rgba(0,0,0,.04)'}}>
-        <div style={{width:'100%',aspectRatio:'16/10',background:car.gradient||'linear-gradient(135deg,#ccc,#eee)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
-          {car.images&&car.images[0]?<img src={car.images[0]} alt={car.model} style={{width:'100%',height:'100%',objectFit:'cover',position:'absolute',inset:0}}/>:<span style={{fontSize:46,opacity:.18}}>🚗</span>}
-          {car.special&&<div style={{position:'absolute',top:8,right:8,background:C.accent,color:'white',fontSize:9,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',padding:'3px 7px',borderRadius:4}}>★ SPECIAL</div>}
-        </div>
-        <div style={{padding:'13px 15px'}}>
-          <div style={{fontSize:10,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:C.muted,marginBottom:3}}>{car.brand}</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:600,marginBottom:6}}>{car.model}</div>
-          <div style={{display:'flex',gap:8,fontSize:11,color:C.muted,marginBottom:8}}><span>{car.year}</span><span>·</span><span>{fmtKm(car.km)}</span><span>·</span><span>{car.fuel}</span></div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:car.sold?14:20,fontWeight:700,color:car.sold?"#818cf8":C.accent,background:car.sold?"rgba(129,140,248,.12)":undefined,padding:car.sold?"4px 10px":undefined,borderRadius:car.sold?6:undefined}}>{car.sold?"🔴 VENDUTA":fmt(car.price)}</div>
-        </div>
+      <div class="car-info">
+        <div class="car-brand">${esc(car.brand)}</div>
+        <div class="car-model">${esc(car.model)}</div>
+        <div class="car-meta">${car.year} · ${fmtKm(car.km)} · ${esc(car.fuel)}</div>
+        ${price}
       </div>
-    );
-  }
+    </div>`;
+}
 
-  function DarkCard({car,onClick}){
-    return(
-      <div onClick={onClick} className="dcard" style={{borderRadius:12,overflow:'hidden',border:'1px solid #2a2a2a'}}>
-        <div style={{width:'100%',aspectRatio:'16/10',background:car.gradient||'linear-gradient(135deg,#333,#555)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
-          {car.images&&car.images[0]?<img src={car.images[0]} alt={car.model} style={{width:'100%',height:'100%',objectFit:'cover',position:'absolute',inset:0}}/>:<span style={{fontSize:46,opacity:.22}}>🚗</span>}
-        </div>
-        <div style={{padding:'13px 15px',background:'#1a1a1a'}}>
-          <div style={{fontSize:10,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'#444',marginBottom:3}}>{car.brand}</div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:600,color:'white',marginBottom:6}}>{car.model}</div>
-          <div style={{display:'flex',gap:8,fontSize:11,color:'#555',marginBottom:8}}><span>{car.year}</span><span>·</span><span>{fmtKm(car.km)}</span></div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:car.sold?14:20,fontWeight:700,color:car.sold?"#818cf8":C.accent,background:car.sold?"rgba(129,140,248,.12)":undefined,padding:car.sold?"4px 10px":undefined,borderRadius:car.sold?6:undefined}}>{car.sold?"🔴 VENDUTA":fmt(car.price)}</div>
-        </div>
+function darkCardHTML(car){
+  const img = car.images&&car.images[0]
+    ? `<img src="${esc(car.images[0])}" alt="${esc(car.brand+' '+car.model)}" loading="lazy">`
+    : `<div class="placeholder">🚗</div>`;
+  const price = car.sold
+    ? `<div class="car-sold-badge">🔴 VENDUTA</div>`
+    : `<div class="car-price">${fmt(car.price)}</div>`;
+  return `
+    <div class="dark-card" onclick="openModal(${car.id})">
+      <div class="car-thumb" style="background:${esc(car.gradient||'linear-gradient(135deg,#333,#555)')}">
+        ${img}
+        ${car.images&&car.images.length>1?`<div class="badge-photos">📷 ${car.images.length}</div>`:''}
       </div>
-    );
-  }
-
-  function CarModal({car,onClose}){
-    const[idx,setIdx]=useState(0);
-    const imgs=car.images&&car.images.length>0?car.images:null;
-    return(
-      <div className="ov" onClick={onClose} style={{zIndex:300}}>
-        <div className="mb" onClick={e=>e.stopPropagation()}>
-          <button className="mc" onClick={onClose}>✕</button>
-          <div style={{width:'100%',aspectRatio:'16/9',background:car.gradient||'linear-gradient(135deg,#ccc,#eee)',borderRadius:'16px 16px 0 0',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
-            {imgs?<img src={imgs[idx]} alt={car.model} style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{fontSize:80,opacity:.18}}>🚗</span>}
-            {imgs&&imgs.length>1&&<>
-              <button onClick={e=>{e.stopPropagation();setIdx((idx-1+imgs.length)%imgs.length);}} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',background:'rgba(0,0,0,.5)',color:'white',border:'none',borderRadius:'50%',width:34,height:34,cursor:'pointer',fontSize:18}}>‹</button>
-              <button onClick={e=>{e.stopPropagation();setIdx((idx+1)%imgs.length);}} style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',background:'rgba(0,0,0,.5)',color:'white',border:'none',borderRadius:'50%',width:34,height:34,cursor:'pointer',fontSize:18}}>›</button>
-              <div style={{position:'absolute',bottom:8,left:'50%',transform:'translateX(-50%)',display:'flex',gap:5}}>
-                {imgs.map((_,i)=><div key={i} onClick={e=>{e.stopPropagation();setIdx(i);}} style={{width:6,height:6,borderRadius:'50%',background:i===idx?'white':'rgba(255,255,255,.35)',cursor:'pointer'}}/>)}
-              </div>
-              <div style={{position:'absolute',bottom:8,right:12,background:'rgba(0,0,0,.5)',color:'white',fontSize:11,padding:'2px 8px',borderRadius:10}}>{idx+1}/{imgs.length}</div>
-            </>}
-          </div>
-          <div style={{padding:'22px 26px 26px'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,marginBottom:18,flexWrap:'wrap'}}>
-              <div>
-                <div style={{fontSize:10,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:C.muted,marginBottom:4}}>{car.brand}</div>
-                <div style={{fontFamily:"'Playfair Display',serif",fontSize:24,fontWeight:700}}>{car.model} <span style={{fontWeight:400,opacity:.7}}>{car.year}</span></div>
-              </div>
-              <div style={{fontFamily:"'Playfair Display',serif",fontSize:26,fontWeight:700,color:C.accent,flexShrink:0}}>{fmt(car.price)}</div>
-            </div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:1,background:C.border,borderRadius:10,overflow:'hidden',marginBottom:18}}>
-              {[[fmtKm(car.km),'Chilometri'],[car.hp+' CV','Potenza'],[car.transmission,'Cambio'],[car.fuel,'Alimentazione'],[car.color,'Colore'],[car.doors+' porte','Carrozzeria']].map(([v,l])=>(
-                <div key={l} style={{background:'#F5F4F0',padding:'12px',textAlign:'center'}}>
-                  <div style={{fontSize:13,fontWeight:600}}>{v}</div>
-                  <div style={{fontSize:10,color:C.muted,marginTop:2}}>{l}</div>
-                </div>
-              ))}
-            </div>
-            {car.description&&<p style={{fontSize:14,lineHeight:1.75,color:'#666',marginBottom:14}}>{car.description}</p>}
-            {car.features&&car.features.length>0&&(
-              <div style={{marginBottom:20}}>{car.features.map(f=><span key={f} style={{display:'inline-block',padding:'3px 10px',background:'#F5F4F0',borderRadius:20,fontSize:11,margin:'2px',border:`1px solid ${C.border}`,fontWeight:500}}>{f}</span>)}</div>
-            )}
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-              <a href={`tel:${A.tel1.replace(/\s/g,'')}`} style={{textDecoration:'none'}}>
-                <button style={{width:'100%',padding:13,background:C.accent,color:'white',border:'none',borderRadius:8,fontSize:12,fontWeight:600,letterSpacing:'.07em',textTransform:'uppercase',cursor:'pointer'}}>📞 Chiama ora</button>
-              </a>
-              <a href={`mailto:${A.email}?subject=Info: ${car.brand} ${car.model} ${car.year}`} style={{textDecoration:'none'}}>
-                <button style={{width:'100%',padding:13,background:'transparent',color:C.ink,border:`1.5px solid ${C.border}`,borderRadius:8,fontSize:12,fontWeight:600,letterSpacing:'.07em',textTransform:'uppercase',cursor:'pointer'}}>✉️ Scrivi</button>
-              </a>
-            </div>
-            {car.as24url&&<div style={{marginTop:10,textAlign:'center'}}><a href={car.as24url} target="_blank" rel="noopener noreferrer" style={{fontSize:12,color:C.muted,textDecoration:'underline'}}>Vedi su AutoScout24 ↗</a></div>}
-          </div>
-        </div>
+      <div class="car-info">
+        <div class="car-brand">${esc(car.brand)}</div>
+        <div class="car-model">${esc(car.model)}</div>
+        <div class="car-meta">${car.year} · ${fmtKm(car.km)}</div>
+        ${price}
       </div>
-    );
-  }
+    </div>`;
+}
 
-  ReactDOM.createRoot(document.getElementById('root')).render(<Site/>);
+// ── MODAL ──
+function openModal(id){
+  MODAL_CAR = ALL_CARS.find(c=>c.id===id);
+  if(!MODAL_CAR) return;
+  MODAL_IDX = 0;
+  renderModal();
+  document.getElementById('car-modal').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('car-modal')) return;
+  document.getElementById('car-modal').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function closeModalBtn(){
+  document.getElementById('car-modal').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function renderModal(){
+  const car = MODAL_CAR;
+  if(!car) return;
+  const imgs = car.images&&car.images.length>0 ? car.images : null;
+  const waMsg = `Ciao Donolauto, sono interessato alla ${car.brand} ${car.model} ${car.year}${car.sold?'' : ' — '+fmt(car.price)}. Potete darmi informazioni?`;
+
+  const galleryNav = imgs&&imgs.length>1 ? `
+    <button class="gal-btn gal-prev" onclick="galPrev()">‹</button>
+    <button class="gal-btn gal-next" onclick="galNext()">›</button>
+    <div class="gal-dots">${imgs.map((_,i)=>`<div class="gal-dot${i===MODAL_IDX?' active':''}" onclick="galGoto(${i})"></div>`).join('')}</div>
+    <div class="gal-count">${MODAL_IDX+1}/${imgs.length}</div>` : '';
+
+  const galleryImg = imgs
+    ? `<img src="${esc(imgs[MODAL_IDX])}" alt="${esc(car.brand+' '+car.model)}" id="modal-img">`
+    : `<div class="placeholder" style="height:100%">🚗</div>`;
+
+  const priceBlock = car.sold
+    ? `<div class="modal-sold">🔴 AUTO VENDUTA</div>`
+    : `<div class="modal-price">${fmt(car.price)}</div>`;
+
+  const features = car.features&&car.features.length>0
+    ? `<div class="features">${car.features.map(f=>`<span class="feature-tag">${esc(f)}</span>`).join('')}</div>` : '';
+
+  const as24 = car.as24url
+    ? `<div class="as24-link"><a href="${esc(car.as24url)}" target="_blank" rel="noopener">Vedi su AutoScout24 ↗</a></div>` : '';
+
+  document.getElementById('modal-content').innerHTML = `
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div class="modal-gallery" style="background:${esc(car.gradient||'linear-gradient(135deg,#ccc,#eee)')}">
+      ${galleryImg}${galleryNav}
+    </div>
+    <div class="modal-body">
+      <div class="modal-header">
+        <div>
+          <div class="modal-brand">${esc(car.brand)}</div>
+          <div class="modal-title">${esc(car.model)} <span class="modal-year">${car.year}</span></div>
+        </div>
+        ${priceBlock}
+      </div>
+      <div class="specs-grid">
+        <div class="spec-item"><div class="spec-val">${fmtKm(car.km)}</div><div class="spec-label">Chilometri</div></div>
+        <div class="spec-item"><div class="spec-val">${car.hp||'—'} CV</div><div class="spec-label">Potenza</div></div>
+        <div class="spec-item"><div class="spec-val">${esc(car.transmission||'—')}</div><div class="spec-label">Cambio</div></div>
+        <div class="spec-item"><div class="spec-val">${esc(car.fuel||'—')}</div><div class="spec-label">Alimentazione</div></div>
+        <div class="spec-item"><div class="spec-val">${esc(car.color||'—')}</div><div class="spec-label">Colore</div></div>
+        <div class="spec-item"><div class="spec-val">${car.doors||'—'} porte</div><div class="spec-label">Carrozzeria</div></div>
+      </div>
+      ${car.description?`<p class="modal-desc">${esc(car.description)}</p>`:''}
+      ${features}
+      <div class="modal-actions">
+        <a class="btn-call-m" href="tel:+393518707610">📞 Chiama</a>
+        <a class="btn-wa-m" href="${waLink(waMsg)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+        <a class="btn-email-m" href="mailto:info@donolauto.it?subject=Info: ${esc(car.brand+' '+car.model+' '+car.year)}">✉️ Email</a>
+      </div>
+      ${as24}
+    </div>`;
+}
+
+function galPrev(){ if(!MODAL_CAR?.images) return; MODAL_IDX=(MODAL_IDX-1+MODAL_CAR.images.length)%MODAL_CAR.images.length; renderModal(); }
+function galNext(){ if(!MODAL_CAR?.images) return; MODAL_IDX=(MODAL_IDX+1)%MODAL_CAR.images.length; renderModal(); }
+function galGoto(i){ MODAL_IDX=i; renderModal(); }
+
+// ── NAVIGATION ──
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('nav a').forEach(a=>{
+    a.classList.toggle('active', a.dataset.page===page);
+  });
+  // Close mobile menu
+  document.getElementById('main-nav').classList.remove('open');
+  document.getElementById('menu-btn').classList.remove('open');
+  window.scrollTo(0,0);
+}
+
+function toggleMenu(){
+  document.getElementById('main-nav').classList.toggle('open');
+  document.getElementById('menu-btn').classList.toggle('open');
+}
+
+// ── LEGAL MODAL ──
+const LEGAL_CONTENT = {
+  privacy: {
+    title:'Privacy Policy', updated:'18 aprile 2025',
+    html:`<h2>1. Titolare del trattamento</h2><p>Donolauto S.r.l. · Via Romea 121, 35020 Legnaro (PD) · P.IVA: IT 05258940286 · PEC: donolautosrl@pec.it · Email: info@donolauto.it</p>
+    <h2>2. Dati raccolti</h2><p>Solo dati forniti volontariamente tramite contatto diretto. Nessun tracciamento, nessun cookie di profilazione.</p>
+    <h2>3. Finalità</h2><p>Rispondere alle richieste degli utenti. Nessuna cessione a terzi.</p>
+    <h2>4. Base giuridica</h2><p>Art. 6, par. 1, lett. b e a del GDPR.</p>
+    <h2>5. Conservazione</h2><p>Max 12 mesi dalla ricezione della richiesta.</p>
+    <h2>6. Diritti dell'interessato</h2><p>Accesso, rettifica e cancellazione: info@donolauto.it</p>
+    <h2>7. Reclamo</h2><p>Garante Privacy: www.garanteprivacy.it</p>`
+  },
+  cookie: {
+    title:'Cookie Policy', updated:'18 aprile 2025',
+    html:`<h2>Cookie tecnici utilizzati</h2><ul><li>dnl_cc — scelta consenso cookie (12 mesi)</li><li>dnl_cd — data del consenso (12 mesi)</li></ul>
+    <h2>Cookie di terze parti</h2><p>Nessun cookie di profilazione, tracciamento o analytics di terze parti.</p>
+    <h2>Google Fonts</h2><p>I font vengono caricati da Google Fonts. Questo può comportare la trasmissione dell'indirizzo IP al server Google. Vedi: policies.google.com/privacy</p>
+    <h2>Disabilitare i cookie</h2><p>Puoi disabilitare i cookie dalle impostazioni del tuo browser. La disabilitazione dei cookie tecnici può compromettere il funzionamento del sito.</p>`
+  }
+};
+
+function openLegal(type){
+  const d = LEGAL_CONTENT[type];
+  document.getElementById('legal-content').innerHTML = `
+    <button class="legal-close" onclick="closeLegalBtn()">✕</button>
+    <h1>${d.title}</h1>
+    <div class="meta">Donolauto S.r.l. · Aggiornata il ${d.updated}</div>
+    ${d.html}`;
+  document.getElementById('legal-modal').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+function closeLegal(e){
+  if(e&&e.target!==document.getElementById('legal-modal')) return;
+  document.getElementById('legal-modal').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function closeLegalBtn(){
+  document.getElementById('legal-modal').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+// ── COOKIE BANNER ──
+function initCookieBanner(){
+  const c=localStorage.getItem('dnl_cc'), d=localStorage.getItem('dnl_cd');
+  if(c&&d&&Date.now()-parseInt(d)<365*864e5) document.getElementById('cookie-banner').classList.add('hidden');
+}
+function setCookieChoice(a){
+  localStorage.setItem('dnl_cc',a?'1':'0');
+  localStorage.setItem('dnl_cd',Date.now());
+  document.getElementById('cookie-banner').classList.add('hidden');
+}
+
+// ── KEYBOARD NAVIGATION ──
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ closeModalBtn(); closeLegalBtn(); }
+  if(!MODAL_CAR?.images?.length) return;
+  if(e.key==='ArrowLeft') galPrev();
+  if(e.key==='ArrowRight') galNext();
+});
 </script>
 </body>
 </html>
