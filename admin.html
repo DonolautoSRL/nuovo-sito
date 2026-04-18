@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Donolauto — Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -16,484 +17,564 @@
     input::placeholder,textarea::placeholder{color:#4b5563;}
     select option{background:#1e2330;}
     button{font-family:'DM Sans',sans-serif;cursor:pointer;}
+    label{font-size:11px;color:#6b7280;display:block;margin-bottom:4px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
     ::-webkit-scrollbar{width:5px;}
     ::-webkit-scrollbar-track{background:#0f1117;}
     ::-webkit-scrollbar-thumb{background:#2d3348;border-radius:3px;}
-    label{font-size:11px;color:#6b7280;display:block;margin-bottom:4px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
     .tag{display:inline-block;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:600;}
     .tag-pub{background:#064e3b;color:#34d399;}
     .tag-draft{background:#451a03;color:#fbbf24;}
     .tag-special{background:#7f1d1d;color:#fca5a5;}
-    .btn-primary{background:#cc1f1f;color:white;border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;}
-    .btn-primary:hover{background:#b91c1c;}
+    .btn-red{background:#cc1f1f;color:white;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;}
+    .btn-red:hover{background:#b91c1c;}
+    .btn-green{background:#065f46;color:#34d399;border:1px solid #047857;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;}
+    .btn-green:hover{background:#047857;}
     .btn-ghost{background:transparent;color:#9ca3af;border:1.5px solid #2d3348;padding:8px 14px;border-radius:8px;font-size:12px;}
     .btn-ghost:hover{border-color:#4b5563;color:#e5e7eb;}
-    .btn-dark{background:#1e2330;color:#e5e7eb;border:1.5px solid #2d3348;padding:8px 14px;border-radius:8px;font-size:12px;}
-    .btn-dark:hover{background:#252b3b;}
+    .btn-sm{background:#1e2330;color:#e5e7eb;border:1.5px solid #2d3348;padding:6px 12px;border-radius:7px;font-size:11px;}
+    .btn-sm:hover{background:#252b3b;}
     .card{background:#1a1f2e;border:1px solid #2d3348;border-radius:12px;padding:16px;}
+    .sect{font-size:11px;font-weight:600;color:#4b5563;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
   </style>
 </head>
 <body>
 <div id="root"></div>
+
+<script>
+  // ── SUPABASE ──
+  const { createClient } = window.supabase;
+  const db = createClient(
+    'https://lropvrandavyegoclpyh.supabase.co',
+    'sb_publishable_TUbIHm4OPAt9mkN4zeVIuA_GllRYFsn'
+  );
+
+  // ── COMPRIMI IMMAGINE ──
+  async function compressImg(file) {
+    return new Promise(res => {
+      const r = new FileReader();
+      r.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 1200;
+          let w = img.width, h = img.height;
+          if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          c.toBlob(res, 'image/jpeg', 0.78);
+        };
+        img.src = e.target.result;
+      };
+      r.readAsDataURL(file);
+    });
+  }
+
+  // ── CARICA FOTO SU SUPABASE STORAGE ──
+  async function uploadImages(files) {
+    const urls = [];
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const blob = await compressImg(files[i]);
+        const filename = Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2) + '.jpg';
+        const { error } = await db.storage.from('car-images').upload(filename, blob, { contentType: 'image/jpeg', upsert: true });
+        if (!error) {
+          const { data: { publicUrl } } = db.storage.from('car-images').getPublicUrl(filename);
+          urls.push(publicUrl);
+        }
+      } catch(e) { console.error('upload error', e); }
+    }
+    return urls;
+  }
+
+  // ── ELIMINA FOTO DA STORAGE ──
+  async function deleteStorageImg(url) {
+    try {
+      const parts = url.split('/car-images/');
+      if (parts[1]) await db.storage.from('car-images').remove([parts[1]]);
+    } catch(e) {}
+  }
+
+  // ── GRADIENTE DA COLORE ──
+  function grad(c) {
+    c = (c||'').toLowerCase();
+    if (c.includes('bian')||c.includes('ghiacci')) return 'linear-gradient(135deg,#ddd,#f5f5f5)';
+    if (c.includes('ner')) return 'linear-gradient(135deg,#1a1a1a,#444)';
+    if (c.includes('ross')||c.includes('alfa')) return 'linear-gradient(135deg,#7a0000,#cc0000)';
+    if (c.includes('blu')) return 'linear-gradient(135deg,#0a2a5e,#1a4a8e)';
+    if (c.includes('verd')) return 'linear-gradient(135deg,#1a4a1a,#2d7a2d)';
+    if (c.includes('gri')) return 'linear-gradient(135deg,#3a3a3a,#777)';
+    if (c.includes('aran')) return 'linear-gradient(135deg,#b84e00,#e87020)';
+    if (c.includes('gial')||c.includes('oro')) return 'linear-gradient(135deg,#7a6000,#c8a800)';
+    return 'linear-gradient(135deg,#444,#777)';
+  }
+</script>
+
 <script type="text/babel">
   const { useState, useEffect, useRef } = React;
-  const PASS = "Donolauto2025!";
-  const FUELS = ["Benzina","Diesel","Ibrido","Elettrico","GPL","Metano"];
+  const PASS = 'Donolauto2025!';
+  const FUELS = ['Benzina','Diesel','Ibrido','Elettrico','GPL','Metano'];
+  const fmt = p => '€ ' + parseInt(p||0).toLocaleString('it-IT');
+  const fmtKm = k => parseInt(k||0).toLocaleString('it-IT') + ' km';
+  const BLANK = { brand:'',model:'',year:new Date().getFullYear(),fuel:'Benzina',price:'',km:'',hp:'',color:'',transmission:'Manuale',doors:5,special:false,status:'draft',description:'',features:[],as24url:'',images:[] };
 
-  function grad(color=""){
-    const c=color.toLowerCase();
-    if(c.includes("bian")||c.includes("ghiacci"))return"linear-gradient(135deg,#ddd,#f5f5f5)";
-    if(c.includes("ner"))return"linear-gradient(135deg,#1a1a1a,#444)";
-    if(c.includes("ross")||c.includes("alfa"))return"linear-gradient(135deg,#7a0000,#cc0000)";
-    if(c.includes("blu"))return"linear-gradient(135deg,#0a2a5e,#1a4a8e)";
-    if(c.includes("verd"))return"linear-gradient(135deg,#1a4a1a,#2d7a2d)";
-    if(c.includes("gri"))return"linear-gradient(135deg,#3a3a3a,#777)";
-    if(c.includes("aran"))return"linear-gradient(135deg,#b84e00,#e87020)";
-    if(c.includes("gial")||c.includes("oro"))return"linear-gradient(135deg,#7a6000,#c8a800)";
-    return"linear-gradient(135deg,#444,#777)";
-  }
+  // ── APP ──
+  function App() {
+    const [auth, setAuth]     = useState(!!sessionStorage.getItem('dnl_auth'));
+    const [view, setView]     = useState('list');
+    const [cars, setCars]     = useState([]);
+    const [edit, setEdit]     = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [toast, setToast]   = useState(null);
+    const [tab, setTab]       = useState('all');
 
-  function loadAll(){try{const s=localStorage.getItem('dnl_cars_all');return s?JSON.parse(s):[];}catch{return[];}}
-  function saveAll(cars){
-    localStorage.setItem('dnl_cars_all',JSON.stringify(cars));
-    const pub=cars.filter(c=>c.status==='published');
-    localStorage.setItem('dnl_cars_published',JSON.stringify(pub));
-  }
-  const fmt=p=>"€ "+parseInt(p||0).toLocaleString("it-IT");
-  const fmtKm=k=>parseInt(k||0).toLocaleString("it-IT")+" km";
+    const showToast = (msg, type='ok') => { setToast({msg,type}); setTimeout(()=>setToast(null),3500); };
 
-  // ── BLANK FORM ──
-  const BLANK={brand:"",model:"",year:new Date().getFullYear(),fuel:"Benzina",price:"",km:"",hp:"",color:"",transmission:"Manuale",doors:5,special:false,status:"draft",desc:"",features:"",as24url:"",images:[]};
-
-  function App(){
-    const[authed,setAuthed]=useState(!!sessionStorage.getItem('dnl_admin_auth'));
-    const[view,setView]=useState("list");
-    const[cars,setCars]=useState(loadAll());
-    const[editCar,setEditCar]=useState(null);
-    const[tab,setTab]=useState("all");
-    const[toast,setToast]=useState(null);
-
-    function showToast(msg,type="ok"){setToast({msg,type});setTimeout(()=>setToast(null),3000);}
-
-    function save(car){
-      const isNew=!car.id;
-      const updated=isNew
-        ?[...cars,{...car,id:Date.now(),createdAt:new Date().toISOString(),gradient:grad(car.color)}]
-        :cars.map(c=>c.id===car.id?{...car,gradient:grad(car.color)}:c);
-      setCars(updated);saveAll(updated);
-      showToast(isNew?"Auto aggiunta!":"Modifiche salvate!");
-      setView("list");setEditCar(null);
+    async function loadCars() {
+      setLoading(true);
+      const { data, error } = await db.from('cars').select('*').order('created_at',{ascending:false});
+      if (!error) setCars(data || []);
+      setLoading(false);
     }
 
-    function del(id){
-      if(!confirm("Eliminare questa auto?"))return;
-      const updated=cars.filter(c=>c.id!==id);
-      setCars(updated);saveAll(updated);showToast("Auto eliminata","warn");
+    useEffect(() => { if (auth) loadCars(); }, [auth]);
+
+    async function saveCar(car) {
+      const payload = {
+        brand: car.brand, model: car.model, year: parseInt(car.year)||0,
+        price: parseInt(car.price)||0, km: parseInt(car.km)||0,
+        hp: parseInt(car.hp)||0, fuel: car.fuel, color: car.color,
+        transmission: car.transmission, doors: parseInt(car.doors)||5,
+        special: car.special||false, status: car.status||'draft',
+        description: car.description||'',
+        features: Array.isArray(car.features) ? car.features : (car.features||'').split(',').map(f=>f.trim()).filter(Boolean),
+        as24url: car.as24url||'',
+        gradient: grad(car.color),
+        images: car.images||[]
+      };
+      let result;
+      if (car.id) {
+        result = await db.from('cars').update(payload).eq('id',car.id).select().single();
+      } else {
+        result = await db.from('cars').insert([payload]).select().single();
+      }
+      if (result.error) { showToast('Errore: ' + result.error.message, 'err'); return; }
+      await loadCars();
+      showToast(car.id ? '✓ Modifiche salvate!' : '✓ Auto aggiunta!');
+      setView('list'); setEdit(null);
     }
 
-    function toggle(id,field){
-      const updated=cars.map(c=>{
-        if(c.id!==id)return c;
-        return{...c,[field]:field==='status'?(c.status==='published'?'draft':'published'):!c[field]};
-      });
-      setCars(updated);saveAll(updated);
-      showToast(field==='status'?"Stato aggiornato":"Special aggiornato");
+    async function deleteCar(car) {
+      if (!confirm('Eliminare ' + car.brand + ' ' + car.model + '?')) return;
+      if (car.images && car.images.length > 0) {
+        for (const url of car.images) await deleteStorageImg(url);
+      }
+      const { error } = await db.from('cars').delete().eq('id', car.id);
+      if (error) { showToast('Errore eliminazione', 'err'); return; }
+      setCars(prev => prev.filter(c => c.id !== car.id));
+      showToast('Auto eliminata', 'warn');
     }
 
-    function newCar(){setEditCar({...BLANK});setView("form");}
-    function editC(c){setEditCar(c);setView("form");}
+    async function toggleField(car, field) {
+      const val = field === 'status' ? (car.status === 'published' ? 'draft' : 'published') : !car[field];
+      const { error } = await db.from('cars').update({ [field]: val }).eq('id', car.id);
+      if (!error) {
+        setCars(prev => prev.map(c => c.id === car.id ? {...c, [field]: val} : c));
+        showToast(field === 'status' ? (val === 'published' ? '↑ Pubblicata!' : '↓ Messa in bozza') : (val ? '★ Special attivato' : '☆ Special rimosso'));
+      }
+    }
 
-    if(!authed)return <Login onLogin={()=>{sessionStorage.setItem('dnl_admin_auth','1');setAuthed(true);}}/>;
+    if (!auth) return <Login onLogin={() => { sessionStorage.setItem('dnl_auth','1'); setAuth(true); }}/>;
 
-    const counts={all:cars.length,published:cars.filter(c=>c.status==='published').length,draft:cars.filter(c=>c.status==='draft').length,special:cars.filter(c=>c.special).length};
-    const filtered=cars.filter(c=>{if(tab==='published')return c.status==='published';if(tab==='draft')return c.status==='draft';if(tab==='special')return c.special;return true;});
+    const counts = { all: cars.length, published: cars.filter(c=>c.status==='published').length, draft: cars.filter(c=>c.status==='draft').length, special: cars.filter(c=>c.special).length };
+    const shown = cars.filter(c => tab==='published'?c.status==='published':tab==='draft'?c.status==='draft':tab==='special'?c.special:true);
 
-    return(
-      <div style={{display:"flex",minHeight:"100vh"}}>
+    return (
+      <div style={{display:'flex',minHeight:'100vh'}}>
         {/* SIDEBAR */}
-        <aside style={{width:220,background:"#0a0d14",borderRight:"1px solid #1e2330",display:"flex",flexDirection:"column",flexShrink:0,position:"sticky",top:0,height:"100vh"}}>
-          <div style={{padding:"20px 18px 16px",borderBottom:"1px solid #1e2330"}}>
-            <div style={{fontSize:19,fontWeight:600,letterSpacing:"0.03em"}}>DONO<span style={{color:"#cc1f1f"}}>LAUTO</span></div>
-            <div style={{fontSize:10,color:"#374151",marginTop:2,letterSpacing:"0.08em"}}>ADMIN PANEL</div>
+        <aside style={{width:220,background:'#0a0d14',borderRight:'1px solid #1e2330',display:'flex',flexDirection:'column',flexShrink:0,position:'sticky',top:0,height:'100vh',overflow:'hidden'}}>
+          <div style={{padding:'20px 18px 14px',borderBottom:'1px solid #1e2330'}}>
+            <div style={{fontSize:19,fontWeight:600}}>DONO<span style={{color:'#cc1f1f'}}>LAUTO</span></div>
+            <div style={{fontSize:10,color:'#374151',marginTop:2,letterSpacing:'.08em'}}>ADMIN PANEL</div>
           </div>
-          <nav style={{padding:"10px 0",flex:1}}>
-            {[["list","≡","Gestione Auto"],["import","↓","Importa AS24"],["form","＋","Nuova auto"]].map(([v,icon,label])=>(
-              <button key={v} onClick={()=>{if(v==='form')newCar();else setView(v);}}
-                style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 18px",border:"none",background:view===v&&v!=='form'?"#1a1f2e":"transparent",color:view===v&&v!=='form'?"#e5e7eb":"#6b7280",fontSize:13,textAlign:"left",transition:"all .15s"}}>
-                <span style={{color:view===v&&v!=='form'?"#cc1f1f":"#374151",width:16,textAlign:"center"}}>{icon}</span>
+          <nav style={{padding:'10px 0',flex:1}}>
+            {[['list','≡','Gestione Auto'],['import','↓','Importa AS24'],['new','＋','Nuova auto']].map(([v,icon,label]) => (
+              <button key={v} onClick={() => v==='new' ? (setEdit({...BLANK})||setView('form')) : setView(v)}
+                style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'10px 18px',border:'none',background:view===v&&v!=='new'?'#1a1f2e':'transparent',color:view===v&&v!=='new'?'#e5e7eb':'#6b7280',fontSize:13,textAlign:'left'}}>
+                <span style={{color:view===v&&v!=='new'?'#cc1f1f':'#374151',width:16,textAlign:'center'}}>{icon}</span>
                 {label}
-                {v==='list'&&counts.draft>0&&<span style={{marginLeft:"auto",background:"#cc1f1f",color:"white",fontSize:9,borderRadius:10,padding:"1px 6px",fontWeight:600}}>{counts.draft}</span>}
+                {v==='list'&&counts.draft>0&&<span style={{marginLeft:'auto',background:'#cc1f1f',color:'white',fontSize:9,borderRadius:10,padding:'1px 6px',fontWeight:600}}>{counts.draft}</span>}
               </button>
             ))}
           </nav>
-          <div style={{padding:"12px 18px",borderTop:"1px solid #1e2330",fontSize:11,color:"#374151"}}>
-            {cars.length} auto · {counts.published} pubblicate
+          <div style={{padding:'10px 12px',margin:'0 10px 8px',background:'#0f1117',borderRadius:8,border:'1px solid #1e2330'}}>
+            <div style={{fontSize:10,color:'#6b7280',marginBottom:4,fontWeight:600,letterSpacing:'.06em'}}>DATABASE LIVE</div>
+            <div style={{display:'flex',alignItems:'center',gap:6,fontSize:11,color:'#34d399'}}><div style={{width:6,height:6,borderRadius:'50%',background:'#34d399'}}/>Supabase connesso</div>
+            <div style={{fontSize:10,color:'#374151',marginTop:4}}>{counts.published} pubblicate · {counts.draft} bozze</div>
           </div>
-          <button onClick={()=>{sessionStorage.removeItem('dnl_admin_auth');setAuthed(false);}} style={{margin:"0 12px 12px",padding:"8px",background:"transparent",border:"1px solid #1e2330",borderRadius:7,color:"#4b5563",fontSize:11,cursor:"pointer"}}>
-            Esci
-          </button>
+          <button onClick={() => { sessionStorage.removeItem('dnl_auth'); setAuth(false); }} style={{margin:'0 12px 12px',padding:8,background:'transparent',border:'1px solid #1e2330',borderRadius:7,color:'#4b5563',fontSize:11}}>Esci</button>
         </aside>
 
         {/* MAIN */}
-        <main style={{flex:1,padding:24,minWidth:0}}>
-          {toast&&(
-            <div style={{position:"fixed",top:16,right:16,zIndex:999,background:toast.type==="warn"?"#451a03":"#064e3b",color:toast.type==="warn"?"#fbbf24":"#34d399",padding:"10px 20px",borderRadius:8,fontSize:13,fontWeight:500,border:`1px solid ${toast.type==="warn"?"#78350f":"#065f46"}`}}>
+        <main style={{flex:1,padding:24,minWidth:0,overflowY:'auto'}}>
+          {toast && (
+            <div style={{position:'fixed',top:16,right:16,zIndex:999,background:toast.type==='err'?'#7f1d1d':toast.type==='warn'?'#451a03':'#064e3b',color:toast.type==='err'?'#fca5a5':toast.type==='warn'?'#fbbf24':'#34d399',padding:'10px 20px',borderRadius:8,fontSize:13,fontWeight:500,boxShadow:'0 4px 20px rgba(0,0,0,.4)'}}>
               {toast.msg}
             </div>
           )}
 
-          {/* LIST VIEW */}
-          {view==="list"&&<>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+          {/* LISTA AUTO */}
+          {view==='list' && <>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
               <h1 style={{fontSize:20,fontWeight:500}}>Gestione Auto</h1>
-              <button className="btn-primary" onClick={newCar}>+ Nuova auto</button>
+              <button className="btn-red" onClick={() => { setEdit({...BLANK}); setView('form'); }}>+ Nuova auto</button>
             </div>
 
-            {/* Stats */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:20}}>
-              {[["Totale",counts.all,"#e5e7eb"],["Pubblicate",counts.published,"#34d399"],["Bozze",counts.draft,"#fbbf24"],["Special",counts.special,"#f87171"]].map(([l,v,c])=>(
-                <div key={l} className="card" style={{textAlign:"center"}}>
-                  <div style={{fontSize:11,color:"#6b7280",marginBottom:6}}>{l}</div>
-                  <div style={{fontSize:28,fontWeight:600,color:c}}>{v}</div>
+            {/* Stat cards */}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:16}}>
+              {[['Totale',counts.all,'#e5e7eb'],['Pubblicate',counts.published,'#34d399'],['Bozze',counts.draft,'#fbbf24'],['Special',counts.special,'#f87171']].map(([l,v,c]) => (
+                <div key={l} className="card" style={{textAlign:'center'}}>
+                  <div style={{fontSize:11,color:'#6b7280',marginBottom:4}}>{l}</div>
+                  <div style={{fontSize:26,fontWeight:600,color:c}}>{v}</div>
                 </div>
               ))}
             </div>
 
             {/* Tabs */}
-            <div style={{display:"flex",gap:0,marginBottom:14,borderBottom:"1px solid #1e2330"}}>
-              {[["all","Tutte",counts.all],["published","Pubblicate",counts.published],["draft","Bozze",counts.draft],["special","Special",counts.special]].map(([id,l,n])=>(
-                <button key={id} onClick={()=>setTab(id)} style={{padding:"8px 14px",border:"none",background:"transparent",fontSize:12,cursor:"pointer",color:tab===id?"#e5e7eb":"#6b7280",borderBottom:tab===id?"2px solid #cc1f1f":"2px solid transparent",marginBottom:-1,fontWeight:tab===id?500:400}}>
+            <div style={{display:'flex',borderBottom:'1px solid #1e2330',marginBottom:12}}>
+              {[['all','Tutte',counts.all],['published','Pubblicate',counts.published],['draft','Bozze',counts.draft],['special','Special',counts.special]].map(([id,l,n]) => (
+                <button key={id} onClick={() => setTab(id)} style={{padding:'8px 14px',border:'none',background:'transparent',fontSize:12,cursor:'pointer',color:tab===id?'#e5e7eb':'#6b7280',borderBottom:tab===id?'2px solid #cc1f1f':'2px solid transparent',marginBottom:-1,fontWeight:tab===id?500:400}}>
                   {l} ({n})
                 </button>
               ))}
             </div>
 
-            {filtered.length===0
-              ?<div style={{textAlign:"center",padding:"60px 0",color:"#374151",fontSize:14}}>
-                  {cars.length===0?"Nessuna auto. Clicca \"+ Nuova auto\" o usa \"Importa AS24\".":"Nessuna auto in questa categoria."}
-                </div>
-              :<div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {filtered.map(car=><CarRow key={car.id} car={car} onEdit={()=>editC(car)} onDelete={()=>del(car.id)} onToggleStatus={()=>toggle(car.id,'status')} onToggleSpecial={()=>toggle(car.id,'special')}/>)}
-                </div>
+            {loading
+              ? <div style={{textAlign:'center',padding:'40px 0',color:'#4b5563'}}>Caricamento da Supabase...</div>
+              : shown.length === 0
+                ? <div style={{textAlign:'center',padding:'50px 0',color:'#374151',fontSize:14}}>
+                    {cars.length === 0 ? <>Nessuna auto. Clicca <b style={{color:'#e5e7eb'}}>"+ Nuova auto"</b> o <b style={{color:'#e5e7eb'}}>"Importa AS24"</b>.</> : 'Nessuna auto in questa categoria.'}
+                  </div>
+                : <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    {shown.map(car => <CarRow key={car.id} car={car} onEdit={() => { setEdit(car); setView('form'); }} onDelete={() => deleteCar(car)} onToggleStatus={() => toggleField(car,'status')} onToggleSpecial={() => toggleField(car,'special')}/>)}
+                  </div>
             }
           </>}
 
-          {/* IMPORT VIEW */}
-          {view==="import"&&<ImportWizard onDone={c=>{save({...BLANK,...c,status:'draft'});showToast("Bozza importata da AS24!");}} onCancel={()=>setView("list")}/>}
-
-          {/* FORM VIEW */}
-          {view==="form"&&editCar&&<CarForm car={editCar} onSave={save} onCancel={()=>{setView("list");setEditCar(null);}}/>}
+          {view==='import' && <ImportWizard onDone={c => saveCar({...BLANK,...c,status:'draft'})} onCancel={() => setView('list')}/>}
+          {view==='form' && edit && <CarForm car={edit} onSave={saveCar} onCancel={() => { setView('list'); setEdit(null); }}/>}
         </main>
       </div>
     );
   }
 
   // ── LOGIN ──
-  function Login({onLogin}){
-    const[pw,setPw]=useState('');
-    const[err,setErr]=useState(false);
-    const[attempts,setAttempts]=useState(0);
-    const[locked,setLocked]=useState(false);
-    function go(){
-      if(locked)return;
-      if(pw===PASS){onLogin();}
-      else{
-        const a=attempts+1;setAttempts(a);setErr(true);setPw('');
-        setTimeout(()=>setErr(false),2500);
-        if(a>=5){setLocked(true);setTimeout(()=>{setLocked(false);setAttempts(0);},900000);}
+  function Login({ onLogin }) {
+    const [pw, setPw] = useState('');
+    const [err, setErr] = useState(false);
+    const [attempts, setAttempts] = useState(0);
+    const [locked, setLocked] = useState(false);
+    function go() {
+      if (locked) return;
+      if (pw === PASS) { onLogin(); }
+      else {
+        const a = attempts + 1; setAttempts(a); setErr(true); setPw('');
+        setTimeout(() => setErr(false), 2500);
+        if (a >= 5) { setLocked(true); setTimeout(() => { setLocked(false); setAttempts(0); }, 900000); }
       }
     }
-    return(
-      <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",background:"#0f1117"}}>
-        <div style={{background:"#1a1f2e",border:"1px solid #2d3348",borderRadius:14,padding:"2.2rem 2rem",width:320}}>
-          <div style={{fontSize:22,fontWeight:600,marginBottom:4}}>DONO<span style={{color:"#cc1f1f"}}>LAUTO</span></div>
-          <div style={{fontSize:12,color:"#6b7280",marginBottom:28}}>Accesso pannello amministrazione</div>
+    return (
+      <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>
+        <div style={{background:'#1a1f2e',border:'1px solid #2d3348',borderRadius:14,padding:'2.2rem 2rem',width:320}}>
+          <div style={{fontSize:22,fontWeight:600,marginBottom:4}}>DONO<span style={{color:'#cc1f1f'}}>LAUTO</span></div>
+          <div style={{fontSize:12,color:'#6b7280',marginBottom:28}}>Pannello amministrazione</div>
           {locked
-            ?<div style={{background:"#7f1d1d",color:"#fca5a5",padding:"10px 14px",borderRadius:8,fontSize:13,marginBottom:12}}>Troppi tentativi. Riprova tra 15 minuti.</div>
-            :<>
-              <label>Password</label>
-              <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go()} placeholder="••••••••" style={{marginBottom:10}}/>
-              {err&&<div style={{fontSize:12,color:"#f87171",marginBottom:8}}>Password errata. {5-attempts} tentativi rimasti.</div>}
-              <button className="btn-primary" onClick={go} style={{width:"100%",padding:11,marginTop:4}}>Accedi</button>
-            </>
+            ? <div style={{background:'#7f1d1d',color:'#fca5a5',padding:'10px 14px',borderRadius:8,fontSize:13}}>Troppi tentativi. Riprova tra 15 minuti.</div>
+            : <>
+                <label>Password</label>
+                <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go()} placeholder="••••••••" style={{marginBottom:10}}/>
+                {err && <div style={{fontSize:12,color:'#f87171',marginBottom:8}}>Password errata. {5-attempts} tentativi rimasti.</div>}
+                <button className="btn-red" onClick={go} style={{width:'100%',padding:11,marginTop:4}}>Accedi</button>
+              </>
           }
-          <div style={{fontSize:10,color:"#374151",marginTop:16,lineHeight:1.6}}>
-            Accesso riservato al personale Donolauto.<br/>Attività registrate per sicurezza.
-          </div>
         </div>
       </div>
     );
   }
 
   // ── CAR ROW ──
-  function CarRow({car,onEdit,onDelete,onToggleStatus,onToggleSpecial}){
-    return(
-      <div className="card" style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-        <div style={{width:52,height:36,borderRadius:6,background:car.gradient||grad(car.color),flexShrink:0,overflow:"hidden",position:"relative"}}>
-          {car.images&&car.images[0]&&<img src={car.images[0]} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>}
+  function CarRow({ car, onEdit, onDelete, onToggleStatus, onToggleSpecial }) {
+    return (
+      <div className="card" style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+        <div style={{width:58,height:40,borderRadius:6,background:car.gradient||grad(car.color),flexShrink:0,overflow:'hidden',position:'relative'}}>
+          {car.images&&car.images[0] && <img src={car.images[0]} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>}
         </div>
         <div style={{flex:1,minWidth:140}}>
-          <div style={{fontWeight:500,fontSize:13}}>{car.brand} {car.model} <span style={{color:"#6b7280",fontWeight:400}}>{car.year}</span></div>
-          <div style={{fontSize:11,color:"#6b7280",marginTop:1}}>{fmtKm(car.km)} · {car.fuel} · {car.transmission}</div>
+          <div style={{fontWeight:500,fontSize:13}}>{car.brand} {car.model} <span style={{color:'#6b7280',fontWeight:400}}>{car.year}</span></div>
+          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>{fmtKm(car.km)} · {car.fuel} · {car.transmission}</div>
         </div>
-        <div style={{fontSize:15,fontWeight:600,color:"#f87171",flexShrink:0}}>{fmt(car.price)}</div>
-        <div style={{display:"flex",gap:5,alignItems:"center",flexShrink:0,flexWrap:"wrap"}}>
-          <span className={`tag ${car.status==='published'?'tag-pub':'tag-draft'}`}>{car.status==='published'?'Pubblicata':'Bozza'}</span>
-          {car.special&&<span className="tag tag-special">★ Special</span>}
+        <div style={{fontSize:15,fontWeight:600,color:'#f87171',flexShrink:0}}>{fmt(car.price)}</div>
+        <div style={{display:'flex',gap:4,alignItems:'center'}}>
+          <span className={`tag ${car.status==='published'?'tag-pub':'tag-draft'}`}>{car.status==='published'?'Live':'Bozza'}</span>
+          {car.special && <span className="tag tag-special">★</span>}
         </div>
-        <div style={{display:"flex",gap:5,flexShrink:0}}>
-          <button className="btn-dark" onClick={onToggleSpecial} title={car.special?"Rimuovi Special":"Marca Special"}>{car.special?"☆":"★"}</button>
-          <button className="btn-dark" onClick={onToggleStatus}>{car.status==='published'?'↓ Bozza':'↑ Pubblica'}</button>
-          <button className="btn-dark" onClick={onEdit}>✎ Modifica</button>
-          <button onClick={onDelete} style={{padding:"8px 12px",border:"1.5px solid #7f1d1d",borderRadius:8,background:"transparent",color:"#f87171",fontSize:12,cursor:"pointer"}}>🗑</button>
+        <div style={{display:'flex',gap:4,flexShrink:0,flexWrap:'wrap'}}>
+          <button className="btn-sm" onClick={onToggleSpecial}>{car.special?'☆ Rimuovi':'★ Special'}</button>
+          <button className="btn-sm" onClick={onToggleStatus} style={{color:car.status==='published'?'#fbbf24':'#34d399'}}>{car.status==='published'?'↓ Bozza':'↑ Pubblica'}</button>
+          <button className="btn-sm" onClick={onEdit}>✎</button>
+          <button onClick={onDelete} style={{padding:'6px 10px',border:'1.5px solid #7f1d1d',borderRadius:7,background:'transparent',color:'#f87171',fontSize:11}}>🗑</button>
         </div>
-      </div>
-    );
-  }
-
-  // ── IMPORT WIZARD ──
-  function ImportWizard({onDone,onCancel}){
-    const[step,setStep]=useState(1);
-    const[url,setUrl]=useState('');
-    const[text,setText]=useState('');
-    const[loading,setLoading]=useState(false);
-    const[draft,setDraft]=useState(null);
-    const[error,setError]=useState('');
-
-    async function parse(){
-      if(!text.trim()){setError('Incolla prima il testo dell\'annuncio.');return;}
-      setLoading(true);setError('');
-      try{
-        const prompt=`Estrai i dati dell'auto da questo testo di un annuncio AutoScout24.
-URL: ${url}
-TESTO:
-${text.substring(0,6000)}
-
-Rispondi SOLO con JSON valido, nessun testo extra, nessun backtick markdown:
-{"brand":"","model":"","year":2024,"price":0,"km":0,"fuel":"Benzina","hp":0,"color":"","transmission":"Manuale","doors":5,"desc":"","features":[]}
-Regole:
-- fuel: uno tra Benzina/Diesel/Ibrido/Elettrico/GPL/Metano
-- transmission: Manuale o Automatico
-- desc: descrizione accattivante max 200 caratteri in italiano
-- features: array di optional (max 10 voci)
-- doors: numero intero
-- year/price/km/hp: numeri interi senza simboli`;
-        const r=await fetch("https://api.anthropic.com/v1/messages",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
-        const d=await r.json();
-        const raw=d.content[0].text.replace(/```json|```/g,'').trim();
-        const parsed=JSON.parse(raw);
-        setDraft({...BLANK,...parsed,as24url:url,status:'draft',gradient:grad(parsed.color||''),images:[]});
-        setStep(3);
-      }catch(e){setError('Errore nell\'analisi. Controlla il testo e riprova.');}
-      setLoading(false);
-    }
-
-    return(
-      <div style={{maxWidth:700}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-          <h1 style={{fontSize:20,fontWeight:500}}>Importa da AutoScout24</h1>
-          <button className="btn-ghost" onClick={onCancel}>← Torna alla lista</button>
-        </div>
-
-        {/* Step bar */}
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:24}}>
-          {[1,2,3].map(s=>(
-            <React.Fragment key={s}>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <div style={{width:26,height:26,borderRadius:"50%",background:step>=s?"#cc1f1f":"#1e2330",border:`1px solid ${step>=s?"#cc1f1f":"#2d3348"}`,color:step>=s?"white":"#6b7280",fontSize:12,fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center"}}>{s}</div>
-                <span style={{fontSize:12,color:step===s?"#e5e7eb":"#6b7280"}}>{['URL annuncio','Copia testo','Conferma'][s-1]}</span>
-              </div>
-              {s<3&&<div style={{flex:1,height:1,background:step>s?"#cc1f1f":"#1e2330"}}/>}
-            </React.Fragment>
-          ))}
-        </div>
-
-        {step===1&&(
-          <div className="card">
-            <div style={{fontWeight:500,marginBottom:12}}>Step 1 — Incolla il link dell'annuncio AS24</div>
-            <label>URL AutoScout24</label>
-            <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://www.autoscout24.it/offers/..." style={{marginBottom:16}}/>
-            <div style={{display:"flex",gap:10}}>
-              <button className="btn-ghost" onClick={onCancel}>Annulla</button>
-              <button className="btn-primary" onClick={()=>setStep(2)} disabled={!url.includes('autoscout')} style={{opacity:url.includes('autoscout')?1:0.4}}>Avanti →</button>
-            </div>
-          </div>
-        )}
-
-        {step===2&&(
-          <div className="card">
-            <div style={{fontWeight:500,marginBottom:12}}>Step 2 — Copia il testo della pagina</div>
-            <div style={{background:"#0f1117",border:"1px solid #1e2330",borderRadius:8,padding:"14px 16px",marginBottom:14,fontSize:12,lineHeight:2,color:"#9ca3af"}}>
-              <div style={{fontWeight:500,color:"#e5e7eb",marginBottom:6}}>Come fare (30 secondi):</div>
-              <div>1. Apri l'annuncio AutoScout24 in un'altra scheda del browser</div>
-              <div>2. Clicca sulla pagina → premi <code style={{background:"#1e2330",padding:"1px 6px",borderRadius:4,color:"#e5e7eb"}}>Ctrl+A</code> per selezionare tutto</div>
-              <div>3. Premi <code style={{background:"#1e2330",padding:"1px 6px",borderRadius:4,color:"#e5e7eb"}}>Ctrl+C</code> per copiare</div>
-              <div>4. Torna qui e premi <code style={{background:"#1e2330",padding:"1px 6px",borderRadius:4,color:"#e5e7eb"}}>Ctrl+V</code> nel campo sotto</div>
-            </div>
-            <label>Testo copiato dall'annuncio</label>
-            <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Incolla qui tutto il testo della pagina AutoScout24..." style={{height:160,resize:"vertical",marginBottom:10,fontFamily:"monospace",fontSize:11}}/>
-            {error&&<div style={{color:"#f87171",fontSize:12,marginBottom:10}}>{error}</div>}
-            <div style={{fontSize:11,color:"#4b5563",marginBottom:14}}>L'AI estrarrà automaticamente tutti i dati dell'auto.</div>
-            <div style={{display:"flex",gap:10}}>
-              <button className="btn-ghost" onClick={()=>setStep(1)}>← Indietro</button>
-              <button className="btn-primary" onClick={parse} disabled={loading||!text.trim()} style={{opacity:loading||!text.trim()?0.5:1}}>
-                {loading?'⏳ Analisi in corso...':'✦ Analizza con AI'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {step===3&&draft&&(
-          <div>
-            <div style={{background:"#064e3b",border:"1px solid #065f46",borderRadius:8,padding:"10px 16px",marginBottom:16,fontSize:13,color:"#34d399",fontWeight:500}}>
-              ✓ Dati estratti con successo! Controlla e correggi se necessario, poi salva.
-            </div>
-            <div className="card">
-              <FormFields car={draft} onChange={setDraft}/>
-            </div>
-            <div style={{display:"flex",gap:10,marginTop:14}}>
-              <button className="btn-ghost" onClick={()=>{setStep(2);setDraft(null);}}>← Riprova</button>
-              <button className="btn-primary" onClick={()=>onDone(draft)}>✓ Salva come bozza</button>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
 
   // ── CAR FORM ──
-  function CarForm({car,onSave,onCancel}){
-    const[data,setData]=useState({...BLANK,...car,features:Array.isArray(car.features)?car.features.join(', '):car.features||''});
-    const fileRef=useRef();
+  function CarForm({ car, onSave, onCancel }) {
+    const [d, setD] = useState({
+      ...car,
+      features: Array.isArray(car.features) ? car.features.join(', ') : car.features||'',
+      images: car.images||[]
+    });
+    const [uploading, setUploading] = useState(false);
+    const [saving, setSaving]   = useState(false);
+    const fileRef = useRef();
+    const s = (f,v) => setD(p => ({...p,[f]:v}));
 
-    function handleImages(e){
-      const files=Array.from(e.target.files);
-      const readers=files.map(f=>new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f);}));
-      Promise.all(readers).then(imgs=>setData(d=>({...d,images:[...(d.images||[]),...imgs]})));
+    async function handleFiles(e) {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+      setUploading(true);
+      const urls = await uploadImages(files);
+      setD(p => ({...p, images:[...p.images,...urls]}));
+      setUploading(false);
     }
-    function removeImg(i){setData(d=>({...d,images:d.images.filter((_,j)=>j!==i)}))}
 
-    function handleSave(){
-      if(!data.brand||!data.model){alert('Inserisci almeno marca e modello.');return;}
-      const features=typeof data.features==='string'?data.features.split(',').map(f=>f.trim()).filter(Boolean):data.features||[];
-      onSave({...data,features,gradient:grad(data.color),year:parseInt(data.year)||new Date().getFullYear(),price:parseInt(data.price)||0,km:parseInt(data.km)||0,hp:parseInt(data.hp)||0,doors:parseInt(data.doors)||5});
+    async function removeImg(idx) {
+      const url = d.images[idx];
+      await deleteStorageImg(url);
+      setD(p => ({...p, images: p.images.filter((_,i)=>i!==idx)}));
     }
 
-    const set=(f,v)=>setData(d=>({...d,[f]:v}));
-    const isNew=!car.id;
+    async function handleSave() {
+      if (!d.brand||!d.model) { alert('Inserisci almeno marca e modello.'); return; }
+      setSaving(true);
+      await onSave(d);
+      setSaving(false);
+    }
 
-    return(
-      <div style={{maxWidth:800}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-          <h1 style={{fontSize:20,fontWeight:500}}>{isNew?"+ Nuova auto":`✎ Modifica — ${car.brand} ${car.model}`}</h1>
+    const isNew = !car.id;
+    return (
+      <div style={{maxWidth:820}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+          <h1 style={{fontSize:20,fontWeight:500}}>{isNew?'+ Nuova auto':`✎ ${car.brand||'Auto'} ${car.model||''}`}</h1>
           <button className="btn-ghost" onClick={onCancel}>← Annulla</button>
         </div>
 
-        <div className="card" style={{marginBottom:14}}>
-          <div style={{fontWeight:500,fontSize:14,marginBottom:14,color:"#9ca3af",letterSpacing:"0.04em"}}>DATI PRINCIPALI</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:12,marginBottom:12}}>
-            <div><label>Marca *</label><input value={data.brand} onChange={e=>set('brand',e.target.value)} placeholder="es. BMW"/></div>
-            <div><label>Modello *</label><input value={data.model} onChange={e=>set('model',e.target.value)} placeholder="es. Serie 3 320d"/></div>
+        {/* Dati */}
+        <div className="card" style={{marginBottom:12}}>
+          <div className="sect">Dati principali</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:10,marginBottom:10}}>
+            <div><label>Marca *</label><input value={d.brand} onChange={e=>s('brand',e.target.value)} placeholder="BMW"/></div>
+            <div><label>Modello *</label><input value={d.model} onChange={e=>s('model',e.target.value)} placeholder="Serie 3 320d"/></div>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:12}}>
-            <div><label>Anno</label><input type="number" value={data.year} onChange={e=>set('year',e.target.value)}/></div>
-            <div><label>Prezzo (€)</label><input type="number" value={data.price} onChange={e=>set('price',e.target.value)} placeholder="25000"/></div>
-            <div><label>Chilometri</label><input type="number" value={data.km} onChange={e=>set('km',e.target.value)} placeholder="45000"/></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:10}}>
+            <div><label>Anno</label><input type="number" value={d.year} onChange={e=>s('year',e.target.value)}/></div>
+            <div><label>Prezzo €</label><input type="number" value={d.price} onChange={e=>s('price',e.target.value)} placeholder="25000"/></div>
+            <div><label>Km</label><input type="number" value={d.km} onChange={e=>s('km',e.target.value)} placeholder="45000"/></div>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:12,marginBottom:12}}>
-            <div><label>Alimentazione</label><select value={data.fuel} onChange={e=>set('fuel',e.target.value)}>{FUELS.map(f=><option key={f} value={f}>{f}</option>)}</select></div>
-            <div><label>Cambio</label><select value={data.transmission} onChange={e=>set('transmission',e.target.value)}><option value="Manuale">Manuale</option><option value="Automatico">Automatico</option></select></div>
-            <div><label>CV potenza</label><input type="number" value={data.hp} onChange={e=>set('hp',e.target.value)} placeholder="150"/></div>
-            <div><label>Porte</label><select value={data.doors} onChange={e=>set('doors',e.target.value)}>{[2,3,4,5].map(n=><option key={n} value={n}>{n} porte</option>)}</select></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:10,marginBottom:10}}>
+            <div><label>Alimentazione</label><select value={d.fuel} onChange={e=>s('fuel',e.target.value)}>{FUELS.map(f=><option key={f}>{f}</option>)}</select></div>
+            <div><label>Cambio</label><select value={d.transmission} onChange={e=>s('transmission',e.target.value)}><option>Manuale</option><option>Automatico</option></select></div>
+            <div><label>CV</label><input type="number" value={d.hp} onChange={e=>s('hp',e.target.value)} placeholder="150"/></div>
+            <div><label>Porte</label><select value={d.doors} onChange={e=>s('doors',e.target.value)}>{[2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-            <div><label>Colore</label><input value={data.color} onChange={e=>set('color',e.target.value)} placeholder="es. Bianco Alpino"/></div>
-            <div><label>Link AS24 (opzionale)</label><input type="url" value={data.as24url} onChange={e=>set('as24url',e.target.value)} placeholder="https://autoscout24.it/..."/></div>
-          </div>
-        </div>
-
-        <div className="card" style={{marginBottom:14}}>
-          <div style={{fontWeight:500,fontSize:14,marginBottom:14,color:"#9ca3af",letterSpacing:"0.04em"}}>DESCRIZIONE E OPTIONAL</div>
-          <div style={{marginBottom:12}}>
-            <label>Descrizione (mostrata nell'annuncio)</label>
-            <textarea value={data.desc} onChange={e=>set('desc',e.target.value)} placeholder="Breve descrizione accattivante dell'auto..." style={{height:72,resize:"vertical"}}/>
-          </div>
-          <div>
-            <label>Optional / dotazioni (separati da virgola)</label>
-            <input value={data.features} onChange={e=>set('features',e.target.value)} placeholder="Navigatore, Sedili riscaldati, Cerchi 18&quot;, Tetto panoramico..."/>
-            <div style={{fontSize:11,color:"#4b5563",marginTop:4}}>Esempio: Navigatore, Sedili riscaldati, Cerchi 18", Camera</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+            <div><label>Colore</label><input value={d.color} onChange={e=>s('color',e.target.value)} placeholder="Bianco Alpino"/></div>
+            <div><label>Link AutoScout24</label><input value={d.as24url} onChange={e=>s('as24url',e.target.value)} placeholder="https://autoscout24.it/..."/></div>
           </div>
         </div>
 
-        <div className="card" style={{marginBottom:14}}>
-          <div style={{fontWeight:500,fontSize:14,marginBottom:14,color:"#9ca3af",letterSpacing:"0.04em"}}>FOTO</div>
-          <div style={{fontSize:12,color:"#6b7280",marginBottom:12}}>Aggiungi le foto dell'auto. La prima immagine sarà la copertina.</div>
-          <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleImages} style={{display:"none"}}/>
-          <button className="btn-dark" onClick={()=>fileRef.current.click()} style={{marginBottom:14}}>+ Aggiungi foto dal dispositivo</button>
-          {data.images&&data.images.length>0&&(
-            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(110px,1fr))",gap:8}}>
-              {data.images.map((img,i)=>(
-                <div key={i} style={{position:"relative",aspectRatio:"4/3",borderRadius:7,overflow:"hidden",border:"1px solid #2d3348"}}>
-                  <img src={img} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
-                  <button onClick={()=>removeImg(i)} style={{position:"absolute",top:4,right:4,background:"rgba(0,0,0,.7)",color:"white",border:"none",borderRadius:"50%",width:22,height:22,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
-                  {i===0&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"rgba(0,0,0,.6)",color:"#fbbf24",fontSize:9,textAlign:"center",padding:"2px",fontWeight:600}}>COPERTINA</div>}
+        {/* Descrizione */}
+        <div className="card" style={{marginBottom:12}}>
+          <div className="sect">Descrizione e optional</div>
+          <div style={{marginBottom:10}}><label>Descrizione</label><textarea value={d.description} onChange={e=>s('description',e.target.value)} style={{height:68,resize:'vertical'}} placeholder="Descrizione accattivante..."/></div>
+          <div><label>Optional (separati da virgola)</label><input value={d.features} onChange={e=>s('features',e.target.value)} placeholder="Navigatore, Sedili riscaldati, Cerchi 18&quot;, Tetto panoramico..."/></div>
+        </div>
+
+        {/* Foto */}
+        <div className="card" style={{marginBottom:12}}>
+          <div className="sect">Foto ({d.images.length} caricate)</div>
+          <div style={{fontSize:11,color:'#4b5563',marginBottom:10}}>Le foto vengono compresse automaticamente. La prima è la copertina. Massimo 20 foto.</div>
+          <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleFiles} style={{display:'none'}}/>
+          <button className="btn-sm" onClick={()=>fileRef.current.click()} disabled={uploading} style={{marginBottom:12,opacity:uploading?.6:1}}>
+            {uploading ? '⏳ Caricamento...' : '+ Aggiungi foto dal dispositivo'}
+          </button>
+          {d.images.length > 0 && (
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(90px,1fr))',gap:6}}>
+              {d.images.map((url,i) => (
+                <div key={i} style={{position:'relative',aspectRatio:'4/3',borderRadius:6,overflow:'hidden',border:'1px solid #2d3348'}}>
+                  <img src={url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
+                  <button onClick={()=>removeImg(i)} style={{position:'absolute',top:3,right:3,background:'rgba(0,0,0,.75)',color:'white',border:'none',borderRadius:'50%',width:20,height:20,cursor:'pointer',fontSize:11,lineHeight:'20px',textAlign:'center'}}>✕</button>
+                  {i===0 && <div style={{position:'absolute',bottom:0,left:0,right:0,background:'rgba(0,0,0,.65)',color:'#fbbf24',fontSize:8,textAlign:'center',padding:2,fontWeight:600}}>COPERTINA</div>}
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="card" style={{marginBottom:20}}>
-          <div style={{fontWeight:500,fontSize:14,marginBottom:14,color:"#9ca3af",letterSpacing:"0.04em"}}>VISIBILITÀ</div>
-          <div style={{display:"flex",gap:28}}>
-            <label style={{display:"flex",alignItems:"center",gap:9,cursor:"pointer",textTransform:"none",fontSize:14,letterSpacing:0,color:"#e5e7eb"}}>
-              <input type="checkbox" checked={data.special||false} onChange={e=>set('special',e.target.checked)} style={{width:"auto",accentColor:"#cc1f1f"}}/>
-              ★ Marca come Special Car
+        {/* Visibilità */}
+        <div className="card" style={{marginBottom:18}}>
+          <div className="sect">Visibilità</div>
+          <div style={{display:'flex',gap:28}}>
+            <label style={{display:'flex',alignItems:'center',gap:8,textTransform:'none',fontSize:14,letterSpacing:0,color:'#e5e7eb',cursor:'pointer'}}>
+              <input type="checkbox" checked={d.special||false} onChange={e=>s('special',e.target.checked)} style={{width:'auto',accentColor:'#cc1f1f'}}/>
+              ★ Special Car
             </label>
-            <label style={{display:"flex",alignItems:"center",gap:9,cursor:"pointer",textTransform:"none",fontSize:14,letterSpacing:0,color:"#e5e7eb"}}>
-              <input type="checkbox" checked={(data.status||'draft')==='published'} onChange={e=>set('status',e.target.checked?'published':'draft')} style={{width:"auto",accentColor:"#34d399"}}/>
-              ↑ Pubblica sul sito subito
+            <label style={{display:'flex',alignItems:'center',gap:8,textTransform:'none',fontSize:14,letterSpacing:0,color:'#e5e7eb',cursor:'pointer'}}>
+              <input type="checkbox" checked={(d.status||'draft')==='published'} onChange={e=>s('status',e.target.checked?'published':'draft')} style={{width:'auto',accentColor:'#34d399'}}/>
+              ↑ Pubblica sul sito
             </label>
           </div>
         </div>
 
-        <div style={{display:"flex",gap:10}}>
+        <div style={{display:'flex',gap:10}}>
           <button className="btn-ghost" onClick={onCancel}>Annulla</button>
-          <button className="btn-primary" onClick={handleSave} style={{padding:"10px 24px"}}>
-            {data.status==='published'?'↑ Salva e pubblica':'💾 Salva bozza'}
+          <button className="btn-red" onClick={handleSave} disabled={saving} style={{padding:'10px 28px',opacity:saving?.6:1}}>
+            {saving ? '⏳ Salvataggio...' : d.status==='published' ? '↑ Salva e pubblica' : '💾 Salva bozza'}
           </button>
         </div>
       </div>
     );
   }
 
-  // ── FORM FIELDS (usato nell'import wizard) ──
-  function FormFields({car,onChange}){
-    const set=(f,v)=>onChange({...car,[f]:v});
-    return(
-      <div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:10,marginBottom:10}}>
-          <div><label>Marca</label><input value={car.brand||''} onChange={e=>set('brand',e.target.value)}/></div>
-          <div><label>Modello</label><input value={car.model||''} onChange={e=>set('model',e.target.value)}/></div>
+  // ── IMPORT WIZARD AS24 ──
+  function ImportWizard({ onDone, onCancel }) {
+    const [step, setStep] = useState(1);
+    const [url, setUrl]   = useState('');
+    const [text, setText] = useState('');
+    const [draft, setDraft] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError]   = useState('');
+
+    async function analyze() {
+      if (!text.trim()) { setError('Incolla il testo prima.'); return; }
+      setLoading(true); setError('');
+      try {
+        const prompt = `Estrai dati auto da questo annuncio AutoScout24.
+URL: ${url}
+TESTO: ${text.slice(0,6000)}
+Rispondi SOLO con JSON valido, zero testo extra:
+{"brand":"","model":"","year":2024,"price":0,"km":0,"fuel":"Benzina","hp":0,"color":"","transmission":"Manuale","doors":5,"description":"","features":[]}
+Regole: fuel in Benzina/Diesel/Ibrido/Elettrico/GPL/Metano · transmission Manuale o Automatico · description max 200 char italiano · features array max 10 · numeri senza simboli`;
+        const r = await fetch('https://api.anthropic.com/v1/messages', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:800, messages:[{role:'user',content:prompt}] })
+        });
+        const data = await r.json();
+        const raw = data.content[0].text.replace(/```json|```/g,'').trim();
+        const parsed = JSON.parse(raw);
+        setDraft({...BLANK,...parsed,as24url:url,images:[]});
+        setStep(3);
+      } catch(e) { setError('Errore analisi. Riprova.'); }
+      setLoading(false);
+    }
+
+    return (
+      <div style={{maxWidth:680}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+          <h1 style={{fontSize:20,fontWeight:500}}>Importa da AutoScout24</h1>
+          <button className="btn-ghost" onClick={onCancel}>← Lista</button>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:10}}>
-          <div><label>Anno</label><input type="number" value={car.year||''} onChange={e=>set('year',e.target.value)}/></div>
-          <div><label>Prezzo €</label><input type="number" value={car.price||''} onChange={e=>set('price',e.target.value)}/></div>
-          <div><label>Km</label><input type="number" value={car.km||''} onChange={e=>set('km',e.target.value)}/></div>
+
+        {/* Step indicator */}
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:22}}>
+          {[1,2,3].map(s => (
+            <React.Fragment key={s}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{width:26,height:26,borderRadius:'50%',background:step>=s?'#cc1f1f':'#1e2330',border:`1px solid ${step>=s?'#cc1f1f':'#2d3348'}`,color:step>=s?'white':'#6b7280',fontSize:12,fontWeight:600,display:'flex',alignItems:'center',justifyContent:'center'}}>{s}</div>
+                <span style={{fontSize:12,color:step===s?'#e5e7eb':'#6b7280'}}>{['URL','Testo','Conferma'][s-1]}</span>
+              </div>
+              {s<3 && <div style={{flex:1,height:1,background:step>s?'#cc1f1f':'#1e2330'}}/>}
+            </React.Fragment>
+          ))}
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:10}}>
-          <div><label>Alimentazione</label><select value={car.fuel||'Benzina'} onChange={e=>set('fuel',e.target.value)}>{FUELS.map(f=><option key={f} value={f}>{f}</option>)}</select></div>
-          <div><label>Cambio</label><select value={car.transmission||'Manuale'} onChange={e=>set('transmission',e.target.value)}><option value="Manuale">Manuale</option><option value="Automatico">Automatico</option></select></div>
-          <div><label>CV</label><input type="number" value={car.hp||''} onChange={e=>set('hp',e.target.value)}/></div>
-        </div>
-        <div style={{marginBottom:10}}><label>Colore</label><input value={car.color||''} onChange={e=>set('color',e.target.value)}/></div>
-        <div style={{marginBottom:10}}><label>Descrizione</label><textarea value={car.desc||''} onChange={e=>set('desc',e.target.value)} style={{height:60,resize:"vertical"}}/></div>
-        <div><label>Optional (separati da virgola)</label><input value={Array.isArray(car.features)?car.features.join(', '):car.features||''} onChange={e=>set('features',e.target.value)}/></div>
+
+        {step===1 && (
+          <div className="card">
+            <div style={{fontWeight:500,marginBottom:12}}>Incolla il link dell'annuncio AutoScout24</div>
+            <label>URL annuncio</label>
+            <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://www.autoscout24.it/offers/..." style={{marginBottom:16}}/>
+            <div style={{display:'flex',gap:10}}>
+              <button className="btn-ghost" onClick={onCancel}>Annulla</button>
+              <button className="btn-red" onClick={()=>setStep(2)} disabled={!url.includes('autoscout')} style={{opacity:url.includes('autoscout')?1:.4}}>Avanti →</button>
+            </div>
+          </div>
+        )}
+
+        {step===2 && (
+          <div className="card">
+            <div style={{fontWeight:500,marginBottom:12}}>Copia il testo della pagina AS24</div>
+            <div style={{background:'#0f1117',border:'1px solid #1e2330',borderRadius:8,padding:'12px 14px',marginBottom:12,fontSize:12,lineHeight:2,color:'#9ca3af'}}>
+              <b style={{color:'#e5e7eb'}}>Come fare (30 sec):</b><br/>
+              1. Apri l'annuncio AS24 in un'altra scheda<br/>
+              2. Clicca sulla pagina → <code style={{background:'#1e2330',padding:'0 5px',borderRadius:3}}>Ctrl+A</code> → <code style={{background:'#1e2330',padding:'0 5px',borderRadius:3}}>Ctrl+C</code><br/>
+              3. Torna qui → <code style={{background:'#1e2330',padding:'0 5px',borderRadius:3}}>Ctrl+V</code> sotto
+            </div>
+            <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Incolla qui il testo..." style={{height:130,resize:'vertical',fontFamily:'monospace',fontSize:11,marginBottom:8}}/>
+            {error && <div style={{color:'#f87171',fontSize:12,marginBottom:8}}>{error}</div>}
+            <div style={{display:'flex',gap:10}}>
+              <button className="btn-ghost" onClick={()=>setStep(1)}>← Indietro</button>
+              <button className="btn-red" onClick={analyze} disabled={loading||!text.trim()} style={{opacity:loading||!text.trim()?.5:1}}>
+                {loading?'⏳ Analisi AI...':'✦ Analizza con AI'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step===3 && draft && (
+          <div>
+            <div style={{background:'#064e3b',border:'1px solid #065f46',borderRadius:8,padding:'10px 16px',marginBottom:14,fontSize:13,color:'#34d399',fontWeight:500}}>
+              ✓ Dati estratti! Controlla, poi salva come bozza.
+            </div>
+            <div className="card">
+              <MiniForm car={draft} onChange={setDraft}/>
+            </div>
+            <div style={{display:'flex',gap:10,marginTop:14}}>
+              <button className="btn-ghost" onClick={()=>{setStep(2);setDraft(null);}}>← Riprova</button>
+              <button className="btn-green" onClick={()=>onDone(draft)}>✓ Salva come bozza</button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
-  ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  // ── MINI FORM (per import wizard) ──
+  function MiniForm({ car, onChange }) {
+    const s = (f,v) => onChange({...car,[f]:v});
+    return (
+      <div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:8,marginBottom:8}}>
+          <div><label>Marca</label><input value={car.brand||''} onChange={e=>s('brand',e.target.value)}/></div>
+          <div><label>Modello</label><input value={car.model||''} onChange={e=>s('model',e.target.value)}/></div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:8}}>
+          <div><label>Anno</label><input type="number" value={car.year||''} onChange={e=>s('year',e.target.value)}/></div>
+          <div><label>Prezzo €</label><input type="number" value={car.price||''} onChange={e=>s('price',e.target.value)}/></div>
+          <div><label>Km</label><input type="number" value={car.km||''} onChange={e=>s('km',e.target.value)}/></div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:8}}>
+          <div><label>Alimentazione</label><select value={car.fuel||'Benzina'} onChange={e=>s('fuel',e.target.value)}>{FUELS.map(f=><option key={f}>{f}</option>)}</select></div>
+          <div><label>Cambio</label><select value={car.transmission||'Manuale'} onChange={e=>s('transmission',e.target.value)}><option>Manuale</option><option>Automatico</option></select></div>
+          <div><label>CV</label><input type="number" value={car.hp||''} onChange={e=>s('hp',e.target.value)}/></div>
+        </div>
+        <div style={{marginBottom:8}}><label>Colore</label><input value={car.color||''} onChange={e=>s('color',e.target.value)}/></div>
+        <div style={{marginBottom:8}}><label>Descrizione</label><textarea value={car.description||''} onChange={e=>s('description',e.target.value)} style={{height:55,resize:'vertical'}}/></div>
+        <div><label>Optional (separati da virgola)</label><input value={Array.isArray(car.features)?car.features.join(', '):car.features||''} onChange={e=>s('features',e.target.value)}/></div>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
