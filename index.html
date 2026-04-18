@@ -290,7 +290,7 @@
           <div style={{fontSize:10,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:C.muted,marginBottom:3}}>{car.brand}</div>
           <div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:600,marginBottom:6}}>{car.model}</div>
           <div style={{display:'flex',gap:8,fontSize:11,color:C.muted,marginBottom:8}}><span>{car.year}</span><span>·</span><span>{fmtKm(car.km)}</span><span>·</span><span>{car.fuel}</span></div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,color:C.accent}}>{fmt(car.price)}</div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:car.sold?14:20,fontWeight:700,color:car.sold?"#818cf8":C.accent,background:car.sold?"rgba(129,140,248,.12)":undefined,padding:car.sold?"4px 10px":undefined,borderRadius:car.sold?6:undefined}}>{car.sold?"🔴 VENDUTA":fmt(car.price)}</div>
         </div>
       </div>
     );
@@ -306,7 +306,7 @@
           <div style={{fontSize:10,fontWeight:700,letterSpacing:'.12em',textTransform:'uppercase',color:'#444',marginBottom:3}}>{car.brand}</div>
           <div style={{fontFamily:"'Playfair Display',serif",fontSize:16,fontWeight:600,color:'white',marginBottom:6}}>{car.model}</div>
           <div style={{display:'flex',gap:8,fontSize:11,color:'#555',marginBottom:8}}><span>{car.year}</span><span>·</span><span>{fmtKm(car.km)}</span></div>
-          <div style={{fontFamily:"'Playfair Display',serif",fontSize:20,fontWeight:700,color:C.accent}}>{fmt(car.price)}</div>
+          <div style={{fontFamily:"'Playfair Display',serif",fontSize:car.sold?14:20,fontWeight:700,color:car.sold?"#818cf8":C.accent,background:car.sold?"rgba(129,140,248,.12)":undefined,padding:car.sold?"4px 10px":undefined,borderRadius:car.sold?6:undefined}}>{car.sold?"🔴 VENDUTA":fmt(car.price)}</div>
         </div>
       </div>
     );
