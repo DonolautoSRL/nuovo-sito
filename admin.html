@@ -90,36 +90,7 @@
     } catch(e) {}
   }
 
-  // ── FETCH ANNUNCIO AS24 via proxy CORS ──
-  async function fetchAS24Data(url) {
-    const proxies = [
-      'https://api.allorigins.win/get?url=',
-      'https://api.codetabs.com/v1/proxy?quest='
-    ];
-    for (const proxy of proxies) {
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        const r = await fetch(proxy + encodeURIComponent(url), { signal: controller.signal });
-        clearTimeout(timeout);
-        if (!r.ok) continue;
-        const json = await r.json();
-        const html = json.contents || json;
-        if (typeof html !== 'string') continue;
-        // Estrai __NEXT_DATA__
-        const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-        if (m) {
-          const nd = JSON.parse(m[1]);
-          const listing = nd?.props?.pageProps?.listing
-                       || nd?.props?.pageProps?.vehicle
-                       || nd?.props?.pageProps?.ad
-                       || nd?.props?.pageProps;
-          return { ok: true, data: JSON.stringify(listing).slice(0, 10000) };
-        }
-      } catch(e) { continue; }
-    }
-    return { ok: false };
-  }
+
 
   function grad(c) {
     c = (c||'').toLowerCase();
@@ -229,7 +200,7 @@
             <div style={{fontSize:10,color:'#374151',marginTop:2,letterSpacing:'.08em'}}>ADMIN PANEL</div>
           </div>
           <nav style={{padding:'10px 0',flex:1}}>
-            {[['list','≡','Gestione Auto'],['import','↓','Importa AS24'],['new','＋','Nuova auto']].map(([v,icon,label])=>(
+            {[['list','≡','Gestione Auto'],['new','＋','Nuova auto']].map(([v,icon,label])=>(
               <button key={v} onClick={()=>v==='new'?(setEdit({...BLANK})||setView('form')):setView(v)}
                 style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'10px 18px',border:'none',background:view===v&&v!=='new'?'#1a1f2e':'transparent',color:view===v&&v!=='new'?'#e5e7eb':'#6b7280',fontSize:13,textAlign:'left'}}>
                 <span style={{color:view===v&&v!=='new'?'#cc1f1f':'#374151',width:16,textAlign:'center'}}>{icon}</span>
@@ -295,7 +266,6 @@
             }
           </>}
 
-          {view==='import'&&<ImportWizard onDone={c=>{saveCar({...BLANK,...c,status:'draft'});}} onCancel={()=>setView('list')}/>}
           {view==='form'&&edit&&<CarForm car={edit} onSave={saveCar} onCancel={()=>{setView('list');setEdit(null);}}/>}
         </main>
       </div>
@@ -357,171 +327,7 @@
     );
   }
 
-  // ── IMPORT WIZARD AS24 — nuovo sistema automatico ──
-  function ImportWizard({onDone,onCancel}){
-    const[url,setUrl]=useState('');
-    const[status,setStatus]=useState('idle'); // idle | fetching | parsing | confirm | error | manual
-    const[draft,setDraft]=useState(null);
-    const[errMsg,setErrMsg]=useState('');
-    const[manualText,setManualText]=useState('');
-
-    async function go(){
-      if(!url.includes('autoscout'))return;
-      setStatus('fetching');
-      setErrMsg('');
-
-      // 1. Prova a scaricare la pagina
-      const fetched = await fetchAS24Data(url);
-
-      setStatus('parsing');
-
-      // 2. Chiedi all'AI di estrarre i dati (da JSON strutturato o testo)
-      const source = fetched.ok ? fetched.data : null;
-
-      if(!source){
-        // Fallback manuale
-        setStatus('manual');
-        return;
-      }
-
-      try{
-        const prompt = `Sei un esperto di dati AutoScout24. Estrai i dati dell'auto da questo JSON della pagina.
-URL annuncio: ${url}
-DATI JSON: ${source}
-
-Rispondi SOLO con JSON valido, zero testo extra:
-{"brand":"","model":"","year":2024,"price":0,"km":0,"fuel":"Benzina","hp":0,"color":"","transmission":"Manuale","doors":5,"description":"","features":[]}
-Regole:
-- fuel: Benzina/Diesel/Ibrido/Elettrico/GPL/Metano
-- transmission: Manuale o Automatico
-- description: max 200 caratteri in italiano, accattivante
-- features: array max 10 optional
-- Tutti i valori numerici senza simboli`;
-
-        const r = await fetch('https://api.anthropic.com/v1/messages',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})
-        });
-        const data = await r.json();
-        const raw = data.content[0].text.replace(/```json|```/g,'').trim();
-        const parsed = JSON.parse(raw);
-        setDraft({...BLANK,...parsed,as24url:url,images:[]});
-        setStatus('confirm');
-      }catch(e){
-        setStatus('manual');
-      }
-    }
-
-    async function parseManual(){
-      if(!manualText.trim())return;
-      setStatus('parsing');
-      try{
-        const prompt = `Estrai dati auto da questo testo di un annuncio AutoScout24.
-URL: ${url}
-TESTO: ${manualText.slice(0,7000)}
-Rispondi SOLO JSON:
-{"brand":"","model":"","year":2024,"price":0,"km":0,"fuel":"Benzina","hp":0,"color":"","transmission":"Manuale","doors":5,"description":"","features":[]}`;
-        const r = await fetch('https://api.anthropic.com/v1/messages',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})
-        });
-        const data = await r.json();
-        const raw = data.content[0].text.replace(/```json|```/g,'').trim();
-        const parsed = JSON.parse(raw);
-        setDraft({...BLANK,...parsed,as24url:url,images:[]});
-        setStatus('confirm');
-      }catch(e){
-        setStatus('error');
-        setErrMsg('Analisi fallita. Riprova o inserisci manualmente.');
-      }
-    }
-
-    return(
-      <div style={{maxWidth:680}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-          <h1 style={{fontSize:20,fontWeight:500}}>Importa da AutoScout24</h1>
-          <button className="btn-ghost" onClick={onCancel}>← Lista</button>
-        </div>
-
-        {/* STEP 1: URL */}
-        {(status==='idle'||status==='error')&&(
-          <div className="card">
-            <div style={{fontWeight:500,marginBottom:6}}>Incolla il link dell'annuncio</div>
-            <div style={{fontSize:12,color:'#6b7280',marginBottom:14}}>Il sistema scarica e analizza automaticamente i dati. Nessuna copia-incolla necessaria.</div>
-            <label>URL AutoScout24</label>
-            <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://www.autoscout24.it/offers/..." style={{marginBottom:14}}
-              onKeyDown={e=>e.key==='Enter'&&go()}/>
-            {errMsg&&<div style={{color:'#f87171',fontSize:12,marginBottom:10}}>{errMsg}</div>}
-            <div style={{display:'flex',gap:10}}>
-              <button className="btn-ghost" onClick={onCancel}>Annulla</button>
-              <button className="btn-red" onClick={go} disabled={!url.includes('autoscout')} style={{opacity:url.includes('autoscout')?1:.4}}>
-                ✦ Importa automaticamente
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* LOADING */}
-        {(status==='fetching'||status==='parsing')&&(
-          <div className="card" style={{textAlign:'center',padding:'40px 20px'}}>
-            <div style={{fontSize:32,marginBottom:16}}>⏳</div>
-            <div style={{fontWeight:500,marginBottom:6}}>
-              {status==='fetching'?'Scaricamento pagina AS24...':'Analisi dati con AI...'}
-            </div>
-            <div style={{fontSize:12,color:'#6b7280'}}>
-              {status==='fetching'?'Recupero i dati dell\'annuncio...':'Estrazione marca, modello, prezzo, optional...'}
-            </div>
-            <div style={{marginTop:20,height:3,background:'#1e2330',borderRadius:2,overflow:'hidden'}}>
-              <div style={{height:'100%',background:'#cc1f1f',borderRadius:2,animation:'progress 2s linear infinite',width:'60%'}}/>
-            </div>
-            <style>{`@keyframes progress{0%{margin-left:-60%}100%{margin-left:100%}}`}</style>
-          </div>
-        )}
-
-        {/* FALLBACK MANUALE */}
-        {status==='manual'&&(
-          <div className="card">
-            <div style={{background:'#451a03',border:'1px solid #78350f',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:12,color:'#fbbf24'}}>
-              ⚠️ Download automatico bloccato da AutoScout24. Usa il metodo manuale sotto.
-            </div>
-            <div style={{fontWeight:500,marginBottom:12}}>Metodo alternativo — copia il testo</div>
-            <div style={{background:'#0f1117',border:'1px solid #1e2330',borderRadius:8,padding:'12px 14px',marginBottom:12,fontSize:12,lineHeight:2,color:'#9ca3af'}}>
-              1. Apri l'annuncio AS24 in un'altra scheda<br/>
-              2. <code style={{background:'#1e2330',padding:'0 5px',borderRadius:3}}>Ctrl+A</code> per selezionare tutto →
-              <code style={{background:'#1e2330',padding:'0 5px',borderRadius:3,marginLeft:4}}>Ctrl+C</code> per copiare<br/>
-              3. Torna qui → <code style={{background:'#1e2330',padding:'0 5px',borderRadius:3}}>Ctrl+V</code> nel campo sotto
-            </div>
-            <textarea value={manualText} onChange={e=>setManualText(e.target.value)}
-              placeholder="Incolla il testo della pagina AS24..." style={{height:120,resize:'vertical',fontFamily:'monospace',fontSize:11,marginBottom:10}}/>
-            <div style={{display:'flex',gap:10}}>
-              <button className="btn-ghost" onClick={()=>setStatus('idle')}>← Indietro</button>
-              <button className="btn-red" onClick={parseManual} disabled={!manualText.trim()} style={{opacity:manualText.trim()?1:.4}}>
-                ✦ Analizza con AI
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* CONFERMA */}
-        {status==='confirm'&&draft&&(
-          <div>
-            <div style={{background:'#064e3b',border:'1px solid #065f46',borderRadius:8,padding:'10px 16px',marginBottom:14,fontSize:13,color:'#34d399',fontWeight:500}}>
-              ✓ Dati estratti! Controlla e correggi se necessario.
-            </div>
-            <div className="card">
-              <MiniForm car={draft} onChange={setDraft}/>
-            </div>
-            <div style={{display:'flex',gap:10,marginTop:14}}>
-              <button className="btn-ghost" onClick={()=>setStatus('idle')}>← Riprova</button>
-              <button className="btn-green" onClick={()=>onDone(draft)}>✓ Salva come bozza</button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // ── CAR FORM ──
+    // ── CAR FORM ──
   function CarForm({car,onSave,onCancel}){
     const[d,setD]=useState({...car,features:Array.isArray(car.features)?car.features.join(', '):car.features||'',images:car.images||[]});
     const[uploading,setUploading]=useState(false);
@@ -629,30 +435,6 @@ Rispondi SOLO JSON:
     );
   }
 
-  function MiniForm({car,onChange}){
-    const s=(f,v)=>onChange({...car,[f]:v});
-    return(
-      <div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:8,marginBottom:8}}>
-          <div><label>Marca</label><input value={car.brand||''} onChange={e=>s('brand',e.target.value)}/></div>
-          <div><label>Modello</label><input value={car.model||''} onChange={e=>s('model',e.target.value)}/></div>
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:8}}>
-          <div><label>Anno</label><input type="number" value={car.year||''} onChange={e=>s('year',e.target.value)}/></div>
-          <div><label>Prezzo €</label><input type="number" value={car.price||''} onChange={e=>s('price',e.target.value)}/></div>
-          <div><label>Km</label><input type="number" value={car.km||''} onChange={e=>s('km',e.target.value)}/></div>
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:8}}>
-          <div><label>Alimentazione</label><select value={car.fuel||'Benzina'} onChange={e=>s('fuel',e.target.value)}>{FUELS.map(f=><option key={f}>{f}</option>)}</select></div>
-          <div><label>Cambio</label><select value={car.transmission||'Manuale'} onChange={e=>s('transmission',e.target.value)}><option>Manuale</option><option>Automatico</option></select></div>
-          <div><label>CV</label><input type="number" value={car.hp||''} onChange={e=>s('hp',e.target.value)}/></div>
-        </div>
-        <div style={{marginBottom:8}}><label>Colore</label><input value={car.color||''} onChange={e=>s('color',e.target.value)}/></div>
-        <div style={{marginBottom:8}}><label>Descrizione</label><textarea value={car.description||''} onChange={e=>s('description',e.target.value)} style={{height:50,resize:'vertical'}}/></div>
-        <div><label>Optional (virgola)</label><input value={Array.isArray(car.features)?car.features.join(', '):car.features||''} onChange={e=>s('features',e.target.value)}/></div>
-      </div>
-    );
-  }
 
   ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
