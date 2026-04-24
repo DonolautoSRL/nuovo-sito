@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donolauto — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:#0f1117;color:#e5e7eb;min-height:100vh;}
+    input,select,textarea{font-family:'DM Sans',sans-serif;background:#1e2330;border:1.5px solid #2d3348;color:#e5e7eb;border-radius:7px;padding:9px 12px;font-size:13px;width:100%;outline:none;transition:border-color .15s;}
+    input:focus,select:focus,textarea:focus{border-color:#cc1f1f;}
+    input::placeholder,textarea::placeholder{color:#4b5563;}
+    select option{background:#1e2330;}
+    button{font-family:'DM Sans',sans-serif;cursor:pointer;}
+    label{font-size:11px;color:#6b7280;display:block;margin-bottom:4px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
+    ::-webkit-scrollbar{width:5px;}
+    ::-webkit-scrollbar-track{background:#0f1117;}
+    ::-webkit-scrollbar-thumb{background:#2d3348;border-radius:3px;}
+    .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;}
+    .tag-pub{background:#064e3b;color:#34d399;}
+    .tag-draft{background:#451a03;color:#fbbf24;}
+    .tag-special{background:#7f1d1d;color:#fca5a5;}
+    .tag-sold{background:#1e1b4b;color:#a5b4fc;}
+    .btn-red{background:#cc1f1f;color:white;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;}
+    .btn-red:hover{background:#b91c1c;}
+    .btn-green{background:#065f46;color:#34d399;border:1px solid #047857;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;}
+    .btn-green:hover{background:#047857;}
+    .btn-ghost{background:transparent;color:#9ca3af;border:1.5px solid #2d3348;padding:8px 14px;border-radius:8px;font-size:12px;}
+    .btn-ghost:hover{border-color:#4b5563;color:#e5e7eb;}
+    .btn-sm{background:#1e2330;color:#e5e7eb;border:1.5px solid #2d3348;padding:6px 11px;border-radius:7px;font-size:11px;}
+    .btn-sm:hover{background:#252b3b;}
+    .card{background:#1a1f2e;border:1px solid #2d3348;border-radius:12px;padding:16px;}
+    .sect{font-size:11px;font-weight:600;color:#4b5563;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  const { createClient } = window.supabase;
+  const db = createClient(
+    'https://lropvrandavyegoclpyh.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxyb3B2cmFuZGF2eWVnb2NscHloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0OTM0NDgsImV4cCI6MjA5MjA2OTQ0OH0.F6HShpc-ns98963_BbjLv8ZZ2LxjNkqrHHSoY1ci_k8'
+  );
+
+  async function compressImg(file) {
+    return new Promise(res => {
+      const r = new FileReader();
+      r.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const MAX = 1200;
+          let w = img.width, h = img.height;
+          if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          c.toBlob(res, 'image/jpeg', 0.78);
+        };
+        img.src = e.target.result;
+      };
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function uploadImages(files) {
+    const urls = [];
+    for (let i = 0; i < files.length; i++) {
+      try {
+        const blob = await compressImg(files[i]);
+        const filename = Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2) + '.jpg';
+        const { error } = await db.storage.from('car-images').upload(filename, blob, { contentType: 'image/jpeg', upsert: true });
+        if (!error) {
+          const { data: { publicUrl } } = db.storage.from('car-images').getPublicUrl(filename);
+          urls.push(publicUrl);
+        }
+      } catch(e) { console.error(e); }
+    }
+    return urls;
+  }
+
+  async function deleteStorageImg(url) {
+    try {
+      const parts = url.split('/car-images/');
+      if (parts[1]) await db.storage.from('car-images').remove([decodeURIComponent(parts[1])]);
+    } catch(e) {}
+  }
+
+
+
+  function grad(c) {
+    c = (c||'').toLowerCase();
+    if (c.includes('bian')||c.includes('ghiacci')) return 'linear-gradient(135deg,#ddd,#f5f5f5)';
+    if (c.includes('ner')) return 'linear-gradient(135deg,#1a1a1a,#444)';
+    if (c.includes('ross')||c.includes('alfa')) return 'linear-gradient(135deg,#7a0000,#cc0000)';
+    if (c.includes('blu')) return 'linear-gradient(135deg,#0a2a5e,#1a4a8e)';
+    if (c.includes('verd')) return 'linear-gradient(135deg,#1a4a1a,#2d7a2d)';
+    if (c.includes('gri')) return 'linear-gradient(135deg,#3a3a3a,#777)';
+    if (c.includes('aran')) return 'linear-gradient(135deg,#b84e00,#e87020)';
+    return 'linear-gradient(135deg,#444,#777)';
+  }
+</script>
+
+<script type="text/babel">
+  const { useState, useEffect, useRef } = React;
+  const PASS = 'Dn0!L@uto#2025$Lgn';
+  const FUELS = ['Benzina','Diesel','Ibrido','Elettrico','GPL','Metano'];
+  const fmt = p => '€ ' + parseInt(p||0).toLocaleString('it-IT');
+  const fmtKm = k => parseInt(k||0).toLocaleString('it-IT') + ' km';
+  const BLANK = { brand:'',model:'',year:new Date().getFullYear(),fuel:'Benzina',price:'',km:'',hp:'',color:'',transmission:'Manuale',doors:5,special:false,sold:false,status:'draft',description:'',features:[],as24url:'',images:[] };
+
+  function App() {
+    const [auth, setAuth]   = useState(!!sessionStorage.getItem('dnl_auth'));
+    const [view, setView]   = useState('list');
+    const [cars, setCars]   = useState([]);
+    const [edit, setEdit]   = useState(null);
+    const [loading, setLoad] = useState(true);
+    const [toast, setToast] = useState(null);
+    const [tab, setTab]     = useState('all');
+
+    const showToast = (msg, type='ok') => { setToast({msg,type}); setTimeout(()=>setToast(null),3500); };
+
+    async function loadCars() {
+      setLoad(true);
+      const { data, error } = await db.from('cars').select('*').order('created_at',{ascending:false});
+      if (!error) setCars(data||[]);
+      setLoad(false);
+    }
+
+    useEffect(() => { if (auth) loadCars(); }, [auth]);
+
+    async function saveCar(car) {
+      const feats = Array.isArray(car.features)
+        ? car.features
+        : (car.features||'').split(',').map(f=>f.trim()).filter(Boolean);
+      const payload = {
+        brand:car.brand, model:car.model, year:parseInt(car.year)||0,
+        price:parseInt(car.price)||0, km:parseInt(car.km)||0,
+        hp:parseInt(car.hp)||0, fuel:car.fuel, color:car.color,
+        transmission:car.transmission, doors:parseInt(car.doors)||5,
+        special:car.special||false, sold:car.sold||false,
+        status:car.status||'draft', description:car.description||'',
+        features:feats, as24url:car.as24url||'',
+        gradient:grad(car.color), images:car.images||[]
+      };
+      let res;
+      if (car.id) res = await db.from('cars').update(payload).eq('id',car.id).select().single();
+      else res = await db.from('cars').insert([payload]).select().single();
+      if (res.error) { showToast('Errore: '+res.error.message,'err'); return; }
+      await loadCars();
+      showToast(car.id?'✓ Salvato!':'✓ Auto aggiunta!');
+      setView('list'); setEdit(null);
+    }
+
+    async function deleteCar(car) {
+      if (!confirm('Eliminare '+car.brand+' '+car.model+'?')) return;
+      if (car.images?.length) for (const u of car.images) await deleteStorageImg(u);
+      const { error } = await db.from('cars').delete().eq('id',car.id);
+      if (error) { showToast('Errore','err'); return; }
+      setCars(p=>p.filter(c=>c.id!==car.id));
+      showToast('Eliminata','warn');
+    }
+
+    async function toggleField(car, field) {
+      const val = field==='status'?(car.status==='published'?'draft':'published'):!car[field];
+      const { error } = await db.from('cars').update({[field]:val}).eq('id',car.id);
+      if (!error) {
+        setCars(p=>p.map(c=>c.id===car.id?{...c,[field]:val}:c));
+        const msgs = { status: val==='published'?'↑ Pubblicata!':'↓ Bozza', special: val?'★ Special ON':'☆ Special OFF', sold: val?'🔴 Segnata VENDUTA':'✓ Prezzo ripristinato' };
+        showToast(msgs[field]||'Aggiornato');
+      }
+    }
+
+    if (!auth) return <Login onLogin={()=>{sessionStorage.setItem('dnl_auth','1');setAuth(true);}}/>;
+
+    const counts = {
+      all: cars.length,
+      published: cars.filter(c=>c.status==='published').length,
+      draft: cars.filter(c=>c.status==='draft').length,
+      special: cars.filter(c=>c.special).length,
+      sold: cars.filter(c=>c.sold).length
+    };
+    const shown = cars.filter(c=>{
+      if (tab==='published') return c.status==='published';
+      if (tab==='draft')     return c.status==='draft';
+      if (tab==='special')   return c.special;
+      if (tab==='sold')      return c.sold;
+      return true;
+    });
+
+    return (
+      <div style={{display:'flex',minHeight:'100vh'}}>
+        <aside style={{width:220,background:'#0a0d14',borderRight:'1px solid #1e2330',display:'flex',flexDirection:'column',flexShrink:0,position:'sticky',top:0,height:'100vh'}}>
+          <div style={{padding:'20px 18px 14px',borderBottom:'1px solid #1e2330'}}>
+            <div style={{fontSize:19,fontWeight:600}}>DONO<span style={{color:'#cc1f1f'}}>LAUTO</span></div>
+            <div style={{fontSize:10,color:'#374151',marginTop:2,letterSpacing:'.08em'}}>ADMIN PANEL</div>
+          </div>
+          <nav style={{padding:'10px 0',flex:1}}>
+            {[['list','≡','Gestione Auto'],['new','＋','Nuova auto']].map(([v,icon,label])=>(
+              <button key={v} onClick={()=>v==='new'?(setEdit({...BLANK})||setView('form')):setView(v)}
+                style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'10px 18px',border:'none',background:view===v&&v!=='new'?'#1a1f2e':'transparent',color:view===v&&v!=='new'?'#e5e7eb':'#6b7280',fontSize:13,textAlign:'left'}}>
+                <span style={{color:view===v&&v!=='new'?'#cc1f1f':'#374151',width:16,textAlign:'center'}}>{icon}</span>
+                {label}
+                {v==='list'&&counts.draft>0&&<span style={{marginLeft:'auto',background:'#cc1f1f',color:'white',fontSize:9,borderRadius:10,padding:'1px 6px',fontWeight:600}}>{counts.draft}</span>}
+              </button>
+            ))}
+          </nav>
+          <div style={{padding:'10px 12px',margin:'0 10px 8px',background:'#0f1117',borderRadius:8,border:'1px solid #1e2330'}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,fontSize:11,color:'#34d399',marginBottom:4}}><div style={{width:6,height:6,borderRadius:'50%',background:'#34d399'}}/>Supabase live</div>
+            <div style={{fontSize:10,color:'#374151'}}>{counts.published} live · {counts.draft} bozze · {counts.sold} vendute</div>
+          </div>
+          <button onClick={()=>{sessionStorage.removeItem('dnl_auth');setAuth(false);}} style={{margin:'0 12px 12px',padding:8,background:'transparent',border:'1px solid #1e2330',borderRadius:7,color:'#4b5563',fontSize:11}}>Esci</button>
+        </aside>
+
+        <main style={{flex:1,padding:24,minWidth:0,overflowY:'auto'}}>
+          {toast&&(
+            <div style={{position:'fixed',top:16,right:16,zIndex:999,background:toast.type==='err'?'#7f1d1d':toast.type==='warn'?'#451a03':'#064e3b',color:toast.type==='err'?'#fca5a5':toast.type==='warn'?'#fbbf24':'#34d399',padding:'10px 20px',borderRadius:8,fontSize:13,fontWeight:500,boxShadow:'0 4px 20px rgba(0,0,0,.5)'}}>
+              {toast.msg}
+            </div>
+          )}
+
+          {view==='list'&&<>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+              <h1 style={{fontSize:20,fontWeight:500}}>Gestione Auto</h1>
+              <button className="btn-red" onClick={()=>{setEdit({...BLANK});setView('form');}}>+ Nuova auto</button>
+            </div>
+
+            <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:10,marginBottom:16}}>
+              {[['Totale',counts.all,'#e5e7eb'],['Live',counts.published,'#34d399'],['Bozze',counts.draft,'#fbbf24'],['Special',counts.special,'#f87171'],['Vendute',counts.sold,'#a5b4fc']].map(([l,v,c])=>(
+                <div key={l} className="card" style={{textAlign:'center'}}>
+                  <div style={{fontSize:11,color:'#6b7280',marginBottom:4}}>{l}</div>
+                  <div style={{fontSize:24,fontWeight:600,color:c}}>{v}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{display:'flex',borderBottom:'1px solid #1e2330',marginBottom:12}}>
+              {[['all','Tutte',counts.all],['published','Live',counts.published],['draft','Bozze',counts.draft],['special','Special',counts.special],['sold','Vendute',counts.sold]].map(([id,l,n])=>(
+                <button key={id} onClick={()=>setTab(id)} style={{padding:'8px 13px',border:'none',background:'transparent',fontSize:12,cursor:'pointer',color:tab===id?'#e5e7eb':'#6b7280',borderBottom:tab===id?'2px solid #cc1f1f':'2px solid transparent',marginBottom:-1,fontWeight:tab===id?500:400}}>
+                  {l} ({n})
+                </button>
+              ))}
+            </div>
+
+            {loading
+              ?<div style={{textAlign:'center',padding:'40px',color:'#4b5563'}}>Caricamento...</div>
+              :shown.length===0
+                ?<div style={{textAlign:'center',padding:'50px',color:'#374151',fontSize:14}}>
+                    {cars.length===0?<>Nessuna auto. Clicca <b style={{color:'#e5e7eb'}}>"+ Nuova"</b> o <b style={{color:'#e5e7eb'}}>"Importa AS24"</b>.</>:'Nessuna auto in questa categoria.'}
+                  </div>
+                :<div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    {shown.map(car=>(
+                      <CarRow key={car.id} car={car}
+                        onEdit={()=>{setEdit(car);setView('form');}}
+                        onDelete={()=>deleteCar(car)}
+                        onToggleStatus={()=>toggleField(car,'status')}
+                        onToggleSpecial={()=>toggleField(car,'special')}
+                        onToggleSold={()=>toggleField(car,'sold')}
+                      />
+                    ))}
+                  </div>
+            }
+          </>}
+
+          {view==='form'&&edit&&<CarForm car={edit} onSave={saveCar} onCancel={()=>{setView('list');setEdit(null);}}/>}
+        </main>
+      </div>
+    );
+  }
+
+  // ── LOGIN ──
+  function Login({onLogin}){
+    const[pw,setPw]=useState('');const[err,setErr]=useState(false);
+    const[att,setAtt]=useState(0);const[locked,setLocked]=useState(false);
+    function go(){
+      if(locked)return;
+      if(pw===PASS){onLogin();}
+      else{const a=att+1;setAtt(a);setErr(true);setPw('');setTimeout(()=>setErr(false),2500);if(a>=5){setLocked(true);setTimeout(()=>{setLocked(false);setAtt(0);},900000);}}
+    }
+    return(
+      <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>
+        <div style={{background:'#1a1f2e',border:'1px solid #2d3348',borderRadius:14,padding:'2.2rem 2rem',width:320}}>
+          <div style={{fontSize:22,fontWeight:600,marginBottom:4}}>DONO<span style={{color:'#cc1f1f'}}>LAUTO</span></div>
+          <div style={{fontSize:12,color:'#6b7280',marginBottom:28}}>Pannello amministrazione</div>
+          {locked?<div style={{background:'#7f1d1d',color:'#fca5a5',padding:'10px 14px',borderRadius:8,fontSize:13}}>Troppi tentativi. Riprova tra 15 min.</div>
+          :<>
+            <label>Password</label>
+            <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go()} placeholder="••••••••" style={{marginBottom:10}}/>
+            {err&&<div style={{fontSize:12,color:'#f87171',marginBottom:8}}>Errata. {5-att} tentativi rimasti.</div>}
+            <button className="btn-red" onClick={go} style={{width:'100%',padding:11,marginTop:4}}>Accedi</button>
+          </>}
+        </div>
+      </div>
+    );
+  }
+
+  // ── CAR ROW ──
+  function CarRow({car,onEdit,onDelete,onToggleStatus,onToggleSpecial,onToggleSold}){
+    return(
+      <div className="card" style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',opacity:car.sold?.85:1}}>
+        <div style={{width:58,height:40,borderRadius:6,background:car.gradient||grad(car.color),flexShrink:0,overflow:'hidden',position:'relative'}}>
+          {car.images?.[0]&&<img src={car.images[0]} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>}
+          {car.sold&&<div style={{position:'absolute',inset:0,background:'rgba(0,0,0,.55)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8,fontWeight:700,color:'#a5b4fc',letterSpacing:'.08em'}}>VENDUTA</div>}
+        </div>
+        <div style={{flex:1,minWidth:140}}>
+          <div style={{fontWeight:500,fontSize:13}}>{car.brand} {car.model} <span style={{color:'#6b7280',fontWeight:400}}>{car.year}</span></div>
+          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>{fmtKm(car.km)} · {car.fuel}</div>
+        </div>
+        <div style={{fontSize:14,fontWeight:600,color:car.sold?'#a5b4fc':'#f87171',flexShrink:0}}>{car.sold?'VENDUTA':fmt(car.price)}</div>
+        <div style={{display:'flex',gap:4,alignItems:'center'}}>
+          <span className={`tag ${car.status==='published'?'tag-pub':'tag-draft'}`}>{car.status==='published'?'Live':'Bozza'}</span>
+          {car.special&&<span className="tag tag-special">★</span>}
+          {car.sold&&<span className="tag tag-sold">Venduta</span>}
+        </div>
+        <div style={{display:'flex',gap:4,flexShrink:0,flexWrap:'wrap'}}>
+          <button className="btn-sm" onClick={onToggleSold} style={{color:car.sold?'#34d399':'#a5b4fc'}}>{car.sold?'↩ Rimetti in vendita':'🔴 Venduta'}</button>
+          <button className="btn-sm" onClick={onToggleSpecial}>{car.special?'☆':'★'}</button>
+          <button className="btn-sm" onClick={onToggleStatus} style={{color:car.status==='published'?'#fbbf24':'#34d399'}}>{car.status==='published'?'↓':'↑'}</button>
+          <button className="btn-sm" onClick={onEdit}>✎</button>
+          <button onClick={onDelete} style={{padding:'6px 10px',border:'1.5px solid #7f1d1d',borderRadius:7,background:'transparent',color:'#f87171',fontSize:11}}>🗑</button>
+        </div>
+      </div>
+    );
+  }
+
+    // ── CAR FORM ──
+  function CarForm({car,onSave,onCancel}){
+    const[d,setD]=useState({...car,features:Array.isArray(car.features)?car.features.join(', '):car.features||'',images:car.images||[]});
+    const[uploading,setUploading]=useState(false);
+    const[saving,setSaving]=useState(false);
+    const fileRef=useRef();
+    const s=(f,v)=>setD(p=>({...p,[f]:v}));
+
+    async function handleFiles(e){
+      const files=Array.from(e.target.files);if(!files.length)return;
+      setUploading(true);
+      const urls=await uploadImages(files);
+      setD(p=>({...p,images:[...p.images,...urls]}));
+      setUploading(false);
+    }
+    async function removeImg(i){
+      await deleteStorageImg(d.images[i]);
+      setD(p=>({...p,images:p.images.filter((_,j)=>j!==i)}));
+    }
+    async function handleSave(){
+      if(!d.brand||!d.model){alert('Inserisci marca e modello.');return;}
+      setSaving(true);await onSave(d);setSaving(false);
+    }
+
+    return(
+      <div style={{maxWidth:820}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+          <h1 style={{fontSize:20,fontWeight:500}}>{!car.id?'+ Nuova auto':`✎ ${car.brand} ${car.model}`}</h1>
+          <button className="btn-ghost" onClick={onCancel}>← Annulla</button>
+        </div>
+
+        <div className="card" style={{marginBottom:12}}>
+          <div className="sect">Dati principali</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:10,marginBottom:10}}>
+            <div><label>Marca *</label><input value={d.brand} onChange={e=>s('brand',e.target.value)} placeholder="BMW"/></div>
+            <div><label>Modello *</label><input value={d.model} onChange={e=>s('model',e.target.value)} placeholder="Serie 3 320d"/></div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:10}}>
+            <div><label>Anno</label><input type="number" value={d.year} onChange={e=>s('year',e.target.value)}/></div>
+            <div><label>Prezzo €</label><input type="number" value={d.price} onChange={e=>s('price',e.target.value)} placeholder="25000"/></div>
+            <div><label>Km</label><input type="number" value={d.km} onChange={e=>s('km',e.target.value)} placeholder="45000"/></div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:10,marginBottom:10}}>
+            <div><label>Alimentazione</label><select value={d.fuel} onChange={e=>s('fuel',e.target.value)}>{FUELS.map(f=><option key={f}>{f}</option>)}</select></div>
+            <div><label>Cambio</label><select value={d.transmission} onChange={e=>s('transmission',e.target.value)}><option>Manuale</option><option>Automatico</option></select></div>
+            <div><label>CV</label><input type="number" value={d.hp} onChange={e=>s('hp',e.target.value)} placeholder="150"/></div>
+            <div><label>Porte</label><select value={d.doors} onChange={e=>s('doors',e.target.value)}>{[2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+            <div><label>Colore</label><input value={d.color} onChange={e=>s('color',e.target.value)} placeholder="Bianco Alpino"/></div>
+            <div><label>Link AS24</label><input value={d.as24url} onChange={e=>s('as24url',e.target.value)} placeholder="https://autoscout24.it/..."/></div>
+          </div>
+        </div>
+
+        <div className="card" style={{marginBottom:12}}>
+          <div className="sect">Descrizione e optional</div>
+          <div style={{marginBottom:10}}><label>Descrizione</label><textarea value={d.description} onChange={e=>s('description',e.target.value)} style={{height:65,resize:'vertical'}} placeholder="Descrizione accattivante..."/></div>
+          <div><label>Optional (virgola)</label><input value={d.features} onChange={e=>s('features',e.target.value)} placeholder="Navigatore, Sedili riscaldati, Cerchi 18&quot;..."/></div>
+        </div>
+
+        <div className="card" style={{marginBottom:12}}>
+          <div className="sect">Foto ({d.images.length} caricate — compresse automaticamente)</div>
+          <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleFiles} style={{display:'none'}}/>
+          <button className="btn-sm" onClick={()=>fileRef.current.click()} disabled={uploading} style={{marginBottom:10,opacity:uploading?.6:1}}>
+            {uploading?'⏳ Caricamento in corso...':'+ Aggiungi foto'}
+          </button>
+          {d.images.length>0&&(
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(88px,1fr))',gap:6}}>
+              {d.images.map((url,i)=>(
+                <div key={i} style={{position:'relative',aspectRatio:'4/3',borderRadius:6,overflow:'hidden',border:'1px solid #2d3348'}}>
+                  <img src={url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
+                  <button onClick={()=>removeImg(i)} style={{position:'absolute',top:3,right:3,background:'rgba(0,0,0,.75)',color:'white',border:'none',borderRadius:'50%',width:18,height:18,cursor:'pointer',fontSize:10,lineHeight:'18px',textAlign:'center'}}>✕</button>
+                  {i===0&&<div style={{position:'absolute',bottom:0,left:0,right:0,background:'rgba(0,0,0,.65)',color:'#fbbf24',fontSize:8,textAlign:'center',padding:2,fontWeight:700}}>COVER</div>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="card" style={{marginBottom:18}}>
+          <div className="sect">Stato e visibilità</div>
+          <div style={{display:'flex',gap:24,flexWrap:'wrap'}}>
+            <label style={{display:'flex',alignItems:'center',gap:8,textTransform:'none',fontSize:14,letterSpacing:0,color:'#e5e7eb',cursor:'pointer'}}>
+              <input type="checkbox" checked={(d.status||'draft')==='published'} onChange={e=>s('status',e.target.checked?'published':'draft')} style={{width:'auto',accentColor:'#34d399'}}/>
+              ↑ Pubblica sul sito
+            </label>
+            <label style={{display:'flex',alignItems:'center',gap:8,textTransform:'none',fontSize:14,letterSpacing:0,color:'#e5e7eb',cursor:'pointer'}}>
+              <input type="checkbox" checked={d.special||false} onChange={e=>s('special',e.target.checked)} style={{width:'auto',accentColor:'#cc1f1f'}}/>
+              ★ Special Car
+            </label>
+            <label style={{display:'flex',alignItems:'center',gap:8,textTransform:'none',fontSize:14,letterSpacing:0,color:'#a5b4fc',cursor:'pointer'}}>
+              <input type="checkbox" checked={d.sold||false} onChange={e=>s('sold',e.target.checked)} style={{width:'auto',accentColor:'#818cf8'}}/>
+              🔴 Segnala come Venduta
+            </label>
+          </div>
+          {d.sold&&<div style={{marginTop:10,fontSize:12,color:'#6b7280',background:'#0f1117',borderRadius:7,padding:'8px 12px'}}>L'auto rimarrà visibile sul sito con il badge "VENDUTA" al posto del prezzo.</div>}
+        </div>
+
+        <div style={{display:'flex',gap:10}}>
+          <button className="btn-ghost" onClick={onCancel}>Annulla</button>
+          <button className="btn-red" onClick={handleSave} disabled={saving} style={{padding:'10px 28px',opacity:saving?.6:1}}>
+            {saving?'⏳ Salvando...':d.status==='published'?'↑ Salva e pubblica':'💾 Salva bozza'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
