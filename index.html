@@ -4,37 +4,14 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="description" content="Donolauto — Concessionaria auto usate multi-brand a Legnaro (PD). Stock aggiornato, prezzi competitivi."/>
-  <meta name="keywords" content="auto usate Legnaro, concessionaria Padova, auto usate Padova, vendita auto usate PD"/>
-  <meta property="og:title" content="Donolauto — Auto Usate Legnaro (PD)"/>
-  <meta property="og:description" content="Oltre 50 anni nel settore auto usate. Stock aggiornato a Legnaro (PD)."/>
   <title>Donolauto — Auto Usate Legnaro (PD)</title>
-
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23CC1F1F'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' fill='white' font-size='20' font-family='Georgia,serif' font-weight='bold'>D</text></svg>"/>
-
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"AutoDealer","name":"Donolauto S.r.l.","telephone":"+39 351 8707610","address":{"@type":"PostalAddress","streetAddress":"Via Romea 121","addressLocality":"Legnaro","addressRegion":"PD","postalCode":"35020","addressCountry":"IT"}}
-  </script>
-
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"AutoDealer","name":"Donolauto S.r.l.","telephone":"+39 351 8707610","address":{"@type":"PostalAddress","streetAddress":"Via Romea 121","addressLocality":"Legnaro","addressRegion":"PD","postalCode":"35020","addressCountry":"IT"}}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
   <style>
-    :root{
-      --bg:#0d0d0f;
-      --bg2:#141416;
-      --bg3:#1a1a1e;
-      --bg4:#222228;
-      --border:#2a2a32;
-      --border2:#333340;
-      --ink:#f0f0f0;
-      --muted:#666;
-      --muted2:#999;
-      --accent:#CC1F1F;
-      --accent2:#e02020;
-      --gold:#c9a227;
-      --green:#25D366;
-    }
+    :root{--bg:#0d0d0f;--bg2:#141416;--bg3:#1a1a1e;--bg4:#222228;--border:#2a2a32;--border2:#333340;--ink:#f0f0f0;--muted:#666;--muted2:#999;--accent:#CC1F1F;--accent2:#e02020;--gold:#c9a227;--green:#25D366;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html{scroll-behavior:smooth;}
     body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);min-height:100vh;}
@@ -44,71 +21,63 @@
     ::-webkit-scrollbar-track{background:var(--bg);}
     ::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
 
-    /* ── HEADER ── */
+    /* HEADER */
     header{background:rgba(13,13,15,.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:16px;backdrop-filter:blur(12px);}
     .logo{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.12em;cursor:pointer;white-space:nowrap;user-select:none;text-transform:uppercase;}
-    .logo .accent{color:var(--accent);}
+    .logo .ac{color:var(--accent);}
     .logo small{font-size:10px;font-weight:500;color:var(--muted);margin-left:10px;letter-spacing:.1em;border-left:1px solid var(--border2);padding-left:10px;}
     nav{display:flex;gap:2px;align-items:center;}
     nav a{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:5px;cursor:pointer;transition:all .15s;border:1px solid transparent;}
     nav a:hover{color:var(--ink);background:var(--bg3);}
     nav a.active{color:var(--ink);background:var(--bg3);border-color:var(--border2);}
-    .hamburger{display:none;background:none;border:1px solid var(--border2);cursor:pointer;padding:7px;flex-direction:column;gap:4px;border-radius:6px;}
-    .hamburger span{display:block;width:18px;height:1.5px;background:var(--muted2);transition:all .25s;}
-    .hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px);}
-    .hamburger.open span:nth-child(2){opacity:0;}
-    .hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px);}
-    @media(max-width:640px){
-      header{padding:0 16px;}
-      .hamburger{display:flex;}
-      nav{display:none;position:absolute;top:60px;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--border);flex-direction:column;padding:8px 12px 12px;gap:2px;}
-      nav.open{display:flex;}
-      nav a{font-size:13px;padding:11px 14px;border-radius:6px;border:none;}
-    }
+    .hbg{display:none;background:none;border:1px solid var(--border2);cursor:pointer;padding:7px;flex-direction:column;gap:4px;border-radius:6px;}
+    .hbg span{display:block;width:18px;height:1.5px;background:var(--muted2);transition:all .25s;}
+    .hbg.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px);}
+    .hbg.open span:nth-child(2){opacity:0;}
+    .hbg.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px);}
 
-    /* ── PAGES ── */
+    /* PAGES */
     .page{display:none;}
     .page.active{display:block;}
 
-    /* ── FILTER BAR ── */
+    /* FILTER BAR */
     .filter-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:18px 28px;}
-    .filter-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap;}
-    .filter-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
+    .filter-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
     .filter-title span{color:var(--accent);}
     .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-    .filters select{flex:1;min-width:130px;max-width:180px;padding:9px 30px 9px 11px;border:1px solid var(--border2);border-radius:6px;font-size:12px;color:var(--ink);background:var(--bg3);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;transition:border-color .15s;}
+    .filters select{flex:1;min-width:130px;max-width:190px;padding:9px 30px 9px 11px;border:1px solid var(--border2);border-radius:6px;font-size:12px;color:var(--ink);background:var(--bg3);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;transition:border-color .15s;}
     .filters select:focus{border-color:var(--accent);}
     .filters select option{background:var(--bg3);}
     .filters select:disabled{opacity:.35;cursor:not-allowed;}
-    .btn-reset{padding:9px 14px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s;letter-spacing:.04em;}
+    .btn-reset{padding:9px 14px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s;}
     .btn-reset:hover{border-color:#666;color:var(--ink);}
 
-    /* ── SORT / COUNT BAR ── */
+    /* SORT BAR */
     .sort-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 28px 8px;flex-wrap:wrap;gap:8px;}
     .count{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
-    .count strong{color:var(--ink);font-size:14px;}
+    .count strong{color:var(--ink);font-size:14px;font-family:'Rajdhani',sans-serif;}
     .sort-wrap{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);letter-spacing:.04em;}
     .sort-wrap select{padding:6px 26px 6px 9px;border:1px solid var(--border2);border-radius:6px;font-size:11px;background:var(--bg3);color:var(--ink);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23666' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;}
     .sort-wrap select option{background:var(--bg3);}
 
-    /* ── CAR GRID ── */
-    .car-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;padding:1px;background:var(--border);}
+    /* CAR GRID */
+    .car-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border);}
     .empty-state{background:var(--bg);grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--muted);}
     .empty-icon{font-size:44px;margin-bottom:16px;opacity:.4;}
     .empty-state h2{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:600;color:var(--muted2);margin-bottom:8px;letter-spacing:.06em;text-transform:uppercase;}
     .loading-state{background:var(--bg);grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--muted);font-size:13px;letter-spacing:.06em;text-transform:uppercase;}
 
-    /* ── CAR CARD ── */
+    /* CAR CARD */
     .car-card{background:var(--bg2);cursor:pointer;position:relative;overflow:hidden;transition:background .15s;}
     .car-card:hover{background:var(--bg3);}
     .car-card:hover .car-thumb img{transform:scale(1.04);}
     .car-thumb{width:100%;aspect-ratio:16/10;background:var(--bg3);position:relative;overflow:hidden;}
     .car-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
-    .car-thumb .placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px;opacity:.1;}
-    .badge-special{position:absolute;top:0;left:0;background:var(--accent);color:white;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;}
-    .badge-photos{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:#ccc;font-size:10px;padding:2px 8px;border-radius:3px;letter-spacing:.04em;}
-    .sold-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;}
-    .sold-overlay-text{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.18em;color:#a5b4fc;border:1.5px solid #a5b4fc;padding:5px 16px;text-transform:uppercase;}
+    .car-thumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px;opacity:.1;}
+    .badge-sp{position:absolute;top:0;left:0;background:var(--accent);color:white;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;}
+    .badge-ph{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);color:#ccc;font-size:10px;padding:2px 8px;border-radius:3px;letter-spacing:.04em;}
+    .sold-ov{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;}
+    .sold-ov-t{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.18em;color:#a5b4fc;border:1.5px solid #a5b4fc;padding:5px 16px;text-transform:uppercase;}
     .car-info{padding:12px 14px;border-top:1px solid var(--border);position:relative;}
     .car-brand{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
     .car-model{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:600;letter-spacing:.04em;margin-bottom:6px;line-height:1.2;}
@@ -117,29 +86,29 @@
     .car-bottom{display:flex;align-items:flex-end;justify-content:space-between;}
     .car-km{font-size:11px;color:var(--muted);letter-spacing:.04em;}
     .car-price{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:white;letter-spacing:.02em;}
-    .car-sold-label{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#818cf8;letter-spacing:.1em;text-transform:uppercase;}
-    .card-hover-line{position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transition:transform .2s ease;transform-origin:left;}
-    .car-card:hover .card-hover-line{transform:scaleX(1);}
+    .car-sold-lbl{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#818cf8;letter-spacing:.1em;text-transform:uppercase;}
+    .hover-line{position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transition:transform .2s;transform-origin:left;}
+    .car-card:hover .hover-line{transform:scaleX(1);}
 
-    /* ── SPECIAL CARS PAGE ── */
+    /* SPECIAL PAGE */
     .special-page{background:var(--bg);min-height:calc(100vh - 60px);padding:40px 28px;}
     .page-header{margin-bottom:32px;}
-    .page-header .eyebrow{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+    .eyebrow{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
     .page-header h2{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
     .special-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--border);}
-    .dark-empty{background:var(--bg);color:var(--muted);text-align:center;padding:60px 0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;grid-column:1/-1;}
+    .dark-empty{background:var(--bg);color:var(--muted);text-align:center;padding:60px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;grid-column:1/-1;}
 
-    /* ── SPECIAL CARD ── */
-    .special-card{background:var(--bg2);cursor:pointer;position:relative;overflow:hidden;transition:background .15s;}
-    .special-card:hover{background:var(--bg3);}
-    .special-card:hover .car-thumb img{transform:scale(1.04);}
-    .special-card .car-info{border-top:1px solid var(--border);}
-    .special-card .car-brand{color:var(--accent);}
-    .special-label{position:absolute;top:0;left:0;background:var(--gold);color:#1a1000;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;}
-    .special-card .card-hover-line{background:var(--gold);}
-    .special-card:hover .card-hover-line{transform:scaleX(1);}
+    /* SPECIAL CARD */
+    .sp-card{background:var(--bg2);cursor:pointer;position:relative;overflow:hidden;transition:background .15s;}
+    .sp-card:hover{background:var(--bg3);}
+    .sp-card:hover .car-thumb img{transform:scale(1.04);}
+    .sp-card .car-info{border-top:1px solid var(--border);}
+    .sp-card .car-brand{color:var(--accent);}
+    .sp-label{position:absolute;top:0;left:0;background:var(--gold);color:#1a1000;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;}
+    .sp-card .hover-line{background:var(--gold);}
+    .sp-card:hover .hover-line{transform:scaleX(1);}
 
-    /* ── CHI SIAMO ── */
+    /* CHI SIAMO */
     .storia-page{padding:60px 28px;background:var(--bg);}
     .storia-inner{max-width:700px;margin:0 auto;}
     .storia-year{font-family:'Rajdhani',sans-serif;font-size:120px;font-weight:700;color:var(--accent);opacity:.07;line-height:1;user-select:none;margin-bottom:-32px;}
@@ -151,7 +120,7 @@
     .stat-n{font-family:'Rajdhani',sans-serif;font-size:40px;font-weight:700;color:var(--accent);}
     .stat-l{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.06em;text-transform:uppercase;}
 
-    /* ── CONTATTI ── */
+    /* CONTATTI */
     .contatti-page{padding:50px 28px;background:var(--bg);}
     .contatti-inner{max-width:540px;}
     .contatti-page h2{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
@@ -170,50 +139,64 @@
     .map-link{display:block;margin-top:10px;text-align:center;font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:.04em;}
     .map-link:hover{color:var(--muted2);}
 
-    /* ── FOOTER ── */
+    /* FOOTER */
     footer{background:var(--bg2);border-top:1px solid var(--border);color:var(--muted);padding:20px 28px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;}
     footer .copy{font-size:11px;line-height:1.8;letter-spacing:.02em;}
     footer .legal-links{display:flex;gap:16px;}
-    footer .legal-links button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;text-decoration:underline;padding:0;letter-spacing:.04em;}
+    footer .legal-links button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;text-decoration:underline;padding:0;}
     footer .legal-links button:hover{color:var(--muted2);}
 
-    /* ── WHATSAPP FLOATING ── */
+    /* WA FLOAT */
     .wa-float{position:fixed;bottom:22px;right:22px;z-index:90;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(37,211,102,.35);}
     .wa-float:hover{transform:scale(1.1);}
     .wa-float svg{width:26px;height:26px;fill:white;}
 
-    /* ── CAR MODAL ── */
-    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;}
+    /* ── MODAL ── */
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:flex;align-items:flex-end;justify-content:center;}
+    @media(min-width:641px){.modal-ov{align-items:center;padding:16px;}}
     .modal-ov.hidden{display:none;}
-    .modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;max-width:860px;width:100%;max-height:92vh;overflow-y:auto;position:relative;}
-    .modal-close{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:var(--muted2);border:1px solid var(--border2);border-radius:4px;width:32px;height:32px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:10;transition:color .15s;}
-    .modal-close:hover{color:white;}
-    .modal-gallery{width:100%;aspect-ratio:16/9;background:var(--bg3);position:relative;overflow:hidden;border-radius:7px 7px 0 0;}
-    .modal-gallery img{width:100%;height:100%;object-fit:cover;}
-    .modal-gallery .placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.08;}
-    .gal-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);color:white;border:1px solid rgba(255,255,255,.15);border-radius:4px;width:38px;height:38px;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
-    .gal-btn:hover{background:rgba(0,0,0,.85);}
-    .gal-prev{left:10px;}
-    .gal-next{right:10px;}
-    .gal-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;}
-    .gal-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;transition:background .15s;}
+    .modal-box{background:var(--bg2);width:100%;max-width:860px;border-radius:12px 12px 0 0;max-height:92vh;overflow-y:auto;position:relative;}
+    @media(min-width:641px){.modal-box{border-radius:10px;}}
+    .modal-handle{display:block;width:40px;height:4px;background:#333;border-radius:2px;margin:10px auto 4px;}
+    @media(min-width:641px){.modal-handle{display:none;}}
+    /* Close button fisso in alto */
+    .modal-close-fixed{position:fixed;top:14px;right:14px;background:rgba(0,0,0,.85);color:white;border:1px solid rgba(255,255,255,.2);border-radius:8px;width:46px;height:46px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:350;transition:background .15s;}
+    .modal-close-fixed:hover{background:rgba(255,255,255,.15);}
+    .modal-gallery{width:100%;aspect-ratio:16/9;background:var(--bg3);position:relative;overflow:hidden;border-radius:12px 12px 0 0;}
+    @media(min-width:641px){.modal-gallery{border-radius:9px 9px 0 0;}}
+    .modal-gallery img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;}
+    .modal-gallery .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.1;}
+    .gal-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.6);color:white;border:1px solid rgba(255,255,255,.15);border-radius:4px;width:38px;height:52px;cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;z-index:2;}
+    .gal-prev{left:8px;}
+    .gal-next{right:8px;}
+    .gal-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;}
+    .gal-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35);cursor:pointer;}
     .gal-dot.active{background:white;}
-    .gal-count{position:absolute;bottom:10px;right:12px;background:rgba(0,0,0,.6);color:#999;font-size:11px;padding:2px 8px;border-radius:3px;letter-spacing:.04em;}
-    .modal-body{padding:20px 24px 24px;}
+    .gal-count{position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,.6);color:#aaa;font-size:11px;padding:2px 8px;border-radius:3px;}
+    .gal-open-lb{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 14px;border-radius:5px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:6px;z-index:3;transition:background .15s;}
+    .gal-open-lb:hover{background:rgba(0,0,0,.9);}
+    .modal-body{padding:18px 18px 28px;}
+    @media(min-width:641px){.modal-body{padding:20px 26px 28px;}}
     .modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
-    .modal-brand-label{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
-    .modal-title{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;letter-spacing:.06em;line-height:1.1;}
-    .modal-year{font-weight:500;color:var(--muted);font-size:20px;}
-    .modal-price{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:white;letter-spacing:.02em;flex-shrink:0;}
-    .modal-sold-badge{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#818cf8;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);padding:6px 18px;border-radius:4px;letter-spacing:.1em;text-transform:uppercase;flex-shrink:0;}
+    .modal-brand-lbl{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
+    .modal-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;letter-spacing:.04em;line-height:1.1;}
+    .modal-yr{font-weight:500;color:var(--muted);font-size:20px;}
+    .modal-price{font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:white;letter-spacing:.02em;flex-shrink:0;}
+    .modal-sold-b{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#818cf8;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);padding:6px 18px;border-radius:4px;letter-spacing:.1em;text-transform:uppercase;flex-shrink:0;}
     .specs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px;}
-    .spec-item{background:var(--bg3);padding:12px 14px;}
-    .spec-val{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;letter-spacing:.04em;}
-    .spec-label{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.06em;text-transform:uppercase;}
-    .modal-desc{font-size:14px;line-height:1.85;color:#bbb;margin-bottom:16px;letter-spacing:.02em;}
+    @media(max-width:640px){.specs-grid{grid-template-columns:repeat(2,1fr);}}
+    .spec-item{background:var(--bg3);padding:11px 13px;}
+    .spec-val{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;letter-spacing:.03em;}
+    .spec-lbl{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.06em;text-transform:uppercase;}
+    /* DESCRIZIONE — chiara, leggibile, supporto lista */
+    .modal-desc{font-size:14px;line-height:1.9;color:#c0c0c0;margin-bottom:14px;letter-spacing:.01em;}
+    .modal-desc p{margin-bottom:6px;}
+    .modal-desc ul{padding-left:18px;margin-top:4px;}
+    .modal-desc li{margin-bottom:5px;}
     .features{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px;}
     .feature-tag{padding:3px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;font-size:11px;color:var(--muted2);letter-spacing:.04em;}
     .modal-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+    @media(max-width:640px){.modal-actions{grid-template-columns:1fr 1fr;}.modal-actions .btn-m:last-child{grid-column:1/-1;}}
     .btn-m{padding:13px;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:block;text-align:center;transition:opacity .15s;}
     .btn-m:hover{opacity:.85;}
     .btn-m-red{background:var(--accent);color:white;}
@@ -222,7 +205,37 @@
     .as24-link{margin-top:10px;text-align:center;}
     .as24-link a{font-size:11px;color:var(--muted);text-decoration:underline;letter-spacing:.04em;}
 
-    /* ── LEGAL MODAL ── */
+    /* ── LIGHTBOX ── */
+    .lb{position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;}
+    .lb.hidden{display:none;}
+    .lb-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(0,0,0,.9);flex-shrink:0;min-height:58px;}
+    .lb-info{display:flex;flex-direction:column;gap:1px;min-width:0;}
+    .lb-name{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .lb-num{font-size:11px;color:#555;letter-spacing:.06em;}
+    .lb-hbtns{display:flex;gap:8px;flex-shrink:0;}
+    .lb-dl{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#ddd;height:40px;padding:0 14px;border-radius:7px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;transition:background .15s;}
+    .lb-dl:hover{background:rgba(255,255,255,.2);color:white;}
+    .lb-x{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#ddd;width:40px;height:40px;border-radius:7px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+    .lb-x:hover{background:rgba(255,255,255,.2);color:white;}
+    .lb-main{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+    .lb-main img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;}
+    .lb-arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#ccc;width:46px;height:64px;border-radius:6px;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;transition:background .15s;}
+    .lb-arr:hover{background:rgba(255,255,255,.15);color:white;}
+    .lb-al{left:8px;}
+    .lb-ar{right:8px;}
+    .lb-footer{background:rgba(0,0,0,.9);padding:8px 12px 10px;flex-shrink:0;}
+    .lb-thumbs{display:flex;gap:5px;overflow-x:auto;justify-content:center;padding:2px 0;}
+    .lb-thumbs::-webkit-scrollbar{height:3px;}
+    .lb-thumbs::-webkit-scrollbar-thumb{background:#333;}
+    .lb-thumb{width:48px;height:34px;object-fit:cover;border-radius:3px;cursor:pointer;opacity:.4;border:1.5px solid transparent;transition:opacity .15s,border-color .15s;flex-shrink:0;}
+    .lb-thumb.on{opacity:1;border-color:white;}
+    .lb-hint{text-align:center;font-size:10px;color:#333;letter-spacing:.06em;text-transform:uppercase;margin-top:6px;}
+    @media(max-width:640px){
+      .lb-arr{width:36px;height:52px;font-size:20px;}
+      .lb-al{left:3px;}.lb-ar{right:3px;}
+    }
+
+    /* LEGAL MODAL */
     .legal-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;}
     .legal-ov.hidden{display:none;}
     .legal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:8px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;position:relative;padding:28px 30px 32px;}
@@ -233,7 +246,7 @@
     .legal-box p,.legal-box li{font-size:13px;line-height:1.8;color:#666;margin-bottom:6px;}
     .legal-box ul{padding-left:16px;}
 
-    /* ── COOKIE BANNER ── */
+    /* COOKIE */
     #cookie-banner{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(13,13,15,.97);border-top:1px solid var(--border2);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;backdrop-filter:blur(12px);}
     #cookie-banner.hidden{display:none;}
     #cookie-banner p{font-size:12px;line-height:1.6;flex:1;min-width:200px;color:#888;}
@@ -242,56 +255,25 @@
     .c-acc{background:var(--accent);color:white;border:none;padding:8px 16px;border-radius:5px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;}
     .c-dec{background:transparent;color:var(--muted);border:1px solid var(--border2);padding:8px 16px;border-radius:5px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;}
 
-    /* ── RESPONSIVE ── */
+    /* RESPONSIVE */
     @media(max-width:640px){
+      header{padding:0 16px;}
+      .hbg{display:flex;}
+      nav{display:none;position:absolute;top:60px;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--border);flex-direction:column;padding:8px 12px 12px;gap:2px;}
+      nav.open{display:flex;}
+      nav a{font-size:13px;padding:11px 14px;border-radius:6px;border:none;}
       .filter-bar,.sort-bar,.storia-page,.contatti-page,.special-page{padding-left:14px;padding-right:14px;}
       .filters select{min-width:calc(50% - 4px);max-width:100%;flex:none;}
       .car-grid,.special-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
-      .modal-actions{grid-template-columns:1fr 1fr;}
-      .btn-m-email{grid-column:1/-1;}
-      .specs-grid{grid-template-columns:repeat(2,1fr);}
       .storia-year{font-size:80px;}
       .stats{grid-template-columns:1fr;}
       .contact-actions{grid-template-columns:1fr;}
       footer{flex-direction:column;align-items:flex-start;gap:10px;padding:16px 14px;}
+      .wa-float{bottom:16px;right:16px;width:48px;height:48px;}
+      .wa-float svg{width:23px;height:23px;}
+      #cookie-banner{padding:12px 14px;}
     }
-    @media(max-width:400px){
-      .car-grid{grid-template-columns:1fr;}
-    }
-
-    /* ── LIGHTBOX ── */
-    .lb{position:fixed;inset:0;background:#000;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-    .lb.hidden{display:none;}
-    .lb-top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent);z-index:5;}
-    .lb-info{display:flex;flex-direction:column;gap:2px;}
-    .lb-car-name{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#ddd;}
-    .lb-num{font-size:11px;color:#555;letter-spacing:.06em;}
-    .lb-x{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#ccc;width:40px;height:40px;border-radius:6px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
-    .lb-x:hover{background:rgba(255,255,255,.18);color:white;}
-    .lb-img-area{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:70px 60px 90px;}
-    .lb-img-area img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px;user-select:none;-webkit-user-drag:none;}
-    .lb-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#ccc;width:46px;height:64px;border-radius:6px;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:5;}
-    .lb-arrow:hover{background:rgba(255,255,255,.15);color:white;}
-    .lb-l{left:10px;}
-    .lb-r{right:10px;}
-    .lb-bottom{position:absolute;bottom:0;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 16px 14px;background:linear-gradient(to top,rgba(0,0,0,.85),transparent);z-index:5;}
-    .lb-thumbs{display:flex;gap:6px;max-width:min(90vw,600px);overflow-x:auto;padding:2px 0;}
-    .lb-thumbs::-webkit-scrollbar{height:3px;}
-    .lb-thumbs::-webkit-scrollbar-thumb{background:#333;}
-    .lb-thumb{width:46px;height:34px;object-fit:cover;border-radius:3px;cursor:pointer;opacity:.4;border:1.5px solid transparent;transition:opacity .15s,border-color .15s;flex-shrink:0;}
-    .lb-thumb.on{opacity:1;border-color:white;}
-    .lb-actions{display:flex;gap:10px;align-items:center;}
-    .lb-dots{display:flex;gap:5px;}
-    .lb-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:background .15s,transform .15s;}
-    .lb-dot.on{background:white;transform:scale(1.3);}
-    .lb-dl{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);color:#ccc;padding:7px 16px;border-radius:5px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:6px;transition:background .15s;}
-    .lb-dl:hover{background:rgba(255,255,255,.18);color:white;}
-    .lb-hint-sw{font-size:10px;color:#333;letter-spacing:.06em;text-transform:uppercase;}
-    @media(max-width:640px){
-      .lb-img-area{padding:60px 46px 100px;}
-      .lb-arrow{width:36px;height:52px;font-size:20px;}
-      .lb-l{left:4px;} .lb-r{right:4px;}
-    }
+    @media(max-width:400px){.car-grid{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
@@ -308,12 +290,8 @@
 </div>
 
 <header>
-  <div class="logo" onclick="showPage('stock')">
-    DONO<span class="accent">LAUTO</span><small>LEGNARO · PD</small>
-  </div>
-  <button class="hamburger" id="menu-btn" onclick="toggleMenu()">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="logo" onclick="showPage('stock')">DONO<span class="ac">LAUTO</span><small>LEGNARO · PD</small></div>
+  <button class="hbg" id="hbg" onclick="toggleMenu()"><span></span><span></span><span></span></button>
   <nav id="main-nav">
     <a onclick="showPage('stock')" data-page="stock" class="active">Stock Auto</a>
     <a onclick="showPage('special')" data-page="special">Special Cars</a>
@@ -322,17 +300,14 @@
   </nav>
 </header>
 
-<!-- STOCK PAGE -->
 <div id="page-stock" class="page active">
   <div class="filter-bar">
-    <div class="filter-top">
-      <div class="filter-title">CONCESSIONARIO <span>AUTO USATE</span></div>
-    </div>
+    <div class="filter-title">CONCESSIONARIO <span>AUTO USATE</span></div>
     <div class="filters">
-      <select id="f-brand" onchange="onFilterChange()"><option value="">Marca</option></select>
-      <select id="f-model" onchange="onFilterChange()" disabled><option value="">Modello</option></select>
-      <select id="f-fuel" onchange="onFilterChange()"><option value="">Alimentazione</option></select>
-      <select id="f-price" onchange="onFilterChange()">
+      <select id="f-brand" onchange="onFC()"><option value="">Marca</option></select>
+      <select id="f-model" onchange="onFC()" disabled><option value="">Modello</option></select>
+      <select id="f-fuel" onchange="onFC()"><option value="">Alimentazione</option></select>
+      <select id="f-price" onchange="onFC()">
         <option value="">Prezzo max</option>
         <option value="10000">fino a € 10.000</option>
         <option value="15000">fino a € 15.000</option>
@@ -345,7 +320,7 @@
         <option value="100000">fino a € 100.000</option>
         <option value="150000">fino a € 150.000</option>
       </select>
-      <select id="f-year" onchange="onFilterChange()">
+      <select id="f-year" onchange="onFC()">
         <option value="">Anno immatricolazione</option>
         <option value="2015">dal 2015 in poi</option>
         <option value="2017">dal 2017 in poi</option>
@@ -357,7 +332,7 @@
         <option value="2023">dal 2023 in poi</option>
         <option value="2024">dal 2024 in poi</option>
       </select>
-      <select id="f-km" onchange="onFilterChange()">
+      <select id="f-km" onchange="onFC()">
         <option value="">Chilometri max</option>
         <option value="10000">fino a 10.000 km</option>
         <option value="20000">fino a 20.000 km</option>
@@ -368,14 +343,14 @@
         <option value="150000">fino a 150.000 km</option>
         <option value="200000">fino a 200.000 km</option>
       </select>
-      <button class="btn-reset" onclick="resetFilters()">✕ Reset</button>
+      <button class="btn-reset" onclick="resetF()">✕ Reset</button>
     </div>
   </div>
   <div class="sort-bar">
-    <div class="count"><strong id="result-num">—</strong> auto trovate</div>
+    <div class="count"><strong id="rnum">—</strong> auto trovate</div>
     <div class="sort-wrap">
       <span>ORDINA</span>
-      <select id="sort-sel" onchange="onSortChange()">
+      <select id="sort-sel" onchange="onSC()">
         <option value="newest">Più recenti</option>
         <option value="price_asc">Prezzo ↑</option>
         <option value="price_desc">Prezzo ↓</option>
@@ -384,30 +359,24 @@
       </select>
     </div>
   </div>
-  <div class="car-grid" id="car-grid">
-    <div class="loading-state">Caricamento stock in corso...</div>
-  </div>
+  <div class="car-grid" id="car-grid"><div class="loading-state">Caricamento stock...</div></div>
 </div>
 
-<!-- SPECIAL PAGE -->
 <div id="page-special" class="page">
   <div class="special-page">
     <div class="page-header">
       <div class="eyebrow">Selezione esclusiva</div>
       <h2>Special Cars</h2>
     </div>
-    <div class="special-grid" id="special-grid">
-      <div class="dark-empty">Caricamento...</div>
-    </div>
+    <div class="special-grid" id="special-grid"><div class="dark-empty">Caricamento...</div></div>
   </div>
 </div>
 
-<!-- CHI SIAMO PAGE -->
 <div id="page-storia" class="page">
   <div class="storia-page">
     <div class="storia-inner">
       <div class="storia-year">1975</div>
-      <h2 class="storia-h2">Oltre 50 anni di passione <br/>per l'auto</h2>
+      <h2 class="storia-h2">Oltre 50 anni di passione per l'auto</h2>
       <div class="divider"></div>
       <p class="storia-p">Donolauto nasce a Legnaro nel cuore della provincia di Padova. Da oltre mezzo secolo la famiglia affianca i clienti nella scelta dell'auto giusta: un consulente di fiducia, non un semplice venditore.</p>
       <p class="storia-p">Ogni auto nel nostro stock passa dalla nostra officina interna: viene preparata, revisionata e certificata prima di essere proposta. Nessuna sorpresa, solo trasparenza.</p>
@@ -421,37 +390,18 @@
   </div>
 </div>
 
-<!-- CONTATTI PAGE -->
 <div id="page-contatti" class="page">
   <div class="contatti-page">
     <div class="contatti-inner">
       <h2>Contattaci</h2>
       <div class="sub">Siamo a Legnaro (PD) — vieni a trovarci o scrivici.</div>
       <div class="contact-items">
-        <a class="contact-item" href="https://www.google.com/maps/search/?api=1&query=Via+Romea+121+Legnaro+PD" target="_blank" rel="noopener">
-          <span class="contact-icon">📍</span>
-          <div><div class="contact-label">Indirizzo</div><div class="contact-val">Via Romea 121, 35020 Legnaro (PD)</div></div>
-        </a>
-        <a class="contact-item" href="tel:+393518707610">
-          <span class="contact-icon">📞</span>
-          <div><div class="contact-label">Cellulare</div><div class="contact-val">+39 351 8707610</div></div>
-        </a>
-        <a class="contact-item" href="tel:+390496412840">
-          <span class="contact-icon">📞</span>
-          <div><div class="contact-label">Fisso</div><div class="contact-val">+39 049 641284</div></div>
-        </a>
-        <a class="contact-item" href="mailto:info@donolauto.it">
-          <span class="contact-icon">✉️</span>
-          <div><div class="contact-label">Email</div><div class="contact-val">info@donolauto.it</div></div>
-        </a>
-        <div class="contact-item">
-          <span class="contact-icon">📧</span>
-          <div><div class="contact-label">PEC</div><div class="contact-val">donolautosrl@pec.it</div></div>
-        </div>
-        <div class="contact-item">
-          <span class="contact-icon">🕐</span>
-          <div><div class="contact-label">Orari</div><div class="contact-val">Lun–Ven 9:00–12:30 · 14:30–19:00 · Sab 9:00–12:30</div></div>
-        </div>
+        <a class="contact-item" href="https://www.google.com/maps/search/?api=1&query=Via+Romea+121+Legnaro+PD" target="_blank" rel="noopener"><span class="contact-icon">📍</span><div><div class="contact-label">Indirizzo</div><div class="contact-val">Via Romea 121, 35020 Legnaro (PD)</div></div></a>
+        <a class="contact-item" href="tel:+393518707610"><span class="contact-icon">📞</span><div><div class="contact-label">Cellulare</div><div class="contact-val">+39 351 8707610</div></div></a>
+        <a class="contact-item" href="tel:+390496412840"><span class="contact-icon">📞</span><div><div class="contact-label">Fisso</div><div class="contact-val">+39 049 641284</div></div></a>
+        <a class="contact-item" href="mailto:info@donolauto.it"><span class="contact-icon">✉️</span><div><div class="contact-label">Email</div><div class="contact-val">info@donolauto.it</div></div></a>
+        <div class="contact-item"><span class="contact-icon">📧</span><div><div class="contact-label">PEC</div><div class="contact-val">donolautosrl@pec.it</div></div></div>
+        <div class="contact-item"><span class="contact-icon">🕐</span><div><div class="contact-label">Orari</div><div class="contact-val">Lun–Ven 9:00–12:30 · 14:30–19:00 · Sab 9:00–12:30</div></div></div>
       </div>
       <div class="contact-actions">
         <a class="btn-call" href="tel:+393518707610">📞 Chiama ora</a>
@@ -463,76 +413,99 @@
 </div>
 
 <footer>
-  <div class="copy">
-    © <span id="copy-year"></span> Donolauto S.r.l. · Via Romea 121, 35020 Legnaro (PD) · P.IVA: IT 05258940286<br/>
-    Tel: +39 351 8707610 / +39 049 641284 · PEC: donolautosrl@pec.it
-  </div>
+  <div class="copy">© <span id="cy"></span> Donolauto S.r.l. · Via Romea 121, 35020 Legnaro (PD) · P.IVA: IT 05258940286<br/>Tel: +39 351 8707610 / +39 049 641284 · PEC: donolautosrl@pec.it</div>
   <div class="legal-links">
     <button onclick="openLegal('privacy')">Privacy Policy</button>
     <button onclick="openLegal('cookie')">Cookie Policy</button>
   </div>
 </footer>
 
-<!-- WA FLOAT -->
 <a class="wa-float" href="https://wa.me/393518707610?text=Ciao%20Donolauto%2C%20vorrei%20informazioni%20sulle%20auto%20disponibili." target="_blank" rel="noopener" aria-label="WhatsApp">
   <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
 
-<!-- CAR MODAL -->
-<div class="modal-ov hidden" id="car-modal" onclick="closeModal(event)">
-  <div class="modal-box" id="modal-content"></div>
+<!-- LIGHTBOX -->
+<div class="lb hidden" id="lb">
+  <div class="lb-header">
+    <div class="lb-info">
+      <div class="lb-name" id="lb-name"></div>
+      <div class="lb-num" id="lb-num"></div>
+    </div>
+    <div class="lb-hbtns">
+      <a class="lb-dl" id="lb-dl" href="#" download>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 5.5l2.5 2.5L9 5.5M1 11h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Scarica
+      </a>
+      <button class="lb-x" onclick="lbClose()">✕</button>
+    </div>
+  </div>
+  <div class="lb-main" id="lb-main">
+    <img id="lb-img" src="" alt=""/>
+    <button class="lb-arr lb-al" id="lb-al" onclick="lbPrev()">‹</button>
+    <button class="lb-arr lb-ar" id="lb-ar" onclick="lbNext()">›</button>
+  </div>
+  <div class="lb-footer">
+    <div class="lb-thumbs" id="lb-thumbs"></div>
+    <div class="lb-hint" id="lb-hint"></div>
+  </div>
 </div>
 
+<!-- MODAL AUTO -->
+<div class="modal-ov hidden" id="car-modal" onclick="mBgClose(event)">
+  <div class="modal-box" id="modal-content"></div>
+</div>
+<button class="modal-close-fixed hidden" id="modal-close-btn" onclick="mClose()">✕</button>
+
 <!-- LEGAL MODAL -->
-<div class="legal-ov hidden" id="legal-modal" onclick="closeLegal(event)">
+<div class="legal-ov hidden" id="legal-modal" onclick="lClose(event)">
   <div class="legal-box" id="legal-content"></div>
 </div>
 
 <script>
-const { createClient } = window.supabase;
-const db = createClient('https://lropvrandavyegoclpyh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxyb3B2cmFuZGF2eWVnb2NscHloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0OTM0NDgsImV4cCI6MjA5MjA2OTQ0OH0.F6HShpc-ns98963_BbjLv8ZZ2LxjNkqrHHSoY1ci_k8');
+const{createClient}=window.supabase;
+const db=createClient('https://lropvrandavyegoclpyh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxyb3B2cmFuZGF2eWVnb2NscHloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0OTM0NDgsImV4cCI6MjA5MjA2OTQ0OH0.F6HShpc-ns98963_BbjLv8ZZ2LxjNkqrHHSoY1ci_k8');
 
-let ALL_CARS=[],MODAL_CAR=null,MODAL_IDX=0;
+let CARS=[],MC=null,MI=0;
 const F={brand:'',model:'',fuel:'',price:'',year:'',km:''};
 let SORT='newest';
 
 const fmt=p=>'€ '+parseInt(p||0).toLocaleString('it-IT');
 const fmtKm=k=>parseInt(k||0).toLocaleString('it-IT')+' km';
 function esc(s){return(s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function waLink(msg){return 'https://wa.me/393518707610?text='+encodeURIComponent(msg);}
+function wa(msg){return'https://wa.me/393518707610?text='+encodeURIComponent(msg);}
 
-document.getElementById('copy-year').textContent=new Date().getFullYear();
-initCookieBanner();
+document.getElementById('cy').textContent=new Date().getFullYear();
+initCookie();
 loadCars();
 
 async function loadCars(){
   const{data}=await db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false});
-  ALL_CARS=data||[];
-  populateFilters();renderStock();renderSpecial();
-  db.channel('cars').on('postgres_changes',{event:'*',schema:'public',table:'cars'},async()=>{
+  CARS=data||[];
+  populateF();renderStock();renderSpecial();
+  db.channel('cars-ch').on('postgres_changes',{event:'*',schema:'public',table:'cars'},async()=>{
     const{data}=await db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false});
-    ALL_CARS=data||[];populateFilters();renderStock();renderSpecial();
+    CARS=data||[];populateF();renderStock();renderSpecial();
   }).subscribe();
 }
 
-function populateFilters(){
-  const brands=[...new Set(ALL_CARS.map(c=>c.brand))].sort();
-  const fuels=[...new Set(ALL_CARS.map(c=>c.fuel))].sort();
-  const bs=document.getElementById('f-brand'),curB=bs.value;
-  bs.innerHTML='<option value="">Marca</option>'+brands.map(b=>`<option value="${esc(b)}"${b===curB?' selected':''}>${esc(b)}</option>`).join('');
-  populateModels(curB);
-  const fs=document.getElementById('f-fuel'),curF=fs.value;
-  fs.innerHTML='<option value="">Alimentazione</option>'+fuels.map(f=>`<option value="${esc(f)}"${f===curF?' selected':''}>${esc(f)}</option>`).join('');
+function populateF(){
+  const brands=[...new Set(CARS.map(c=>c.brand))].sort();
+  const fuels=[...new Set(CARS.map(c=>c.fuel))].sort();
+  const bs=document.getElementById('f-brand'),cb=bs.value;
+  bs.innerHTML='<option value="">Marca</option>'+brands.map(b=>`<option value="${esc(b)}"${b===cb?' selected':''}>${esc(b)}</option>`).join('');
+  populateModels(cb);
+  const fs=document.getElementById('f-fuel'),cf=fs.value;
+  fs.innerHTML='<option value="">Alimentazione</option>'+fuels.map(f=>`<option value="${esc(f)}"${f===cf?' selected':''}>${esc(f)}</option>`).join('');
 }
 function populateModels(brand){
   const ms=document.getElementById('f-model');
   if(!brand){ms.innerHTML='<option value="">Modello</option>';ms.disabled=true;return;}
-  const models=[...new Set(ALL_CARS.filter(c=>c.brand===brand).map(c=>c.model))].sort();
+  const models=[...new Set(CARS.filter(c=>c.brand===brand).map(c=>c.model))].sort();
   ms.innerHTML='<option value="">Modello</option>'+models.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join('');
   ms.disabled=false;
 }
-function getFiltered(){
-  let cars=ALL_CARS.filter(c=>{
+function getF(){
+  return CARS.filter(c=>{
     if(F.brand&&c.brand!==F.brand)return false;
     if(F.model&&c.model!==F.model)return false;
     if(F.fuel&&c.fuel!==F.fuel)return false;
@@ -540,28 +513,27 @@ function getFiltered(){
     if(F.year&&c.year<parseInt(F.year))return false;
     if(F.km&&c.km>parseInt(F.km))return false;
     return true;
+  }).sort((a,b)=>{
+    if(SORT==='price_asc')return a.price-b.price;
+    if(SORT==='price_desc')return b.price-a.price;
+    if(SORT==='year_desc')return b.year-a.year;
+    if(SORT==='km_asc')return a.km-b.km;
+    return 0;
   });
-  if(SORT==='price_asc')cars.sort((a,b)=>a.price-b.price);
-  if(SORT==='price_desc')cars.sort((a,b)=>b.price-a.price);
-  if(SORT==='year_desc')cars.sort((a,b)=>b.year-a.year);
-  if(SORT==='km_asc')cars.sort((a,b)=>a.km-b.km);
-  return cars;
 }
-function onFilterChange(){
+function onFC(){
   F.brand=document.getElementById('f-brand').value;
-  F.model=document.getElementById('f-model').value;
   F.fuel=document.getElementById('f-fuel').value;
   F.price=document.getElementById('f-price').value;
   F.year=document.getElementById('f-year').value;
   F.km=document.getElementById('f-km').value;
-  if(F.brand!==document.getElementById('f-model').dataset.brand){
-    populateModels(F.brand);F.model='';
-    document.getElementById('f-model').dataset.brand=F.brand;
-  }
+  const nb=F.brand,ms=document.getElementById('f-model');
+  if(nb!==ms.dataset.brand){populateModels(nb);F.model='';ms.dataset.brand=nb;}
+  else{F.model=ms.value;}
   renderStock();
 }
-function onSortChange(){SORT=document.getElementById('sort-sel').value;renderStock();}
-function resetFilters(){
+function onSC(){SORT=document.getElementById('sort-sel').value;renderStock();}
+function resetF(){
   F.brand=F.model=F.fuel=F.price=F.year=F.km='';
   ['f-brand','f-model','f-fuel','f-price','f-year','f-km'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-model').disabled=true;
@@ -569,197 +541,213 @@ function resetFilters(){
 }
 
 function renderStock(){
-  const cars=getFiltered();
-  document.getElementById('result-num').textContent=cars.length;
-  const grid=document.getElementById('car-grid');
-  if(cars.length===0){
-    grid.innerHTML=ALL_CARS.length===0
-      ?'<div class="empty-state"><div class="empty-icon">🚗</div><h2>Stock in aggiornamento</h2><p>Contattaci per le vetture disponibili.</p></div>'
-      :'<div class="empty-state"><h2>Nessun risultato</h2><p>Modifica i filtri di ricerca.</p></div>';
+  const cars=getF();
+  document.getElementById('rnum').textContent=cars.length;
+  const g=document.getElementById('car-grid');
+  if(!cars.length){
+    g.innerHTML=CARS.length?'<div class="empty-state"><h2>Nessun risultato</h2><p>Modifica i filtri di ricerca.</p></div>':'<div class="empty-state"><div class="empty-icon">🚗</div><h2>Stock in aggiornamento</h2><p>Contattaci per le vetture disponibili.</p></div>';
     return;
   }
-  grid.innerHTML=cars.map(carCardHTML).join('');
+  g.innerHTML=cars.map(cardHTML).join('');
 }
-
 function renderSpecial(){
-  const sp=ALL_CARS.filter(c=>c.special);
-  const grid=document.getElementById('special-grid');
-  if(sp.length===0){grid.innerHTML='<div class="dark-empty">Nessuna Special Car al momento</div>';return;}
-  grid.innerHTML=sp.map(specialCardHTML).join('');
+  const sp=CARS.filter(c=>c.special);
+  const g=document.getElementById('special-grid');
+  g.innerHTML=sp.length?sp.map(spCardHTML).join(''):'<div class="dark-empty">Nessuna Special Car al momento</div>';
 }
 
-function carCardHTML(car){
-  const img=car.images?.length?`<img src="${esc(car.images[0])}" alt="${esc(car.brand+' '+car.model)}" loading="lazy">`:`<div class="placeholder">🚗</div>`;
-  const photos=car.images?.length>1?`<div class="badge-photos">📷 ${car.images.length}</div>`:'';
-  const sold=car.sold?`<div class="sold-overlay"><div class="sold-overlay-text">VENDUTA</div></div>`:'';
-  const badge=car.special?`<div class="badge-special">● SPECIAL</div>`:'';
-  const price=car.sold?`<div class="car-sold-label">VENDUTA</div>`:`<div class="car-price">${fmt(car.price)}</div>`;
-  return`<div class="car-card" onclick="openModal(${car.id})">
-    <div class="car-thumb" style="background:${esc(car.gradient||'linear-gradient(135deg,#222,#333)')}">
-
-      ${img}${sold}${badge}${photos}
-    </div>
-    <div class="car-info">
-      <div class="car-brand">${esc(car.brand)}</div>
-      <div class="car-model">${esc(car.model)}</div>
-      <div class="car-chips">
-        <span class="chip">${car.year}</span>
-        <span class="chip">${esc(car.fuel)}</span>
-        ${car.transmission?`<span class="chip">${esc(car.transmission)}</span>`:''}
-      </div>
-      <div class="car-bottom">
-        <div class="car-km">${fmtKm(car.km)}</div>
-        ${price}
-      </div>
-    </div>
-    <div class="card-hover-line"></div>
-  </div>`;
+function cardHTML(c){
+  const img=c.images?.length?`<img src="${esc(c.images[0])}" alt="${esc(c.brand+' '+c.model)}" loading="lazy">`:'<div class="ph">🚗</div>';
+  const sold=c.sold?'<div class="sold-ov"><div class="sold-ov-t">VENDUTA</div></div>':'';
+  const ph=c.images?.length>1?`<div class="badge-ph">📷 ${c.images.length}</div>`:'';
+  const sp=c.special?'<div class="badge-sp">● SPECIAL</div>':'';
+  const price=c.sold?'<div class="car-sold-lbl">VENDUTA</div>':`<div class="car-price">${fmt(c.price)}</div>`;
+  return`<div class="car-card" onclick="openM(${c.id})"><div class="car-thumb" style="background:${esc(c.gradient||'linear-gradient(135deg,#222,#333)')}">${img}${sold}${sp}${ph}</div><div class="car-info"><div class="car-brand">${esc(c.brand)}</div><div class="car-model">${esc(c.model)}</div><div class="car-chips"><span class="chip">${c.year}</span><span class="chip">${esc(c.fuel)}</span>${c.transmission?`<span class="chip">${esc(c.transmission)}</span>`:''}</div><div class="car-bottom"><div class="car-km">${fmtKm(c.km)}</div>${price}</div></div><div class="hover-line"></div></div>`;
+}
+function spCardHTML(c){
+  const img=c.images?.length?`<img src="${esc(c.images[0])}" alt="${esc(c.brand+' '+c.model)}" loading="lazy">`:'<div class="ph">🚗</div>';
+  const ph=c.images?.length>1?`<div class="badge-ph">📷 ${c.images.length}</div>`:'';
+  const price=c.sold?'<div class="car-sold-lbl">VENDUTA</div>':`<div class="car-price">${fmt(c.price)}</div>`;
+  return`<div class="sp-card" onclick="openM(${c.id})"><div class="car-thumb" style="background:${esc(c.gradient||'linear-gradient(135deg,#222,#333)')}">${img}<div class="sp-label">★ SPECIAL</div>${ph}</div><div class="car-info"><div class="car-brand">${esc(c.brand)}</div><div class="car-model">${esc(c.model)}</div><div class="car-chips"><span class="chip">${c.year}</span><span class="chip">${esc(c.fuel)}</span></div><div class="car-bottom"><div class="car-km">${fmtKm(c.km)}</div>${price}</div></div><div class="hover-line"></div></div>`;
 }
 
-function specialCardHTML(car){
-  const img=car.images?.length?`<img src="${esc(car.images[0])}" alt="${esc(car.brand+' '+car.model)}" loading="lazy">`:`<div class="placeholder">🚗</div>`;
-  const photos=car.images?.length>1?`<div class="badge-photos">📷 ${car.images.length}</div>`:'';
-  const price=car.sold?`<div class="car-sold-label">VENDUTA</div>`:`<div class="car-price">${fmt(car.price)}</div>`;
-  return`<div class="special-card" onclick="openModal(${car.id})">
-    <div class="car-thumb" style="background:${esc(car.gradient||'linear-gradient(135deg,#222,#333)')}">
-
-      ${img}<div class="special-label">★ SPECIAL</div>${photos}
-    </div>
-    <div class="car-info">
-      <div class="car-brand">${esc(car.brand)}</div>
-      <div class="car-model">${esc(car.model)}</div>
-      <div class="car-chips">
-        <span class="chip">${car.year}</span>
-        <span class="chip">${esc(car.fuel)}</span>
-      </div>
-      <div class="car-bottom">
-        <div class="car-km">${fmtKm(car.km)}</div>
-        ${price}
-      </div>
-    </div>
-    <div class="card-hover-line"></div>
-  </div>`;
-}
-
-function openModal(id){
-  MODAL_CAR=ALL_CARS.find(c=>c.id===id);
-  if(!MODAL_CAR)return;
-  MODAL_IDX=0;renderModal();
+// ── MODAL ──
+function openM(id){
+  MC=CARS.find(c=>c.id===id);if(!MC)return;
+  MI=0;renderM();
   document.getElementById('car-modal').classList.remove('hidden');
+  document.getElementById('modal-close-btn').classList.remove('hidden');
   document.body.style.overflow='hidden';
 }
-function closeModal(e){if(e?.target!==document.getElementById('car-modal'))return;closeModalBtn();}
-function closeModalBtn(){document.getElementById('car-modal').classList.add('hidden');document.body.style.overflow='';}
-function renderModal(){
-  const car=MODAL_CAR;if(!car)return;
-  const imgs=car.images?.length?car.images:null;
-  const waMsg=`Ciao Donolauto, sono interessato alla ${car.brand} ${car.model} ${car.year}${car.sold?'':', '+fmt(car.price)}. Posso avere informazioni?`;
-  const galNav=imgs?.length>1?`
-    <button class="gal-btn gal-prev" onclick="galPrev()">‹</button>
-    <button class="gal-btn gal-next" onclick="galNext()">›</button>
-    <div class="gal-dots">${imgs.map((_,i)=>`<div class="gal-dot${i===MODAL_IDX?' active':''}" onclick="galGoto(${i})"></div>`).join('')}</div>
-    <div class="gal-count">${MODAL_IDX+1} / ${imgs.length}</div>`:'';
+function mClose(){
+  document.getElementById('car-modal').classList.add('hidden');
+  document.getElementById('modal-close-btn').classList.add('hidden');
+  document.body.style.overflow='';
+}
+function mBgClose(e){if(e.target===document.getElementById('car-modal'))mClose();}
+
+function renderM(){
+  const c=MC;if(!c)return;
+  const imgs=c.images?.length?c.images:null;
+  const cn=esc(c.brand)+' '+esc(c.model);
+  const wmsg='Ciao Donolauto, sono interessato alla '+c.brand+' '+c.model+' '+c.year+(c.sold?'':', '+fmt(c.price))+'. Posso avere informazioni?';
+
+  // Gallery
   const galImg=imgs
-    ?`<img src="${esc(imgs[MODAL_IDX])}" alt="${esc(car.brand+' '+car.model)}" style="cursor:zoom-in" onclick="lbOpen(window._LB_IMGS,${MODAL_IDX},'${esc(car.brand)} ${esc(car.model)}')" title="Clicca per ingrandire">`
-    :`<div class="placeholder">🚗</div>`;
-  window._LB_IMGS=imgs||[];
-  const priceBlock=car.sold?`<div class="modal-sold-badge">VENDUTA</div>`:`<div class="modal-price">${fmt(car.price)}</div>`;
-  const feats=car.features?.length?`<div class="features">${car.features.map(f=>`<span class="feature-tag">${esc(f)}</span>`).join('')}</div>`:'';
-  const as24=car.as24url?`<div class="as24-link"><a href="${esc(car.as24url)}" target="_blank" rel="noopener">Vedi su AutoScout24 ↗</a></div>`:'';
-  const zoomBtn=imgs&&imgs.length?`<button onclick="lbOpen(window._LB_IMGS,${MODAL_IDX},'${esc(car.brand)} ${esc(car.model)}')" style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 14px;border-radius:5px;font-family:Rajdhani,sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;z-index:5;display:flex;align-items:center;gap:5px;backdrop-filter:blur(4px);">⤢ Ingrandisci</button>`:'';
+    ?`<img src="${esc(imgs[MI])}" alt="${cn}" style="cursor:zoom-in" onclick="lbOpen(${MI})">`
+    :'<div class="ph">🚗</div>';
+  const galNav=imgs?.length>1?`
+    <button class="gal-btn gal-prev" onclick="gPrev()">‹</button>
+    <button class="gal-btn gal-next" onclick="gNext()">›</button>
+    <div class="gal-dots">${imgs.map((_,i)=>`<div class="gal-dot${i===MI?' active':''}" onclick="gGoto(${i})"></div>`).join('')}</div>
+    <div class="gal-count">${MI+1}/${imgs.length}</div>`:'' ;
+  const galBtn=imgs?`<button class="gal-open-lb" onclick="lbOpen(${MI})">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1h4M1 1v4M11 11H7M11 11V7" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+    Apri galleria${imgs.length>1?' ('+imgs.length+')':''}
+  </button>`:'';
+
+  // Price
+  const priceB=c.sold?'<div class="modal-sold-b">VENDUTA</div>':`<div class="modal-price">${fmt(c.price)}</div>`;
+
+  // Description — supporto elenco puntato
+  let descH='';
+  if(c.description){
+    const lines=c.description.split(/\n|\r\n/).map(l=>l.trim()).filter(l=>l);
+    if(lines.length>1){
+      const isList=lines.some(l=>/^[-•·*]/.test(l));
+      descH=isList
+        ?`<div class="modal-desc"><ul>${lines.map(l=>`<li>${esc(l.replace(/^[-•·*]\s*/,''))}</li>`).join('')}</ul></div>`
+        :`<div class="modal-desc">${lines.map(l=>`<p>${esc(l)}</p>`).join('')}</div>`;
+    } else {
+      descH=`<p class="modal-desc">${esc(c.description)}</p>`;
+    }
+  }
+
+  const feats=c.features?.length?`<div class="features">${c.features.map(f=>`<span class="feature-tag">${esc(f)}</span>`).join('')}</div>`:'';
+  const as24=c.as24url?`<div class="as24-link"><a href="${esc(c.as24url)}" target="_blank" rel="noopener">Vedi su AutoScout24 ↗</a></div>`:'';
+
   document.getElementById('modal-content').innerHTML=`
-    <button class="modal-close" onclick="closeModalBtn()">✕</button>
-    <div class="modal-gallery" style="background:${esc(car.gradient||'linear-gradient(135deg,#222,#333)')}">
-      ${galImg}${galNav}${zoomBtn||''}${zoomBtn}
+    <div class="modal-handle"></div>
+    <div class="modal-gallery" style="background:${esc(c.gradient||'linear-gradient(135deg,#222,#333)')}">
+      ${galImg}${galNav}${galBtn}
     </div>
     <div class="modal-body">
       <div class="modal-header">
-        <div>
-          <div class="modal-brand-label">${esc(car.brand)}</div>
-          <div class="modal-title">${esc(car.model)} <span class="modal-year">${car.year}</span></div>
-        </div>
-        ${priceBlock}
+        <div><div class="modal-brand-lbl">${esc(c.brand)}</div><div class="modal-title">${esc(c.model)} <span class="modal-yr">${c.year}</span></div></div>
+        ${priceB}
       </div>
       <div class="specs-grid">
-        <div class="spec-item"><div class="spec-val">${fmtKm(car.km)}</div><div class="spec-label">Chilometri</div></div>
-        <div class="spec-item"><div class="spec-val">${car.hp||'—'} CV</div><div class="spec-label">Potenza</div></div>
-        <div class="spec-item"><div class="spec-val">${esc(car.transmission||'—')}</div><div class="spec-label">Cambio</div></div>
-        <div class="spec-item"><div class="spec-val">${esc(car.fuel||'—')}</div><div class="spec-label">Alimentazione</div></div>
-        <div class="spec-item"><div class="spec-val">${esc(car.color||'—')}</div><div class="spec-label">Colore</div></div>
-        <div class="spec-item"><div class="spec-val">${car.doors||'—'} porte</div><div class="spec-label">Carrozzeria</div></div>
+        <div class="spec-item"><div class="spec-val">${fmtKm(c.km)}</div><div class="spec-lbl">Chilometri</div></div>
+        <div class="spec-item"><div class="spec-val">${c.hp||'—'} CV</div><div class="spec-lbl">Potenza</div></div>
+        <div class="spec-item"><div class="spec-val">${esc(c.transmission||'—')}</div><div class="spec-lbl">Cambio</div></div>
+        <div class="spec-item"><div class="spec-val">${esc(c.fuel||'—')}</div><div class="spec-lbl">Alimentazione</div></div>
+        <div class="spec-item"><div class="spec-val">${esc(c.color||'—')}</div><div class="spec-lbl">Colore</div></div>
+        <div class="spec-item"><div class="spec-val">${c.doors||'—'} porte</div><div class="spec-lbl">Carrozzeria</div></div>
       </div>
-      ${car.description?`<p class="modal-desc">${esc(car.description)}</p>`:''}
-      ${feats}
+      ${descH}${feats}
       <div class="modal-actions">
         <a class="btn-m btn-m-red" href="tel:+393518707610">📞 Chiama</a>
-        <a class="btn-m btn-m-wa" href="${waLink(waMsg)}" target="_blank">💬 WhatsApp</a>
-        <a class="btn-m btn-m-email" href="mailto:info@donolauto.it?subject=Info: ${esc(car.brand+' '+car.model+' '+car.year)}">✉️ Email</a>
+        <a class="btn-m btn-m-wa" href="${wa(wmsg)}" target="_blank" rel="noopener">💬 WhatsApp</a>
+        <a class="btn-m btn-m-email" href="mailto:info@donolauto.it?subject=Info: ${cn}">✉️ Email</a>
       </div>
       ${as24}
     </div>`;
-}
-function galPrev(){if(!MODAL_CAR?.images)return;MODAL_IDX=(MODAL_IDX-1+MODAL_CAR.images.length)%MODAL_CAR.images.length;renderModal();}
-function galNext(){if(!MODAL_CAR?.images)return;MODAL_IDX=(MODAL_IDX+1)%MODAL_CAR.images.length;renderModal();}
-function galGoto(i){MODAL_IDX=i;renderModal();}
 
+  // Salva imgs nel window per lightbox
+  window._LBIMGS=imgs||[];
+}
+
+function gPrev(){MI=(MI-1+(window._LBIMGS.length||1))%(window._LBIMGS.length||1);renderM();}
+function gNext(){MI=(MI+1)%(window._LBIMGS.length||1);renderM();}
+function gGoto(i){MI=i;renderM();}
+
+// ── LIGHTBOX ──
+function lbOpen(startIdx){
+  const imgs=window._LBIMGS;
+  if(!imgs||!imgs.length)return;
+  const name=MC?esc(MC.brand)+' '+esc(MC.model):'';
+  window._LB={imgs,idx:startIdx||0,name};
+  document.getElementById('lb').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  lbRender();
+}
+function lbClose(){
+  document.getElementById('lb').classList.add('hidden');
+  // Ripristina overflow solo se modal non è aperto
+  if(document.getElementById('car-modal').classList.contains('hidden'))
+    document.body.style.overflow='';
+}
+function lbPrev(){const lb=window._LB;lb.idx=(lb.idx-1+lb.imgs.length)%lb.imgs.length;lbRender();}
+function lbNext(){const lb=window._LB;lb.idx=(lb.idx+1)%lb.imgs.length;lbRender();}
+function lbGoto(i){window._LB.idx=i;lbRender();}
+function lbRender(){
+  const{imgs,idx,name}=window._LB;
+  const url=imgs[idx];
+  document.getElementById('lb-img').src=url;
+  document.getElementById('lb-img').alt=name;
+  document.getElementById('lb-name').textContent=name;
+  document.getElementById('lb-num').textContent=imgs.length>1?(idx+1)+' di '+imgs.length+' foto':'1 foto';
+  const dl=document.getElementById('lb-dl');
+  dl.href=url;
+  dl.setAttribute('download',(name.replace(/\s+/g,'_')||'foto')+'_'+(idx+1)+'.jpg');
+  const multi=imgs.length>1;
+  document.getElementById('lb-al').style.display=multi?'flex':'none';
+  document.getElementById('lb-ar').style.display=multi?'flex':'none';
+  document.getElementById('lb-hint').textContent=multi?'Swipe ← → per scorrere · Swipe ↓ per chiudere':'Swipe ↓ per chiudere';
+  document.getElementById('lb-thumbs').innerHTML=multi
+    ?imgs.map((u,i)=>`<img class="lb-thumb${i===idx?' on':''}" src="${esc(u)}" onclick="lbGoto(${i})" loading="lazy"/>`).join('')
+    :'';
+  setTimeout(()=>{const t=document.querySelector('.lb-thumb.on');if(t)t.scrollIntoView({inline:'center',behavior:'smooth'});},60);
+}
+// Swipe lightbox
+let _lx=0,_ly=0;
+document.getElementById('lb').addEventListener('touchstart',e=>{_lx=e.touches[0].clientX;_ly=e.touches[0].clientY;},{passive:true});
+document.getElementById('lb').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-_lx,dy=e.changedTouches[0].clientY-_ly;
+  if(Math.abs(dy)>Math.abs(dx)&&dy>55){lbClose();return;}
+  if(Math.abs(dx)>50){dx<0?lbNext():lbPrev();}
+},{passive:true});
+
+// ── NAVIGATION ──
 function showPage(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.dataset.page===p));
   document.getElementById('main-nav').classList.remove('open');
-  document.getElementById('menu-btn').classList.remove('open');
+  document.getElementById('hbg').classList.remove('open');
   window.scrollTo(0,0);
 }
 function toggleMenu(){
   document.getElementById('main-nav').classList.toggle('open');
-  document.getElementById('menu-btn').classList.toggle('open');
+  document.getElementById('hbg').classList.toggle('open');
 }
 
+// ── LEGAL ──
 const LEGAL={
-  privacy:{title:'Privacy Policy',updated:'18 aprile 2025',html:`<h2>1. Titolare</h2><p>Donolauto S.r.l. · Via Romea 121, 35020 Legnaro (PD) · P.IVA: IT 05258940286 · PEC: donolautosrl@pec.it</p><h2>2. Dati raccolti</h2><p>Solo dati forniti volontariamente via contatto diretto. Nessun tracciamento, nessun cookie di profilazione.</p><h2>3. Finalità</h2><p>Rispondere alle richieste. Nessuna cessione a terzi.</p><h2>4. Base giuridica</h2><p>Art. 6, par. 1, lett. b e a GDPR.</p><h2>5. Conservazione</h2><p>Max 12 mesi.</p><h2>6. Diritti</h2><p>Accesso, rettifica, cancellazione: info@donolauto.it</p><h2>7. Reclamo</h2><p>Garante Privacy: www.garanteprivacy.it</p>`},
+  privacy:{title:'Privacy Policy',updated:'18 aprile 2025',html:`<h2>1. Titolare</h2><p>Donolauto S.r.l. · Via Romea 121, 35020 Legnaro (PD) · P.IVA: IT 05258940286 · PEC: donolautosrl@pec.it</p><h2>2. Dati raccolti</h2><p>Solo dati forniti volontariamente. Nessun tracciamento o profilazione.</p><h2>3. Finalità</h2><p>Rispondere alle richieste. Nessuna cessione a terzi.</p><h2>4. Base giuridica</h2><p>Art. 6, par. 1, lett. b e a GDPR.</p><h2>5. Conservazione</h2><p>Max 12 mesi.</p><h2>6. Diritti</h2><p>Accesso, rettifica, cancellazione: info@donolauto.it</p><h2>7. Reclamo</h2><p>Garante Privacy: www.garanteprivacy.it</p>`},
   cookie:{title:'Cookie Policy',updated:'18 aprile 2025',html:`<h2>Cookie tecnici</h2><ul><li>dnl_cc — scelta consenso (12 mesi)</li><li>dnl_cd — data del consenso (12 mesi)</li></ul><h2>Cookie di terze parti</h2><p>Nessun cookie di profilazione o analytics.</p><h2>Google Fonts</h2><p>Font caricati da Google. Possibile trasmissione IP. Vedi: policies.google.com/privacy</p>`}
 };
 function openLegal(t){
   const d=LEGAL[t];
-  document.getElementById('legal-content').innerHTML=`<button class="legal-close" onclick="closeLegalBtn()">✕</button><h1>${d.title}</h1><div class="meta">Donolauto S.r.l. · ${d.updated}</div>${d.html}`;
+  document.getElementById('legal-content').innerHTML=`<button class="legal-close" onclick="lCloseBtn()">✕</button><h1>${d.title}</h1><div class="meta">Donolauto S.r.l. · ${d.updated}</div>${d.html}`;
   document.getElementById('legal-modal').classList.remove('hidden');
   document.body.style.overflow='hidden';
 }
-function closeLegal(e){if(e?.target!==document.getElementById('legal-modal'))return;closeLegalBtn();}
-function closeLegalBtn(){document.getElementById('legal-modal').classList.add('hidden');document.body.style.overflow='';}
-function initCookieBanner(){const c=localStorage.getItem('dnl_cc'),d=localStorage.getItem('dnl_cd');if(c&&d&&Date.now()-parseInt(d)<365*864e5)document.getElementById('cookie-banner').classList.add('hidden');}
+function lClose(e){if(e.target===document.getElementById('legal-modal'))lCloseBtn();}
+function lCloseBtn(){document.getElementById('legal-modal').classList.add('hidden');document.body.style.overflow='';}
+
+// ── COOKIE ──
+function initCookie(){const c=localStorage.getItem('dnl_cc'),d=localStorage.getItem('dnl_cd');if(c&&d&&Date.now()-parseInt(d)<365*864e5)document.getElementById('cookie-banner').classList.add('hidden');}
 function setCookieChoice(a){localStorage.setItem('dnl_cc',a?'1':'0');localStorage.setItem('dnl_cd',Date.now());document.getElementById('cookie-banner').classList.add('hidden');}
+
+// ── KEYBOARD ──
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeModalBtn();closeLegalBtn();}
-  if(!MODAL_CAR?.images?.length)return;
-  if(e.key==='ArrowLeft')galPrev();
-  if(e.key==='ArrowRight')galNext();
+  const lbOn=!document.getElementById('lb').classList.contains('hidden');
+  if(e.key==='Escape'){if(lbOn){lbClose();return;}mClose();lCloseBtn();return;}
+  if(lbOn){if(e.key==='ArrowLeft')lbPrev();if(e.key==='ArrowRight')lbNext();return;}
+  if(!window._LBIMGS?.length)return;
+  if(e.key==='ArrowLeft')gPrev();if(e.key==='ArrowRight')gNext();
 });
 </script>
-<!-- ── LIGHTBOX ── -->
-<div class="lb hidden" id="lb">
-  <div class="lb-top">
-    <div class="lb-info">
-      <div class="lb-car-name" id="lb-name"></div>
-      <div class="lb-num" id="lb-num"></div>
-    </div>
-    <button class="lb-x" onclick="lbClose()">✕</button>
-  </div>
-  <div class="lb-img-area"><img id="lb-img" src="" alt=""/></div>
-  <button class="lb-arrow lb-l" id="lb-l" onclick="lbPrev()">‹</button>
-  <button class="lb-arrow lb-r" id="lb-r" onclick="lbNext()">›</button>
-  <div class="lb-bottom">
-    <div class="lb-thumbs" id="lb-thumbs"></div>
-    <div class="lb-actions">
-      <div class="lb-dots" id="lb-dots"></div>
-      <a class="lb-dl" id="lb-dl" href="#" download>
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 5.5l2.5 2.5L9 5.5M1 11h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Scarica foto
-      </a>
-    </div>
-    <div class="lb-hint-sw" id="lb-hint"></div>
-  </div>
-</div>
-
 </body>
 </html>
