@@ -555,7 +555,8 @@ function carCardHTML(car){
   const badge=car.special?`<div class="badge-special">● SPECIAL</div>`:'';
   const price=car.sold?`<div class="car-sold-label">VENDUTA</div>`:`<div class="car-price">${fmt(car.price)}</div>`;
   return`<div class="car-card" onclick="openModal(${car.id})">
-    <div class="car-thumb" style="background:${esc(car.gradient||'linear-gradient(135deg,#222,#333)'")}">
+    <div class="car-thumb" style="background:${esc(car.gradient||'linear-gradient(135deg,#222,#333)')}">
+
       ${img}${sold}${badge}${photos}
     </div>
     <div class="car-info">
@@ -580,7 +581,8 @@ function specialCardHTML(car){
   const photos=car.images?.length>1?`<div class="badge-photos">📷 ${car.images.length}</div>`:'';
   const price=car.sold?`<div class="car-sold-label">VENDUTA</div>`:`<div class="car-price">${fmt(car.price)}</div>`;
   return`<div class="special-card" onclick="openModal(${car.id})">
-    <div class="car-thumb" style="background:${esc(car.gradient||'linear-gradient(135deg,#222,#333)'")}">
+    <div class="car-thumb" style="background:${esc(car.gradient||'linear-gradient(135deg,#222,#333)')}">
+
       ${img}<div class="special-label">★ SPECIAL</div>${photos}
     </div>
     <div class="car-info">
