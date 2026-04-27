@@ -111,7 +111,7 @@
   const FUELS = ['Benzina','Diesel','Ibrido','Elettrico','GPL','Metano'];
   const fmt = p => '€ ' + parseInt(p||0).toLocaleString('it-IT');
   const fmtKm = k => parseInt(k||0).toLocaleString('it-IT') + ' km';
-  const BLANK = { brand:'',model:'',year:new Date().getFullYear(),fuel:'Benzina',price:'',km:'',hp:'',color:'',transmission:'Manuale',doors:5,special:false,sold:false,status:'draft',description:'',features:[],as24url:'',images:[] };
+  const BLANK = { brand:'',model:'',year:new Date().getFullYear(),fuel:'Benzina',price:'',km:'',hp:'',color:'',transmission:'Manuale',doors:5,special:false,sold:false,coming_soon:false,status:'draft',description:'',features:[],as24url:'',images:[] };
 
   function App() {
     const [auth, setAuth]   = useState(!!sessionStorage.getItem('dnl_auth'));
@@ -142,7 +142,7 @@
         price:parseInt(car.price)||0, km:parseInt(car.km)||0,
         hp:parseInt(car.hp)||0, fuel:car.fuel, color:car.color,
         transmission:car.transmission, doors:parseInt(car.doors)||5,
-        special:car.special||false, sold:car.sold||false,
+        special:car.special||false, sold:car.sold||false, coming_soon:car.coming_soon||false,
         status:car.status||'draft', description:car.description||'',
         features:feats, as24url:car.as24url||'',
         gradient:grad(car.color), images:car.images||[]
@@ -170,7 +170,7 @@
       const { error } = await db.from('cars').update({[field]:val}).eq('id',car.id);
       if (!error) {
         setCars(p=>p.map(c=>c.id===car.id?{...c,[field]:val}:c));
-        const msgs = { status: val==='published'?'↑ Pubblicata!':'↓ Bozza', special: val?'★ Special ON':'☆ Special OFF', sold: val?'🔴 Segnata VENDUTA':'✓ Prezzo ripristinato' };
+        const msgs = { status: val==='published'?'↑ Pubblicata!':'↓ Bozza', special: val?'★ Special ON':'☆ Special OFF', sold: val?'🔴 Segnata VENDUTA':'✓ Prezzo ripristinato', coming_soon: val?'🕐 In Arrivo ON':'✓ In Arrivo OFF' };
         showToast(msgs[field]||'Aggiornato');
       }
     }
@@ -260,6 +260,7 @@
                         onToggleStatus={()=>toggleField(car,'status')}
                         onToggleSpecial={()=>toggleField(car,'special')}
                         onToggleSold={()=>toggleField(car,'sold')}
+                        onToggleComingSoon={()=>toggleField(car,'coming_soon')}
                       />
                     ))}
                   </div>
@@ -299,7 +300,7 @@
   }
 
   // ── CAR ROW ──
-  function CarRow({car,onEdit,onDelete,onToggleStatus,onToggleSpecial,onToggleSold}){
+  function CarRow({car,onEdit,onDelete,onToggleStatus,onToggleSpecial,onToggleSold,onToggleComingSoon}){
     return(
       <div className="card" style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',opacity:car.sold?.85:1}}>
         <div style={{width:58,height:40,borderRadius:6,background:car.gradient||grad(car.color),flexShrink:0,overflow:'hidden',position:'relative'}}>
@@ -314,6 +315,7 @@
         <div style={{display:'flex',gap:4,alignItems:'center'}}>
           <span className={`tag ${car.status==='published'?'tag-pub':'tag-draft'}`}>{car.status==='published'?'Live':'Bozza'}</span>
           {car.special&&<span className="tag tag-special">★</span>}
+          {car.coming_soon&&<span className="tag" style={{background:'#422006',color:'#fbbf24'}}>🕐 Arrivo</span>}
           {car.sold&&<span className="tag tag-sold">Venduta</span>}
         </div>
         <div style={{display:'flex',gap:4,flexShrink:0,flexWrap:'wrap'}}>
@@ -422,8 +424,13 @@
               <input type="checkbox" checked={d.sold||false} onChange={e=>s('sold',e.target.checked)} style={{width:'auto',accentColor:'#818cf8'}}/>
               🔴 Segnala come Venduta
             </label>
+            <label style={{display:'flex',alignItems:'center',gap:8,textTransform:'none',fontSize:14,letterSpacing:0,color:'#fbbf24',cursor:'pointer'}}>
+              <input type="checkbox" checked={d.coming_soon||false} onChange={e=>s('coming_soon',e.target.checked)} style={{width:'auto',accentColor:'#f59e0b'}}/>
+              🕐 In Arrivo (non ancora in sede)
+            </label>
           </div>
           {d.sold&&<div style={{marginTop:10,fontSize:12,color:'#6b7280',background:'#0f1117',borderRadius:7,padding:'8px 12px'}}>L'auto rimarrà visibile sul sito con il badge "VENDUTA" al posto del prezzo.</div>}
+            {d.coming_soon&&<div style={{marginTop:6,fontSize:12,color:'#92400e',background:'#0f1117',borderRadius:7,padding:'8px 12px'}}>L'auto apparirà nella sezione "In Arrivo" ma NON nello Stock normale.</div>}
         </div>
 
         <div style={{display:'flex',gap:10}}>
