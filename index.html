@@ -511,8 +511,39 @@ let CARS=[],MC=null,MI=0;
 const F={brand:'',model:'',fuel:'',price:'',year:'',km:''};
 let SORT='newest';
 
-const fmt=p=>'€ '+parseInt(p||0).toLocaleString('it-IT');
-const fmtKm=k=>parseInt(k||0).toLocaleString('it-IT')+' km';
+function parsePrice(p){
+  if(!p&&p!==0)return 0;
+  const s=String(p).trim();
+  // Rimuovi tutto tranne cifre e separatori
+  // Formato italiano: 9.900 o 9.900,00 → punto=migliaia, virgola=decimali
+  // Formato internazionale: 9900 o 9,900
+  const cleaned=s.replace(/[€\s]/g,'');
+  // Se c'è sia punto che virgola → italiano (9.900,00)
+  if(cleaned.includes('.')&&cleaned.includes(',')){
+    return parseInt(cleaned.replace(/\./g,'').replace(',','.'))||0;
+  }
+  // Solo punto → potrebbe essere migliaia (9.900) o decimale (9.9)
+  if(cleaned.includes('.')&&!cleaned.includes(',')){
+    const parts=cleaned.split('.');
+    // Se la parte decimale ha 3 cifre → è separatore migliaia (9.900)
+    if(parts[parts.length-1].length===3){
+      return parseInt(cleaned.replace(/\./g,''))||0;
+    }
+    // Altrimenti è decimale → tronca
+    return parseInt(cleaned)||0;
+  }
+  // Solo virgola → separatore migliaia (9,900)
+  if(cleaned.includes(',')&&!cleaned.includes('.')){
+    const parts=cleaned.split(',');
+    if(parts[parts.length-1].length===3){
+      return parseInt(cleaned.replace(/,/g,''))||0;
+    }
+    return parseInt(cleaned)||0;
+  }
+  return parseInt(cleaned)||0;
+}
+const fmt=p=>'€ '+parsePrice(p).toLocaleString('it-IT');
+const fmtKm=k=>parseInt(String(k||0).replace(/[.\s]/g,'').replace(',','.'))||0 ? (parseInt(String(k||0).replace(/\./g,'').replace(',','.'))||0).toLocaleString('it-IT')+' km' : '0 km';
 function esc(s){return(s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function wa(msg){return'https://wa.me/393518707610?text='+encodeURIComponent(msg);}
 
