@@ -334,6 +334,16 @@
       <select id="f-brand" onchange="onFC()"><option value="">Marca</option></select>
       <select id="f-model" onchange="onFC()" disabled><option value="">Modello</option></select>
       <select id="f-fuel" onchange="onFC()"><option value="">Alimentazione</option></select>
+      <select id="f-body" onchange="onFC()">
+        <option value="">Carrozzeria</option>
+        <option value="City Car">City Car</option>
+        <option value="Berlina">Berlina</option>
+        <option value="Station Wagon">Station Wagon</option>
+        <option value="SUV">SUV</option>
+        <option value="Monovolume">Monovolume</option>
+        <option value="Coupé">Coupé</option>
+        <option value="Cabrio">Cabrio</option>
+      </select>
       <select id="f-price" onchange="onFC()">
         <option value="">Prezzo max</option>
         <option value="10000">fino a € 10.000</option>
@@ -508,7 +518,7 @@ const{createClient}=window.supabase;
 const db=createClient('https://lropvrandavyegoclpyh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxyb3B2cmFuZGF2eWVnb2NscHloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0OTM0NDgsImV4cCI6MjA5MjA2OTQ0OH0.F6HShpc-ns98963_BbjLv8ZZ2LxjNkqrHHSoY1ci_k8');
 
 let CARS=[],MC=null,MI=0;
-const F={brand:'',model:'',fuel:'',price:'',year:'',km:''};
+const F={brand:'',model:'',fuel:'',body:'',price:'',year:'',km:''};
 let SORT='newest';
 
 function parsePrice(p){
@@ -588,6 +598,7 @@ function getF(){
   return CARS.filter(c=>{
     if(c.coming_soon)return false;
     if(F.brand&&c.brand!==F.brand)return false;
+    if(F.body&&c.body_type!==F.body)return false;
     if(F.model&&c.model!==F.model)return false;
     if(F.fuel&&c.fuel!==F.fuel)return false;
     if(F.price&&c.price>parseInt(F.price))return false;
@@ -605,6 +616,7 @@ function getF(){
 function onFC(){
   F.brand=document.getElementById('f-brand').value;
   F.fuel=document.getElementById('f-fuel').value;
+  F.body=document.getElementById('f-body').value;
   F.price=document.getElementById('f-price').value;
   F.year=document.getElementById('f-year').value;
   F.km=document.getElementById('f-km').value;
@@ -615,8 +627,8 @@ function onFC(){
 }
 function onSC(){SORT=document.getElementById('sort-sel').value;renderStock();}
 function resetF(){
-  F.brand=F.model=F.fuel=F.price=F.year=F.km='';
-  ['f-brand','f-model','f-fuel','f-price','f-year','f-km'].forEach(id=>document.getElementById(id).value='');
+  F.brand=F.model=F.fuel=F.body=F.price=F.year=F.km='';
+  ['f-brand','f-model','f-fuel','f-body','f-price','f-year','f-km'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-model').disabled=true;
   renderStock();
 }
