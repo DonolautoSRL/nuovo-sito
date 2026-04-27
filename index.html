@@ -482,6 +482,8 @@ async function loadCars(){
   const{data}=await db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false});
   CARS=data||[];
   populateF();renderStock();renderSpecial();
+  const h=window.location.hash;
+  if(h.startsWith('#auto-')){const hid=parseInt(h.replace('#auto-',''));if(hid)setTimeout(()=>openM(hid),400);}
   db.channel('cars-ch').on('postgres_changes',{event:'*',schema:'public',table:'cars'},async()=>{
     const{data}=await db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false});
     CARS=data||[];populateF();renderStock();renderSpecial();
@@ -578,11 +580,13 @@ function openM(id){
   document.getElementById('car-modal').classList.remove('hidden');
   document.getElementById('modal-close-btn').classList.remove('hidden');
   document.body.style.overflow='hidden';
+  history.replaceState(null,'','#auto-'+id);
 }
 function mClose(){
   document.getElementById('car-modal').classList.add('hidden');
   document.getElementById('modal-close-btn').classList.add('hidden');
   document.body.style.overflow='';
+  history.replaceState(null,'',window.location.pathname);
 }
 function mBgClose(e){if(e.target===document.getElementById('car-modal'))mClose();}
 
@@ -626,6 +630,8 @@ function renderM(){
   const feats=c.features?.length?`<div class="features">${c.features.map(f=>`<span class="feature-tag">${esc(f)}</span>`).join('')}</div>`:'';
   const as24=c.as24url?`<div class="as24-link"><a href="${esc(c.as24url)}" target="_blank" rel="noopener">Vedi su AutoScout24 ↗</a></div>`:'';
 
+  const _shareUrl=window.location.origin+window.location.pathname+'#auto-'+c.id;
+  const _carLabel=esc(c.brand)+' '+esc(c.model);
   document.getElementById('modal-content').innerHTML=`
     <div class="modal-handle"></div>
     <div class="modal-gallery" style="background:${esc(c.gradient||'linear-gradient(135deg,#222,#333)')}">
@@ -651,6 +657,10 @@ function renderM(){
         <a class="btn-m btn-m-email" href="mailto:info@donolauto.it?subject=Info: ${cn}">✉️ Email</a>
       </div>
       ${as24}
+      <button onclick="copyLink('${_shareUrl}','${_carLabel}')" style="width:100%;margin-top:8px;padding:11px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--muted2);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 1h4v4M13 1L8 6M6 3H2a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Copia link annuncio
+      </button>
     </div>`;
 
   // Salva imgs nel window per lightbox
@@ -739,6 +749,16 @@ function lCloseBtn(){document.getElementById('legal-modal').classList.add('hidde
 // ── COOKIE ──
 function initCookie(){const c=localStorage.getItem('dnl_cc'),d=localStorage.getItem('dnl_cd');if(c&&d&&Date.now()-parseInt(d)<365*864e5)document.getElementById('cookie-banner').classList.add('hidden');}
 function setCookieChoice(a){localStorage.setItem('dnl_cc',a?'1':'0');localStorage.setItem('dnl_cd',Date.now());document.getElementById('cookie-banner').classList.add('hidden');}
+
+// ── COPIA LINK ──
+function copyLink(url,name){
+  navigator.clipboard.writeText(url).then(()=>{
+    const t=document.createElement('div');
+    t.textContent='✓ Link copiato — '+name;
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#064e3b;color:#34d399;padding:10px 20px;border-radius:8px;font-family:Rajdhani,sans-serif;font-size:13px;font-weight:600;letter-spacing:.06em;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.5);border:1px solid #065f46;';
+    document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+  }).catch(()=>prompt('Copia questo link:',url));
+}
 
 // ── KEYBOARD ──
 document.addEventListener('keydown',e=>{
