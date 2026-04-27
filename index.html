@@ -483,7 +483,12 @@ async function loadCars(){
   CARS=data||[];
   populateF();renderStock();renderSpecial();
   const h=window.location.hash;
-  if(h.startsWith('#auto-')){const hid=parseInt(h.replace('#auto-',''));if(hid)setTimeout(()=>openM(hid),400);}
+  if(h.startsWith('#auto-')){
+    // L'ID numerico è sempre l'ultimo segmento dopo l'ultimo '-'
+    const parts=h.replace('#auto-','').split('-');
+    const hid=parseInt(parts[parts.length-1]);
+    if(hid)setTimeout(()=>openM(hid),400);
+  }
   db.channel('cars-ch').on('postgres_changes',{event:'*',schema:'public',table:'cars'},async()=>{
     const{data}=await db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false});
     CARS=data||[];populateF();renderStock();renderSpecial();
@@ -580,7 +585,7 @@ function openM(id){
   document.getElementById('car-modal').classList.remove('hidden');
   document.getElementById('modal-close-btn').classList.remove('hidden');
   document.body.style.overflow='hidden';
-  history.replaceState(null,'','#auto-'+id);
+  history.replaceState(null,'','#auto-'+slugify(MC.brand,MC.model,MC.year)+'-'+id);
 }
 function mClose(){
   document.getElementById('car-modal').classList.add('hidden');
@@ -630,7 +635,7 @@ function renderM(){
   const feats=c.features?.length?`<div class="features">${c.features.map(f=>`<span class="feature-tag">${esc(f)}</span>`).join('')}</div>`:'';
   const as24=c.as24url?`<div class="as24-link"><a href="${esc(c.as24url)}" target="_blank" rel="noopener">Vedi su AutoScout24 ↗</a></div>`:'';
 
-  const _shareUrl=window.location.origin+window.location.pathname+'#auto-'+c.id;
+  const _shareUrl=window.location.origin+window.location.pathname+'#auto-'+slugify(c.brand,c.model,c.year)+'-'+c.id;
   const _carLabel=esc(c.brand)+' '+esc(c.model);
   document.getElementById('modal-content').innerHTML=`
     <div class="modal-handle"></div>
@@ -749,6 +754,15 @@ function lCloseBtn(){document.getElementById('legal-modal').classList.add('hidde
 // ── COOKIE ──
 function initCookie(){const c=localStorage.getItem('dnl_cc'),d=localStorage.getItem('dnl_cd');if(c&&d&&Date.now()-parseInt(d)<365*864e5)document.getElementById('cookie-banner').classList.add('hidden');}
 function setCookieChoice(a){localStorage.setItem('dnl_cc',a?'1':'0');localStorage.setItem('dnl_cd',Date.now());document.getElementById('cookie-banner').classList.add('hidden');}
+
+// ── SLUG ──
+function slugify(brand,model,year){
+  return [brand,model,year].join(' ')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/^-|-$/g,'');
+}
 
 // ── COPIA LINK ──
 function copyLink(url,name){
