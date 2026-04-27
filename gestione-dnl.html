@@ -321,7 +321,7 @@
           <button className="btn-sm" onClick={onToggleSpecial}>{car.special?'☆':'★'}</button>
           <button className="btn-sm" onClick={onToggleStatus} style={{color:car.status==='published'?'#fbbf24':'#34d399'}}>{car.status==='published'?'↓':'↑'}</button>
           <button className="btn-sm" onClick={onEdit}>✎</button>
-          <button className="btn-sm" onClick={()=>{const url='https://donolautosrl.github.io/nuovo-sito/#auto-'+car.id;navigator.clipboard.writeText(url).then(()=>showToast('✓ Link copiato!')).catch(()=>prompt('Copia link:',url));}} style={{color:'#34d399'}} title="Copia link">🔗</button>
+          <button className="btn-sm" onClick={()=>{const url='https://donolautosrl.github.io/nuovo-sito/#auto-'+slugify(car.brand,car.model,car.year)+'-'+car.id;navigator.clipboard.writeText(url).then(()=>showToast('✓ Link copiato!')).catch(()=>prompt('Copia link:',url));}} style={{color:'#34d399'}} title="Copia link">🔗</button>
           <button onClick={onDelete} style={{padding:'6px 10px',border:'1.5px solid #7f1d1d',borderRadius:7,background:'transparent',color:'#f87171',fontSize:11}}>🗑</button>
         </div>
       </div>
@@ -437,6 +437,7 @@
   }
 
 
+  function slugify(b,m,y){return[b,m,y].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
   ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
