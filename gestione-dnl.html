@@ -111,7 +111,7 @@
   const FUELS = ['Benzina','Diesel','Ibrido','Elettrico','GPL','Metano'];
   const fmt = p => '€ ' + parseInt(p||0).toLocaleString('it-IT');
   const fmtKm = k => parseInt(k||0).toLocaleString('it-IT') + ' km';
-  const BLANK = { brand:'',model:'',year:new Date().getFullYear(),fuel:'Benzina',price:'',km:'',hp:'',color:'',transmission:'Manuale',doors:5,special:false,sold:false,coming_soon:false,status:'draft',description:'',features:[],as24url:'',images:[] };
+  const BLANK = { brand:'',model:'',year:new Date().getFullYear(),fuel:'Benzina',price:'',km:'',hp:'',color:'',transmission:'Manuale',doors:5,body_type:'',special:false,sold:false,coming_soon:false,status:'draft',description:'',features:[],as24url:'',images:[] };
 
   function App() {
     const [auth, setAuth]   = useState(!!sessionStorage.getItem('dnl_auth'));
@@ -142,7 +142,7 @@
         price:parsePrice(car.price), km:parseInt(String(car.km||0).replace(/[.\s]/g,''))||0,
         hp:parseInt(car.hp)||0, fuel:car.fuel, color:car.color,
         transmission:car.transmission, doors:parseInt(car.doors)||5,
-        special:car.special||false, sold:car.sold||false, coming_soon:car.coming_soon||false,
+        special:car.special||false, sold:car.sold||false, coming_soon:car.coming_soon||false, body_type:car.body_type||'',
         status:car.status||'draft', description:car.description||'',
         features:feats, as24url:car.as24url||'',
         gradient:grad(car.color), images:car.images||[]
@@ -309,7 +309,7 @@
         </div>
         <div style={{flex:1,minWidth:140}}>
           <div style={{fontWeight:500,fontSize:13}}>{car.brand} {car.model} <span style={{color:'#6b7280',fontWeight:400}}>{car.year}</span></div>
-          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>{fmtKm(car.km)} · {car.fuel}</div>
+          <div style={{fontSize:11,color:'#6b7280',marginTop:2}}>{fmtKm(car.km)} · {car.fuel}{car.body_type?' · '+car.body_type:''}</div>
         </div>
         <div style={{fontSize:14,fontWeight:600,color:car.sold?'#a5b4fc':'#f87171',flexShrink:0}}>{car.sold?'VENDUTA':fmt(car.price)}</div>
         <div style={{display:'flex',gap:4,alignItems:'center'}}>
@@ -376,6 +376,10 @@
             <div><label>Alimentazione</label><select value={d.fuel} onChange={e=>s('fuel',e.target.value)}>{FUELS.map(f=><option key={f}>{f}</option>)}</select></div>
             <div><label>Cambio</label><select value={d.transmission} onChange={e=>s('transmission',e.target.value)}><option>Manuale</option><option>Automatico</option></select></div>
             <div><label>CV</label><input type="number" value={d.hp} onChange={e=>s('hp',e.target.value)} placeholder="150"/></div>
+            <div><label>Carrozzeria</label><select value={d.body_type||''} onChange={e=>s('body_type',e.target.value)}>
+              <option value="">-- Seleziona --</option>
+              {['City Car','Berlina','Station Wagon','SUV','Monovolume','Coupé','Cabrio'].map(b=><option key={b} value={b}>{b}</option>)}
+            </select></div>
             <div><label>Porte</label><select value={d.doors} onChange={e=>s('doors',e.target.value)}>{[2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
