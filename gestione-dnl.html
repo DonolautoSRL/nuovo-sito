@@ -139,7 +139,7 @@
         : (car.features||'').split(',').map(f=>f.trim()).filter(Boolean);
       const payload = {
         brand:car.brand, model:car.model, year:parseInt(car.year)||0,
-        price:parseInt(car.price)||0, km:parseInt(car.km)||0,
+        price:parsePrice(car.price), km:parseInt(String(car.km||0).replace(/[.\s]/g,''))||0,
         hp:parseInt(car.hp)||0, fuel:car.fuel, color:car.color,
         transmission:car.transmission, doors:parseInt(car.doors)||5,
         special:car.special||false, sold:car.sold||false, coming_soon:car.coming_soon||false,
@@ -369,7 +369,7 @@
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:10}}>
             <div><label>Anno</label><input type="number" value={d.year} onChange={e=>s('year',e.target.value)}/></div>
-            <div><label>Prezzo €</label><input type="number" value={d.price} onChange={e=>s('price',e.target.value)} placeholder="25000"/></div>
+            <div><label>Prezzo €</label><input type="number" value={d.price} onChange={e=>s('price',e.target.value)} placeholder="es. 9900 oppure 9.900"/></div>
             <div><label>Km</label><input type="number" value={d.km} onChange={e=>s('km',e.target.value)} placeholder="45000"/></div>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:10,marginBottom:10}}>
