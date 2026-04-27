@@ -236,6 +236,17 @@
       .lb-al{left:3px;}.lb-ar{right:3px;}
     }
 
+    /* BADGE IN ARRIVO */
+    .badge-ia{position:absolute;top:0;left:0;background:var(--gold);color:#1a1000;font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;}
+    .ia-card{background:var(--bg2);cursor:pointer;position:relative;overflow:hidden;transition:background .15s;}
+    .ia-card:hover{background:var(--bg3);}
+    .ia-card:hover .car-thumb img{transform:scale(1.04);}
+    .ia-card .car-info{border-top:1px solid var(--border);}
+    .ia-card .car-brand{color:var(--gold);}
+    .ia-card .hover-line{background:var(--gold);}
+    .ia-card:hover .hover-line{transform:scaleX(1);}
+    .ia-price{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.06em;}
+
     /* LEGAL MODAL */
     .legal-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;}
     .legal-ov.hidden{display:none;}
@@ -299,6 +310,7 @@
   <nav id="main-nav">
     <a onclick="showPage('stock')" data-page="stock" class="active">Stock Auto</a>
     <a onclick="showPage('special')" data-page="special">Special Cars</a>
+    <a onclick="showPage('inarrivo')" data-page="inarrivo">In Arrivo</a>
     <a onclick="showPage('storia')" data-page="storia">Chi Siamo</a>
     <a onclick="showPage('contatti')" data-page="contatti">Contatti</a>
   </nav>
@@ -373,6 +385,19 @@
       <h2>Special Cars</h2>
     </div>
     <div class="special-grid" id="special-grid"><div class="dark-empty">Caricamento...</div></div>
+  </div>
+</div>
+
+<div id="page-inarrivo" class="page">
+  <div class="special-page">
+    <div style="max-width:1100px;margin:0 auto">
+      <div class="page-header">
+        <div class="eyebrow">Prossimamente disponibili</div>
+        <h2>In Arrivo</h2>
+        <p style="font-size:14px;color:var(--muted);margin-top:8px;max-width:500px;">Vetture in fase di acquisizione — non ancora presenti in sede. Contattaci per prenotarle o per maggiori informazioni.</p>
+      </div>
+      <div class="special-grid" id="inarrivo-grid"><div class="dark-empty">Caricamento...</div></div>
+    </div>
   </div>
 </div>
 
@@ -484,7 +509,7 @@ loadCars();
 async function loadCars(){
   const{data}=await db.from('cars').select('*').eq('status','published').order('created_at',{ascending:false});
   CARS=data||[];
-  populateF();renderStock();renderSpecial();
+  populateF();renderStock();renderSpecial();renderInArrivo();
   const h=window.location.hash;
   if(h.startsWith('#auto-')){
     // L'ID numerico è sempre l'ultimo segmento dopo l'ultimo '-'
@@ -516,6 +541,7 @@ function populateModels(brand){
 }
 function getF(){
   return CARS.filter(c=>{
+    if(c.coming_soon)return false;
     if(F.brand&&c.brand!==F.brand)return false;
     if(F.model&&c.model!==F.model)return false;
     if(F.fuel&&c.fuel!==F.fuel)return false;
@@ -561,9 +587,34 @@ function renderStock(){
   g.innerHTML=cars.map(cardHTML).join('');
 }
 function renderSpecial(){
-  const sp=CARS.filter(c=>c.special);
+  const sp=CARS.filter(c=>c.special&&!c.coming_soon);
   const g=document.getElementById('special-grid');
   g.innerHTML=sp.length?sp.map(spCardHTML).join(''):'<div class="dark-empty">Nessuna Special Car al momento</div>';
+}
+
+function renderInArrivo(){
+  const ia=CARS.filter(c=>c.coming_soon);
+  const g=document.getElementById('inarrivo-grid');
+  if(!g)return;
+  g.innerHTML=ia.length?ia.map(iaCardHTML).join(''):'<div class="dark-empty">Nessuna vettura in arrivo al momento</div>';
+}
+
+function iaCardHTML(c){
+  const img=c.images?.length?`<img src="${esc(c.images[0])}" alt="${esc(c.brand+' '+c.model)}" loading="lazy">`:'<div class="ph">🚗</div>';
+  const ph=c.images?.length>1?`<div class="badge-ph">📷 ${c.images.length}</div>`:'';
+  const price=c.price?`<div class="ia-price">€ ${parseInt(c.price).toLocaleString('it-IT')}</div>`:`<div class="ia-price">Prezzo da definire</div>`;
+  return`<div class="ia-card" onclick="openM(${c.id})">
+    <div class="car-thumb" style="background:${esc(c.gradient||'linear-gradient(135deg,#222,#333)')}">
+      ${img}<div class="badge-ia">🕐 IN ARRIVO</div>${ph}
+    </div>
+    <div class="car-info">
+      <div class="car-brand">${esc(c.brand)}</div>
+      <div class="car-model">${esc(c.model)}</div>
+      <div class="car-chips"><span class="chip">${c.year}</span><span class="chip">${esc(c.fuel)}</span>${c.transmission?`<span class="chip">${esc(c.transmission)}</span>`:''}</div>
+      <div class="car-bottom"><div class="car-km">${c.km?parseInt(c.km).toLocaleString('it-IT')+' km':'—'}</div>${price}</div>
+    </div>
+    <div class="hover-line"></div>
+  </div>`;
 }
 
 function cardHTML(c){
