@@ -160,9 +160,12 @@
     const [view,    setView]  = useState('list');
     const [cars,    setCars]  = useState([]);
     const [edit,    setEdit]  = useState(null);
-    const [loading, setLoad]  = useState(true);
-    const [toast,   setToast] = useState(null);
-    const [tab,     setTab]   = useState('all');
+    const [loading,   setLoad]    = useState(true);
+    const [toast,     setToast]   = useState(null);
+    const [tab,       setTab]     = useState('all');
+    const [bookings,  setBookings] = useState([]);
+    const [blocked,   setBlocked]  = useState([]);
+    const [loadBk,    setLoadBk]   = useState(false);
 
     const showToast = (msg, type='ok') => {
       setToast({msg, type});
@@ -177,7 +180,45 @@
       setLoad(false);
     }
 
-    useEffect(() => { if (auth) loadCars(); }, [auth]);
+    useEffect(() => {
+      if (auth) {
+        loadCars();
+        loadBookings();
+        loadBlocked();
+      }
+    }, [auth]);
+
+    async function loadBookings() {
+      const { data } = await db.from('bookings').select('*').order('date').order('time_slot');
+      setBookings(data || []);
+    }
+
+    async function loadBlocked() {
+      const { data } = await db.from('blocked_days').select('*').order('date');
+      setBlocked(data || []);
+    }
+
+    async function deleteBooking(id) {
+      if (!confirm('Eliminare questa prenotazione?')) return;
+      const { error } = await db.from('bookings').delete().eq('id', id);
+      if (error) { showToast('Errore: ' + error.message, 'err'); return; }
+      setBookings(prev => prev.filter(b => b.id !== id));
+      showToast('Prenotazione eliminata', 'warn');
+    }
+
+    async function addBlockedDay(date, note) {
+      const { error } = await db.from('blocked_days').insert([{ date, note }]);
+      if (error) { showToast('Errore: ' + error.message, 'err'); return; }
+      await loadBlocked();
+      showToast('Giorno bloccato');
+    }
+
+    async function removeBlockedDay(id) {
+      const { error } = await db.from('blocked_days').delete().eq('id', id);
+      if (error) { showToast('Errore: ' + error.message, 'err'); return; }
+      setBlocked(prev => prev.filter(b => b.id !== id));
+      showToast('Giorno sbloccato', 'warn');
+    }
 
     async function saveCar(car) {
       // Costruisci payload pulito — tutti i tipi corretti
@@ -274,6 +315,7 @@
       special:    cars.filter(c => c.special).length,
       sold:       cars.filter(c => c.sold).length,
       coming:     cars.filter(c => c.coming_soon).length,
+      bookings:   bookings.filter(b => new Date(b.date) >= new Date(new Date().setHours(0,0,0,0))).length,
     };
 
     const shown = cars.filter(c => {
@@ -294,7 +336,7 @@
             <div style={{fontSize:10,color:'#374151',marginTop:2,letterSpacing:'.08em'}}>ADMIN PANEL</div>
           </div>
           <nav style={{padding:'10px 0',flex:1}}>
-            {[['list','≡','Gestione Auto'],['new','＋','Nuova auto']].map(([v,icon,label]) => (
+            {[['list','≡','Gestione Auto'],['bookings','📅','Prenotazioni'],['blocked','🚫','Giorni Bloccati'],['new','＋','Nuova auto']].map(([v,icon,label]) => (
               <button key={v} onClick={() => v === 'new' ? (setEdit({...BLANK}) || setView('form')) : setView(v)}
                 style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'10px 18px',border:'none',background:view===v&&v!=='new'?'#1a1f2e':'transparent',color:view===v&&v!=='new'?'#e5e7eb':'#6b7280',fontSize:13,textAlign:'left'}}>
                 <span style={{color:view===v&&v!=='new'?'#cc1f1f':'#374151',width:16,textAlign:'center'}}>{icon}</span>
@@ -308,6 +350,7 @@
               <div style={{width:6,height:6,borderRadius:'50%',background:'#34d399'}}/>Supabase live
             </div>
             <div style={{fontSize:10,color:'#374151'}}>{counts.published} live · {counts.draft} bozze · {counts.sold} vendute · {counts.coming} in arrivo</div>
+            <div style={{fontSize:10,color:'#f59e0b',marginTop:2}}>{counts.bookings||0} prenotazioni future</div>
           </div>
           <button onClick={() => { sessionStorage.removeItem('dnl_auth'); setAuth(false); }}
             style={{margin:'0 12px 12px',padding:8,background:'transparent',border:'1px solid #1e2330',borderRadius:7,color:'#4b5563',fontSize:11}}>
@@ -375,6 +418,12 @@
 
           {view === 'form' && edit &&
             <CarForm car={edit} onSave={saveCar} onCancel={() => { setView('list'); setEdit(null); }}/>
+          }
+          {view === 'bookings' &&
+            <BookingsView bookings={bookings} onDelete={deleteBooking} onRefresh={loadBookings}/>
+          }
+          {view === 'blocked' &&
+            <BlockedView blocked={blocked} onAdd={addBlockedDay} onRemove={removeBlockedDay}/>
           }
         </main>
       </div>
@@ -616,6 +665,129 @@
             {saving ? '⏳ Salvando...' : d.status==='published' ? '↑ Salva e pubblica' : '💾 Salva bozza'}
           </button>
         </div>
+      </div>
+    );
+  }
+
+
+  // ── BOOKINGS VIEW ──
+  function BookingsView({ bookings, onDelete, onRefresh }) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const future = bookings.filter(b => new Date(b.date) >= today);
+    const past   = bookings.filter(b => new Date(b.date) < today);
+    const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    return (
+      <div style={{maxWidth:800}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+          <h1 style={{fontSize:20,fontWeight:500}}>📅 Prenotazioni</h1>
+          <button className="btn-ghost" onClick={onRefresh}>↺ Aggiorna</button>
+        </div>
+
+        {future.length === 0
+          ? <div className="card" style={{textAlign:'center',padding:'40px',color:'#4b5563'}}>Nessuna prenotazione futura.</div>
+          : <>
+              <div style={{fontSize:11,color:'#6b7280',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:8}}>Prossime ({future.length})</div>
+              <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:24}}>
+                {future.map(b => (
+                  <div key={b.id} className="card" style={{display:'flex',alignItems:'center',gap:12,flexWrap:'wrap',borderLeft:'3px solid #34d399'}}>
+                    <div style={{flexShrink:0,textAlign:'center',minWidth:60}}>
+                      <div style={{fontFamily:'Rajdhani,sans-serif',fontSize:22,fontWeight:700,color:'#34d399',lineHeight:1}}>{new Date(b.date).getDate()}</div>
+                      <div style={{fontSize:10,color:'#6b7280'}}>{months[new Date(b.date).getMonth()].toUpperCase()}</div>
+                    </div>
+                    <div style={{background:'#cc1f1f',color:'white',padding:'4px 10px',borderRadius:6,fontFamily:'Rajdhani,sans-serif',fontSize:14,fontWeight:700,flexShrink:0}}>{b.time_slot}</div>
+                    <div style={{flex:1,minWidth:140}}>
+                      <div style={{fontWeight:500,fontSize:14}}>{b.name}</div>
+                      <div style={{fontSize:12,color:'#6b7280'}}>{b.phone}</div>
+                      {b.car_interest && <div style={{fontSize:11,color:'#9ca3af',marginTop:2}}>🚗 {b.car_interest}</div>}
+                      {b.notes && <div style={{fontSize:11,color:'#9ca3af',marginTop:2}}>📝 {b.notes}</div>}
+                    </div>
+                    <div style={{display:'flex',gap:6,flexShrink:0}}>
+                      <a href={`tel:${b.phone.replace(/\s/g,'')}`} className="btn-sm" style={{textDecoration:'none',color:'#34d399'}}>📞</a>
+                      <a href={`https://wa.me/${b.phone.replace(/[^0-9]/g,'')}?text=${encodeURIComponent('Ciao '+b.name+', ti confermiamo la visita da Donolauto il '+fmtDate(b.date)+' alle '+b.time_slot+'. A presto!')}`} target="_blank" rel="noopener" className="btn-sm" style={{textDecoration:'none',color:'#25D366'}}>💬</a>
+                      <button className="btn-sm" onClick={() => onDelete(b.id)} style={{color:'#f87171'}}>🗑</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+        }
+
+        {past.length > 0 && (
+          <>
+            <div style={{fontSize:11,color:'#4b5563',letterSpacing:'.08em',textTransform:'uppercase',marginBottom:8}}>Passate ({past.length})</div>
+            <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              {past.slice().reverse().slice(0,10).map(b => (
+                <div key={b.id} className="card" style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',opacity:.5}}>
+                  <div style={{fontSize:12,color:'#4b5563',minWidth:100}}>{fmtDate(b.date)} {b.time_slot}</div>
+                  <div style={{flex:1,fontSize:12,color:'#6b7280'}}>{b.name} · {b.phone}</div>
+                  <button className="btn-sm" onClick={() => onDelete(b.id)} style={{color:'#f87171',fontSize:10}}>🗑</button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // ── BLOCKED VIEW ──
+  function BlockedView({ blocked, onAdd, onRemove }) {
+    const [newDate, setNewDate] = React.useState('');
+    const [newNote, setNewNote] = React.useState('');
+    const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    const today = new Date().toISOString().slice(0,10);
+
+    return (
+      <div style={{maxWidth:600}}>
+        <h1 style={{fontSize:20,fontWeight:500,marginBottom:16}}>🚫 Giorni Bloccati</h1>
+        <div style={{fontSize:13,color:'#6b7280',marginBottom:16,lineHeight:1.6}}>
+          I giorni bloccati non saranno prenotabili dai clienti sul sito. Usa per fiere, chiusure straordinarie, ferie.
+        </div>
+
+        {/* Aggiungi giorno */}
+        <div className="card" style={{marginBottom:16}}>
+          <div className="sect">Blocca un giorno</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:10,marginBottom:10}}>
+            <div>
+              <label>Data</label>
+              <input type="date" value={newDate} min={today} onChange={e=>setNewDate(e.target.value)}/>
+            </div>
+            <div>
+              <label>Motivo (opzionale)</label>
+              <input type="text" value={newNote} onChange={e=>setNewNote(e.target.value)} placeholder="es. Fiera, Chiusura straordinaria"/>
+            </div>
+          </div>
+          <button className="btn-red" disabled={!newDate} style={{opacity:newDate?1:.4}}
+            onClick={() => { if(newDate){ onAdd(newDate, newNote); setNewDate(''); setNewNote(''); } }}>
+            🚫 Blocca questo giorno
+          </button>
+        </div>
+
+        {/* Lista giorni bloccati */}
+        {blocked.length === 0
+          ? <div style={{textAlign:'center',padding:'30px',color:'#4b5563',fontSize:13}}>Nessun giorno bloccato.</div>
+          : <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              {blocked.map(b => (
+                <div key={b.id} className="card" style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{fontFamily:'Rajdhani,sans-serif',fontSize:15,fontWeight:600,flex:1}}>{fmtDate(b.date)}</div>
+                  {b.note && <div style={{fontSize:12,color:'#6b7280'}}>{b.note}</div>}
+                  <button className="btn-sm" onClick={() => onRemove(b.id)} style={{color:'#34d399'}}>✓ Sblocca</button>
+                </div>
+              ))}
+            </div>
+        }
       </div>
     );
   }
