@@ -968,26 +968,21 @@ function copyLink(url,name){
 const SLOTS_AM = ['9:00','9:30','10:00','10:30','11:00','11:30','12:00'];
 const SLOTS_PM = ['15:00','15:30','16:00','16:30','17:00','17:30','18:00'];
 const ALL_SLOTS = [...SLOTS_AM, ...SLOTS_PM];
-
-let BK = { year:0, month:0, day:null, slot:null, bookedSlots:[], blockedDays:[] };
+let BK = { year:0, month:0, day:null, slot:null, bookedSlots:[], blockedDays:[], carName:'' };
+const BK_MONTHS = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const BK_DAYS_LONG = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+const BK_MONTHS_SHORT = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
 
 async function openBooking(carName) {
   const now = new Date();
-  BK.year  = now.getFullYear();
-  BK.month = now.getMonth();
-  BK.day   = null;
-  BK.slot  = null;
-  BK.carName = carName || '';
-
-  // Carica giorni bloccati
+  BK.year = now.getFullYear(); BK.month = now.getMonth();
+  BK.day = null; BK.slot = null; BK.carName = carName || '';
   const { data: bd } = await db.from('blocked_days').select('date');
   BK.blockedDays = (bd||[]).map(r => r.date);
-
   document.getElementById('book-ov').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   renderCalendar();
 }
-
 function closeBooking() {
   document.getElementById('book-ov').classList.add('hidden');
   document.body.style.overflow = '';
@@ -995,66 +990,65 @@ function closeBooking() {
 function bookBgClose(e) { if(e.target === document.getElementById('book-ov')) closeBooking(); }
 
 function renderCalendar() {
-  const months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-  const today  = new Date(); today.setHours(0,0,0,0);
-  const first  = new Date(BK.year, BK.month, 1);
-  const days   = new Date(BK.year, BK.month + 1, 0).getDate();
-  let startDow = first.getDay(); // 0=dom
-  if (startDow === 0) startDow = 7; // settimana lun-dom
+  const today = new Date(); today.setHours(0,0,0,0);
+  const first = new Date(BK.year, BK.month, 1);
+  const daysInMonth = new Date(BK.year, BK.month + 1, 0).getDate();
+  let startDow = first.getDay();
+  if (startDow === 0) startDow = 7;
 
+  // Costruisci celle senza template literal annidati
   let cells = '';
   for (let i = 1; i < startDow; i++) cells += '<div class="cal-day"></div>';
-  for (let d = 1; d <= days; d++) {
-    const dt   = new Date(BK.year, BK.month, d);
-    const dow  = dt.getDay(); // 0=dom
-    const iso  = dt.toISOString().slice(0,10);
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(BK.year, BK.month, d);
+    const dow = dt.getDay();
+    const iso = dt.toISOString().slice(0,10);
     const past = dt < today;
-    const sun  = dow === 0;
+    const sun = dow === 0;
     const blocked = BK.blockedDays.includes(iso);
     const isTod = dt.getTime() === today.getTime();
     const isSel = BK.day === iso;
     let cls = 'cal-day';
-    if (past)    cls += ' past';
-    else if (sun || blocked) cls += blocked ? ' blocked' : ' closed';
+    if (past) cls += ' past';
+    else if (sun) cls += ' closed';
+    else if (blocked) cls += ' blocked';
     else cls += ' available';
     if (isTod && !past) cls += ' today';
     if (isSel) cls += ' selected';
-    const onclick = (!past && !sun && !blocked) ? `bookDay('${iso}')` : '';
-    cells += `<div class="${cls}" ${onclick?'onclick="'+onclick+'"':''}>${d}${blocked?'<br><span style="font-size:8px">🚫</span>':''}</div>`;
+    const clickable = !past && !sun && !blocked;
+    const onclick = clickable ? ' onclick="bookDay(\'' + iso + '\')"' : '';
+    cells += '<div class="' + cls + '"' + onclick + '>' + d + '</div>';
   }
 
-  document.getElementById('book-step-1').innerHTML = `
-    <div class="cal-nav">
-      <button class="cal-arrow" onclick="calPrev()">‹</button>
-      <div class="cal-month">${months[BK.month]} ${BK.year}</div>
-      <button class="cal-arrow" onclick="calNext()">›</button>
-    </div>
-    <div class="cal-grid">
-      ${['Lun','Mar','Mer','Gio','Ven','Sab','Dom'].map(d=>`<div class="cal-dow">${d}</div>`).join('')}
-      ${cells}
-    </div>
-    <div style="display:flex;gap:16px;font-size:11px;color:var(--muted);margin-bottom:4px;">
-      <span>🟢 Disponibile</span><span>🚫 Chiuso/Bloccato</span>
-    </div>
-  `;
+  // Intestazioni giorni settimana
+  const dowHeaders = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']
+    .map(function(d){ return '<div class="cal-dow">' + d + '</div>'; }).join('');
+
   document.getElementById('book-step-2').style.display = 'none';
   document.getElementById('book-step-3').style.display = 'none';
   document.getElementById('book-step-1').style.display = 'block';
+  document.getElementById('book-step-1').innerHTML =
+    '<div class="cal-nav">' +
+      '<button class="cal-arrow" onclick="calPrev()">&#8249;</button>' +
+      '<div class="cal-month">' + BK_MONTHS[BK.month] + ' ' + BK.year + '</div>' +
+      '<button class="cal-arrow" onclick="calNext()">&#8250;</button>' +
+    '</div>' +
+    '<div class="cal-grid">' + dowHeaders + cells + '</div>' +
+    '<div style="display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:8px;">' +
+      '<span>&#x1F7E2; Disponibile</span>' +
+      '<span>&#x1F6AB; Chiuso/Bloccato</span>' +
+    '</div>';
 }
 
 function calPrev() {
-  BK.month--; if(BK.month<0){BK.month=11;BK.year--;}
-  BK.day=null; renderCalendar();
+  BK.month--; if(BK.month<0){BK.month=11;BK.year--;} BK.day=null; renderCalendar();
 }
 function calNext() {
-  BK.month++; if(BK.month>11){BK.month=0;BK.year++;}
-  BK.day=null; renderCalendar();
+  BK.month++; if(BK.month>11){BK.month=0;BK.year++;} BK.day=null; renderCalendar();
 }
 
 async function bookDay(iso) {
-  BK.day  = iso;
-  BK.slot = null;
-  // Carica slot già prenotati per questo giorno
+  BK.day = iso; BK.slot = null;
   const { data } = await db.from('bookings').select('time_slot').eq('date', iso);
   BK.bookedSlots = (data||[]).map(r => r.time_slot);
   renderSlots();
@@ -1062,59 +1056,55 @@ async function bookDay(iso) {
 
 function renderSlots() {
   const d = new Date(BK.day);
-  const days = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-  const months = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
-  const label = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  const label = BK_DAYS_LONG[d.getDay()] + ' ' + d.getDate() + ' ' + BK_MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear();
 
-  const slotBtn = (s) => {
+  function slotBtn(s) {
     const booked = BK.bookedSlots.includes(s);
-    const sel    = BK.slot === s;
-    return `<button class="slot-btn${booked?' booked':sel?' selected':''}" ${booked?'disabled':''} onclick="${booked?'':'selectSlot(''+s+'')'}">${s}</button>`;
-  };
+    const sel = BK.slot === s;
+    const cls = 'slot-btn' + (booked ? ' booked' : (sel ? ' selected' : ''));
+    const disabled = booked ? ' disabled' : '';
+    const click = booked ? '' : ' onclick="selectSlot(\'' + s + '\')"';
+    return '<button class="' + cls + '"' + disabled + click + '>' + s + '</button>';
+  }
 
-  document.getElementById('book-step-1').innerHTML = `
-    <button onclick="renderCalendar()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;gap:6px;">← Cambia data</button>
-    <div class="book-summary"><strong>📅 ${label}</strong></div>
-    <div class="slots-title">Mattina</div>
-    <div class="slots-grid">${SLOTS_AM.map(slotBtn).join('')}</div>
-    <div class="slots-title">Pomeriggio</div>
-    <div class="slots-grid">${SLOTS_PM.map(slotBtn).join('')}</div>
-  `;
+  document.getElementById('book-step-1').innerHTML =
+    '<button onclick="renderCalendar()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;gap:6px;">\u2190 Cambia data</button>' +
+    '<div class="book-summary"><strong>\uD83D\uDCC5 ' + label + '</strong></div>' +
+    '<div class="slots-title">Mattina</div>' +
+    '<div class="slots-grid">' + SLOTS_AM.map(slotBtn).join('') + '</div>' +
+    '<div class="slots-title">Pomeriggio</div>' +
+    '<div class="slots-grid">' + SLOTS_PM.map(slotBtn).join('') + '</div>';
 }
 
 function selectSlot(slot) {
   BK.slot = slot;
-  // Aggiorna visualizzazione
-  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-  event.target.classList.add('selected');
-  // Mostra form dopo breve pausa
-  setTimeout(() => renderBookForm(), 300);
+  document.querySelectorAll('.slot-btn').forEach(function(b){ b.classList.remove('selected'); });
+  var btns = document.querySelectorAll('.slot-btn');
+  btns.forEach(function(b){ if(b.textContent === slot && !b.disabled) b.classList.add('selected'); });
+  setTimeout(renderBookForm, 300);
 }
 
 function renderBookForm() {
   const d = new Date(BK.day);
-  const days = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-  const months = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
-  const dateLabel = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} alle ${BK.slot}`;
+  const dateLabel = BK_DAYS_LONG[d.getDay()] + ' ' + d.getDate() + ' ' + BK_MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear() + ' alle ' + BK.slot;
 
-  document.getElementById('book-step-2').innerHTML = `
-    <button onclick="bookDay('${BK.day}')" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;gap:6px;">← Cambia orario</button>
-    <div class="book-summary">
-      <strong>📅 ${dateLabel}</strong><br>
-      <span style="font-size:12px;color:var(--muted)">Donolauto S.r.l. · Via Romea 121, Legnaro (PD)</span>
-    </div>
-    <div class="book-form">
-      <div class="book-row">
-        <div class="book-field"><label>Nome e Cognome *</label><input id="bk-name" type="text" placeholder="Mario Rossi" required/></div>
-        <div class="book-field"><label>Telefono *</label><input id="bk-phone" type="tel" placeholder="+39 333 1234567" required/></div>
-      </div>
-      <div class="book-field"><label>Auto di interesse (opzionale)</label><input id="bk-car" type="text" value="${esc(BK.carName||'')}" placeholder="es. BMW Serie 3 320d"/></div>
-      <div class="book-field"><label>Note (opzionale)</label><textarea id="bk-notes" placeholder="Hai domande specifiche? Scrivi qui..."></textarea></div>
-      <button class="btn-book" onclick="submitBooking()" id="btn-submit-book">📅 Conferma prenotazione</button>
-    </div>
-  `;
   document.getElementById('book-step-1').style.display = 'none';
   document.getElementById('book-step-2').style.display = 'block';
+  document.getElementById('book-step-2').innerHTML =
+    '<button onclick="bookDay(\'' + BK.day + '\')" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;gap:6px;">\u2190 Cambia orario</button>' +
+    '<div class="book-summary">' +
+      '<strong>\uD83D\uDCC5 ' + dateLabel + '</strong><br>' +
+      '<span style="font-size:12px;color:var(--muted)">Donolauto S.r.l. \u00B7 Via Romea 121, Legnaro (PD)</span>' +
+    '</div>' +
+    '<div class="book-form">' +
+      '<div class="book-row">' +
+        '<div class="book-field"><label>Nome e Cognome *</label><input id="bk-name" type="text" placeholder="Mario Rossi"/></div>' +
+        '<div class="book-field"><label>Telefono *</label><input id="bk-phone" type="tel" placeholder="+39 333 1234567"/></div>' +
+      '</div>' +
+      '<div class="book-field"><label>Auto di interesse (opzionale)</label><input id="bk-car" type="text" value="' + esc(BK.carName) + '" placeholder="es. BMW Serie 3 320d"/></div>' +
+      '<div class="book-field"><label>Note (opzionale)</label><textarea id="bk-notes" placeholder="Hai domande specifiche? Scrivi qui..."></textarea></div>' +
+      '<button class="btn-book" onclick="submitBooking()" id="btn-submit-book">\uD83D\uDCC5 Conferma prenotazione</button>' +
+    '</div>';
 }
 
 async function submitBooking() {
@@ -1122,50 +1112,37 @@ async function submitBooking() {
   const phone = document.getElementById('bk-phone').value.trim();
   const car   = document.getElementById('bk-car').value.trim();
   const notes = document.getElementById('bk-notes').value.trim();
-
   if (!name)  { document.getElementById('bk-name').focus();  return; }
   if (!phone) { document.getElementById('bk-phone').focus(); return; }
-
   const btn = document.getElementById('btn-submit-book');
-  btn.disabled = true; btn.textContent = '⏳ Invio...';
-
+  btn.disabled = true; btn.textContent = 'Invio...';
   const { error } = await db.from('bookings').insert([{
-    name, phone, date: BK.day, time_slot: BK.slot,
-    car_interest: car, notes
+    name, phone, date: BK.day, time_slot: BK.slot, car_interest: car, notes
   }]);
-
-  if (error) {
-    btn.disabled = false; btn.textContent = '📅 Conferma prenotazione';
-    alert('Errore: ' + error.message); return;
-  }
-
-  // Apri WhatsApp con la notifica per te
+  if (error) { btn.disabled=false; btn.textContent='\uD83D\uDCC5 Conferma prenotazione'; alert('Errore: ' + error.message); return; }
   const d = new Date(BK.day);
-  const months = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
-  const dateLabel = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-  const waMsg = '🔔 NUOVA PRENOTAZIONE\n\n' +
-    '👤 ' + name + '\n' +
-    '📞 ' + phone + '\n' +
-    '📅 ' + dateLabel + ' alle ' + BK.slot + '\n' +
-    (car   ? '🚗 Auto: ' + car + '\n' : '') +
-    (notes ? '📝 Note: ' + notes : '');
-
+  const dateLabel = d.getDate() + ' ' + BK_MONTHS_SHORT[d.getMonth()] + ' ' + d.getFullYear();
+  const waMsg = '\uD83D\uDD14 NUOVA PRENOTAZIONE\n\n' +
+    '\uD83D\uDC64 ' + name + '\n' +
+    '\uD83D\uDCDE ' + phone + '\n' +
+    '\uD83D\uDCC5 ' + dateLabel + ' alle ' + BK.slot + '\n' +
+    (car   ? '\uD83D\uDE97 Auto: ' + car + '\n' : '') +
+    (notes ? '\uD83D\uDCDD Note: ' + notes  : '');
   window.open('https://wa.me/393518707610?text=' + encodeURIComponent(waMsg), '_blank');
-
-  // Mostra schermata di successo
   document.getElementById('book-step-2').style.display = 'none';
   document.getElementById('book-step-3').style.display = 'block';
-  document.getElementById('book-step-3').innerHTML = `
-    <div class="book-success">
-      <div class="icon">✅</div>
-      <h3>Prenotazione confermata!</h3>
-      <p>Ti aspettiamo ${dateLabel} alle <strong style="color:var(--accent)">${BK.slot}</strong><br>
-      presso Donolauto S.r.l.<br>Via Romea 121, 35020 Legnaro (PD)</p>
-      <p style="margin-top:12px;font-size:12px;">Riceverai una conferma via WhatsApp.<br>Per modifiche chiama: <a href="tel:+393518707610" style="color:var(--accent)">+39 351 8707610</a></p>
-      <button onclick="closeBooking()" style="margin-top:18px;padding:10px 28px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--muted2);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">Chiudi</button>
-    </div>
-  `;
+  document.getElementById('book-step-3').innerHTML =
+    '<div class="book-success">' +
+      '<div class="icon">\u2705</div>' +
+      '<h3>Prenotazione confermata!</h3>' +
+      '<p>Ti aspettiamo ' + dateLabel + ' alle <strong style="color:var(--accent)">' + BK.slot + '</strong><br>' +
+      'Donolauto S.r.l. \u00B7 Via Romea 121, 35020 Legnaro (PD)</p>' +
+      '<p style="margin-top:12px;font-size:12px;">Riceverai conferma via WhatsApp.<br>' +
+      'Per modifiche: <a href="tel:+393518707610" style="color:var(--accent)">+39 351 8707610</a></p>' +
+      '<button onclick="closeBooking()" style="margin-top:18px;padding:10px 28px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--muted2);font-family:Rajdhani,sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">Chiudi</button>' +
+    '</div>';
 }
+
 
 // ── KEYBOARD ──
 document.addEventListener('keydown',e=>{
