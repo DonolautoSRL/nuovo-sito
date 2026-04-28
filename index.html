@@ -196,8 +196,8 @@
     .modal-desc li{margin-bottom:5px;}
     .features{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:18px;}
     .feature-tag{padding:3px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:3px;font-size:11px;color:var(--muted2);letter-spacing:.04em;}
-    .modal-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-    @media(max-width:640px){.modal-actions{grid-template-columns:1fr 1fr;}.modal-actions .btn-m:last-child{grid-column:1/-1;}}
+    .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    @media(max-width:640px){.modal-actions{grid-template-columns:1fr;}.modal-actions .btn-m{grid-column:1/-1;}}
     .btn-m{padding:13px;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:block;text-align:center;transition:opacity .15s;}
     .btn-m:hover{opacity:.85;}
     .btn-m-red{background:var(--accent);color:white;}
@@ -234,6 +234,62 @@
     @media(max-width:640px){
       .lb-arr{width:36px;height:52px;font-size:20px;}
       .lb-al{left:3px;}.lb-ar{right:3px;}
+    }
+
+
+    /* ── BOOKING ── */
+    .book-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .book-ov.hidden{display:none;}
+    .book-box{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;max-width:720px;width:100%;max-height:92vh;overflow-y:auto;position:relative;}
+    .book-header{position:sticky;top:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;z-index:5;}
+    .book-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+    .book-x{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#ccc;width:36px;height:36px;border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .book-body{padding:20px 18px 24px;}
+    /* Calendario */
+    .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .cal-month{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+    .cal-arrow{background:var(--bg3);border:1px solid var(--border2);color:#ccc;width:34px;height:34px;border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+    .cal-arrow:hover{background:var(--bg4);}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:18px;}
+    .cal-dow{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;padding:4px 0;}
+    .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;}
+    .cal-day:empty{background:transparent;cursor:default;}
+    .cal-day.today{border-color:var(--accent);}
+    .cal-day.available:hover{background:var(--bg3);border-color:var(--border2);}
+    .cal-day.selected{background:var(--accent);color:white;border-color:var(--accent);}
+    .cal-day.past,.cal-day.closed,.cal-day.blocked{color:var(--muted);cursor:not-allowed;opacity:.4;}
+    .cal-day.past:hover,.cal-day.closed:hover,.cal-day.blocked:hover{background:transparent;}
+    /* Slot orari */
+    .slots-title{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+    .slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px;margin-bottom:18px;}
+    .slot-btn{padding:8px 4px;border:1px solid var(--border2);border-radius:6px;background:var(--bg3);color:var(--muted2);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;}
+    .slot-btn:hover:not(.booked){border-color:#666;color:white;}
+    .slot-btn.selected{background:var(--accent);border-color:var(--accent);color:white;}
+    .slot-btn.booked{opacity:.3;cursor:not-allowed;text-decoration:line-through;}
+    /* Form prenotazione */
+    .book-form{display:flex;flex-direction:column;gap:12px;}
+    .book-field label{font-size:11px;color:#6b7280;display:block;margin-bottom:4px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;}
+    .book-field input,.book-field textarea{background:var(--bg3);border:1.5px solid var(--border2);color:var(--ink);border-radius:7px;padding:10px 12px;font-size:13px;width:100%;outline:none;transition:border-color .15s;font-family:'DM Sans',sans-serif;}
+    .book-field input:focus,.book-field textarea:focus{border-color:var(--accent);}
+    .book-field textarea{height:60px;resize:vertical;}
+    .book-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .btn-book{width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .15s;margin-top:4px;}
+    .btn-book:hover{background:var(--accent2);}
+    .btn-book:disabled{opacity:.5;cursor:not-allowed;}
+    .book-summary{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.8;}
+    .book-summary strong{color:var(--accent);font-family:'Rajdhani',sans-serif;letter-spacing:.06em;}
+    .book-success{text-align:center;padding:24px 0;}
+    .book-success .icon{font-size:48px;margin-bottom:12px;}
+    .book-success h3{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+    .book-success p{font-size:13px;color:var(--muted);line-height:1.7;}
+    /* Bottone prenota nel nav */
+    .btn-prenota{background:var(--accent);color:white;border:none;padding:7px 14px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .15s;white-space:nowrap;}
+    .btn-prenota:hover{background:var(--accent2);}
+    @media(max-width:640px){
+      .book-row{grid-template-columns:1fr;}
+      .slots-grid{grid-template-columns:repeat(4,1fr);}
+      .book-ov{padding:0;align-items:flex-end;}
+      .book-box{border-radius:12px 12px 0 0;max-height:95vh;}
     }
 
     /* CLOSE BTN FISSO - sempre visibile sopra tutto */
@@ -324,6 +380,7 @@
     <a onclick="showPage('inarrivo')" data-page="inarrivo">In Arrivo</a>
     <a onclick="showPage('storia')" data-page="storia">Chi Siamo</a>
     <a onclick="showPage('contatti')" data-page="contatti">Contatti</a>
+    <button class="btn-prenota" onclick="openBooking()">📅 Prenota visita</button>
   </nav>
 </header>
 
@@ -457,6 +514,7 @@
         <a class="btn-call" href="tel:+393518707610">📞 Chiama ora</a>
         <a class="btn-wa-c" href="https://wa.me/393518707610?text=Ciao%20Donolauto%2C%20vorrei%20informazioni%20sulle%20auto%20disponibili." target="_blank" rel="noopener">💬 WhatsApp</a>
       </div>
+      <button onclick="openBooking()" style="display:block;width:100%;margin-top:10px;padding:14px;background:var(--gold);color:#1a1000;border:none;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">📅 Prenota visita in salone</button>
       <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Via+Romea+121+Legnaro+PD" target="_blank" rel="noopener">🗺 Apri in Google Maps ↗</a>
     </div>
   </div>
@@ -473,6 +531,22 @@
 <a class="wa-float" href="https://wa.me/393518707610?text=Ciao%20Donolauto%2C%20vorrei%20informazioni%20sulle%20auto%20disponibili." target="_blank" rel="noopener" aria-label="WhatsApp">
   <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
+
+
+<!-- ── BOOKING MODAL ── -->
+<div class="book-ov hidden" id="book-ov" onclick="bookBgClose(event)">
+  <div class="book-box" id="book-box">
+    <div class="book-header">
+      <div class="book-title">📅 Prenota visita in salone</div>
+      <button class="book-x" onclick="closeBooking()">✕</button>
+    </div>
+    <div class="book-body" id="book-body">
+      <div id="book-step-1"><!-- calendario --></div>
+      <div id="book-step-2" style="display:none"><!-- form --></div>
+      <div id="book-step-3" style="display:none"><!-- successo --></div>
+    </div>
+  </div>
+</div>
 
 <!-- CLOSE BTN FISSO -->
 <button id="modal-x-fixed" onclick="mClose()" aria-label="Chiudi">✕</button>
@@ -747,6 +821,7 @@ function renderM(){
   const as24=c.as24url?`<div class="as24-link"><a href="${esc(c.as24url)}" target="_blank" rel="noopener">Vedi su AutoScout24 ↗</a></div>`:'';
 
   const _shareUrl=window.location.origin+window.location.pathname+'#auto-'+slugify(c.brand,c.model,c.year)+'-'+c.id;
+  const _carLabel2=c.brand+' '+c.model+' '+c.year;
   const _carLabel=esc(c.brand)+' '+esc(c.model);
   document.getElementById('modal-content').innerHTML=`
     <div class="modal-sticky-header">
@@ -771,6 +846,7 @@ function renderM(){
       ${descH}${feats}
       <div class="modal-actions">
         <a class="btn-m btn-m-red" href="tel:+393518707610">📞 Chiama</a>
+        <button class="btn-m" onclick="openBooking('${_carLabel2}')" style="background:var(--gold);color:#1a1000;border:none;">📅 Prenota visita</button>
         <a class="btn-m btn-m-wa" href="${wa(wmsg)}" target="_blank" rel="noopener">💬 WhatsApp</a>
         <a class="btn-m btn-m-email" href="mailto:info@donolauto.it?subject=Info: ${cn}">✉️ Email</a>
       </div>
@@ -887,10 +963,216 @@ function copyLink(url,name){
   }).catch(()=>prompt('Copia questo link:',url));
 }
 
+
+// ── BOOKING ──
+const SLOTS_AM = ['9:00','9:30','10:00','10:30','11:00','11:30','12:00'];
+const SLOTS_PM = ['15:00','15:30','16:00','16:30','17:00','17:30','18:00'];
+const ALL_SLOTS = [...SLOTS_AM, ...SLOTS_PM];
+
+let BK = { year:0, month:0, day:null, slot:null, bookedSlots:[], blockedDays:[] };
+
+async function openBooking(carName) {
+  const now = new Date();
+  BK.year  = now.getFullYear();
+  BK.month = now.getMonth();
+  BK.day   = null;
+  BK.slot  = null;
+  BK.carName = carName || '';
+
+  // Carica giorni bloccati
+  const { data: bd } = await db.from('blocked_days').select('date');
+  BK.blockedDays = (bd||[]).map(r => r.date);
+
+  document.getElementById('book-ov').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  renderCalendar();
+}
+
+function closeBooking() {
+  document.getElementById('book-ov').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+function bookBgClose(e) { if(e.target === document.getElementById('book-ov')) closeBooking(); }
+
+function renderCalendar() {
+  const months = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  const today  = new Date(); today.setHours(0,0,0,0);
+  const first  = new Date(BK.year, BK.month, 1);
+  const days   = new Date(BK.year, BK.month + 1, 0).getDate();
+  let startDow = first.getDay(); // 0=dom
+  if (startDow === 0) startDow = 7; // settimana lun-dom
+
+  let cells = '';
+  for (let i = 1; i < startDow; i++) cells += '<div class="cal-day"></div>';
+  for (let d = 1; d <= days; d++) {
+    const dt   = new Date(BK.year, BK.month, d);
+    const dow  = dt.getDay(); // 0=dom
+    const iso  = dt.toISOString().slice(0,10);
+    const past = dt < today;
+    const sun  = dow === 0;
+    const blocked = BK.blockedDays.includes(iso);
+    const isTod = dt.getTime() === today.getTime();
+    const isSel = BK.day === iso;
+    let cls = 'cal-day';
+    if (past)    cls += ' past';
+    else if (sun || blocked) cls += blocked ? ' blocked' : ' closed';
+    else cls += ' available';
+    if (isTod && !past) cls += ' today';
+    if (isSel) cls += ' selected';
+    const onclick = (!past && !sun && !blocked) ? `bookDay('${iso}')` : '';
+    cells += `<div class="${cls}" ${onclick?'onclick="'+onclick+'"':''}>${d}${blocked?'<br><span style="font-size:8px">🚫</span>':''}</div>`;
+  }
+
+  document.getElementById('book-step-1').innerHTML = `
+    <div class="cal-nav">
+      <button class="cal-arrow" onclick="calPrev()">‹</button>
+      <div class="cal-month">${months[BK.month]} ${BK.year}</div>
+      <button class="cal-arrow" onclick="calNext()">›</button>
+    </div>
+    <div class="cal-grid">
+      ${['Lun','Mar','Mer','Gio','Ven','Sab','Dom'].map(d=>`<div class="cal-dow">${d}</div>`).join('')}
+      ${cells}
+    </div>
+    <div style="display:flex;gap:16px;font-size:11px;color:var(--muted);margin-bottom:4px;">
+      <span>🟢 Disponibile</span><span>🚫 Chiuso/Bloccato</span>
+    </div>
+  `;
+  document.getElementById('book-step-2').style.display = 'none';
+  document.getElementById('book-step-3').style.display = 'none';
+  document.getElementById('book-step-1').style.display = 'block';
+}
+
+function calPrev() {
+  BK.month--; if(BK.month<0){BK.month=11;BK.year--;}
+  BK.day=null; renderCalendar();
+}
+function calNext() {
+  BK.month++; if(BK.month>11){BK.month=0;BK.year++;}
+  BK.day=null; renderCalendar();
+}
+
+async function bookDay(iso) {
+  BK.day  = iso;
+  BK.slot = null;
+  // Carica slot già prenotati per questo giorno
+  const { data } = await db.from('bookings').select('time_slot').eq('date', iso);
+  BK.bookedSlots = (data||[]).map(r => r.time_slot);
+  renderSlots();
+}
+
+function renderSlots() {
+  const d = new Date(BK.day);
+  const days = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+  const months = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+  const label = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+  const slotBtn = (s) => {
+    const booked = BK.bookedSlots.includes(s);
+    const sel    = BK.slot === s;
+    return `<button class="slot-btn${booked?' booked':sel?' selected':''}" ${booked?'disabled':''} onclick="${booked?'':'selectSlot(''+s+'')'}">${s}</button>`;
+  };
+
+  document.getElementById('book-step-1').innerHTML = `
+    <button onclick="renderCalendar()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;gap:6px;">← Cambia data</button>
+    <div class="book-summary"><strong>📅 ${label}</strong></div>
+    <div class="slots-title">Mattina</div>
+    <div class="slots-grid">${SLOTS_AM.map(slotBtn).join('')}</div>
+    <div class="slots-title">Pomeriggio</div>
+    <div class="slots-grid">${SLOTS_PM.map(slotBtn).join('')}</div>
+  `;
+}
+
+function selectSlot(slot) {
+  BK.slot = slot;
+  // Aggiorna visualizzazione
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  // Mostra form dopo breve pausa
+  setTimeout(() => renderBookForm(), 300);
+}
+
+function renderBookForm() {
+  const d = new Date(BK.day);
+  const days = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+  const months = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+  const dateLabel = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} alle ${BK.slot}`;
+
+  document.getElementById('book-step-2').innerHTML = `
+    <button onclick="bookDay('${BK.day}')" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-bottom:14px;display:flex;align-items:center;gap:6px;">← Cambia orario</button>
+    <div class="book-summary">
+      <strong>📅 ${dateLabel}</strong><br>
+      <span style="font-size:12px;color:var(--muted)">Donolauto S.r.l. · Via Romea 121, Legnaro (PD)</span>
+    </div>
+    <div class="book-form">
+      <div class="book-row">
+        <div class="book-field"><label>Nome e Cognome *</label><input id="bk-name" type="text" placeholder="Mario Rossi" required/></div>
+        <div class="book-field"><label>Telefono *</label><input id="bk-phone" type="tel" placeholder="+39 333 1234567" required/></div>
+      </div>
+      <div class="book-field"><label>Auto di interesse (opzionale)</label><input id="bk-car" type="text" value="${esc(BK.carName||'')}" placeholder="es. BMW Serie 3 320d"/></div>
+      <div class="book-field"><label>Note (opzionale)</label><textarea id="bk-notes" placeholder="Hai domande specifiche? Scrivi qui..."></textarea></div>
+      <button class="btn-book" onclick="submitBooking()" id="btn-submit-book">📅 Conferma prenotazione</button>
+    </div>
+  `;
+  document.getElementById('book-step-1').style.display = 'none';
+  document.getElementById('book-step-2').style.display = 'block';
+}
+
+async function submitBooking() {
+  const name  = document.getElementById('bk-name').value.trim();
+  const phone = document.getElementById('bk-phone').value.trim();
+  const car   = document.getElementById('bk-car').value.trim();
+  const notes = document.getElementById('bk-notes').value.trim();
+
+  if (!name)  { document.getElementById('bk-name').focus();  return; }
+  if (!phone) { document.getElementById('bk-phone').focus(); return; }
+
+  const btn = document.getElementById('btn-submit-book');
+  btn.disabled = true; btn.textContent = '⏳ Invio...';
+
+  const { error } = await db.from('bookings').insert([{
+    name, phone, date: BK.day, time_slot: BK.slot,
+    car_interest: car, notes
+  }]);
+
+  if (error) {
+    btn.disabled = false; btn.textContent = '📅 Conferma prenotazione';
+    alert('Errore: ' + error.message); return;
+  }
+
+  // Apri WhatsApp con la notifica per te
+  const d = new Date(BK.day);
+  const months = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+  const dateLabel = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  const waMsg = '🔔 NUOVA PRENOTAZIONE\n\n' +
+    '👤 ' + name + '\n' +
+    '📞 ' + phone + '\n' +
+    '📅 ' + dateLabel + ' alle ' + BK.slot + '\n' +
+    (car   ? '🚗 Auto: ' + car + '\n' : '') +
+    (notes ? '📝 Note: ' + notes : '');
+
+  window.open('https://wa.me/393518707610?text=' + encodeURIComponent(waMsg), '_blank');
+
+  // Mostra schermata di successo
+  document.getElementById('book-step-2').style.display = 'none';
+  document.getElementById('book-step-3').style.display = 'block';
+  document.getElementById('book-step-3').innerHTML = `
+    <div class="book-success">
+      <div class="icon">✅</div>
+      <h3>Prenotazione confermata!</h3>
+      <p>Ti aspettiamo ${dateLabel} alle <strong style="color:var(--accent)">${BK.slot}</strong><br>
+      presso Donolauto S.r.l.<br>Via Romea 121, 35020 Legnaro (PD)</p>
+      <p style="margin-top:12px;font-size:12px;">Riceverai una conferma via WhatsApp.<br>Per modifiche chiama: <a href="tel:+393518707610" style="color:var(--accent)">+39 351 8707610</a></p>
+      <button onclick="closeBooking()" style="margin-top:18px;padding:10px 28px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--muted2);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">Chiudi</button>
+    </div>
+  `;
+}
+
 // ── KEYBOARD ──
 document.addEventListener('keydown',e=>{
   const lbOn=!document.getElementById('lb').classList.contains('hidden');
-  if(e.key==='Escape'){if(lbOn){lbClose();return;}mClose();lCloseBtn();return;}
+  const bkOn=!document.getElementById('book-ov').classList.contains('hidden');
+  if(e.key==='Escape'){
+    if(bkOn){closeBooking();return;}if(lbOn){lbClose();return;}mClose();lCloseBtn();return;}
   if(lbOn){if(e.key==='ArrowLeft')lbPrev();if(e.key==='ArrowRight')lbNext();return;}
   if(!window._LBIMGS?.length)return;
   if(e.key==='ArrowLeft')gPrev();if(e.key==='ArrowRight')gNext();
